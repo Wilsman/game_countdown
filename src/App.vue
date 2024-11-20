@@ -57,8 +57,7 @@ function handleClickOutside(event: MouseEvent) {
   ]" @click="handleClickOutside">
     <button
       @click.stop="store.toggleMode"
-      class="menu-button fixed top-6 right-6 z-50 p-3 rounded-full bg-secondary shadow-lg border border-border hover:shadow-xl"
-      :class="{ 'bg-opacity-95': store.isEditMode }"
+      class="menu-button fixed top-4 right-4 z-50 p-2 rounded-lg bg-secondary/90 hover:bg-secondary shadow-md hover:shadow-lg border border-border/50"
     >
       <HamburgerIcon :is-open="store.isEditMode" />
     </button>
@@ -83,8 +82,13 @@ function handleClickOutside(event: MouseEvent) {
         </div>
       </div>
 
-      <div class="fixed bottom-4 w-full text-center text-sm opacity-60 pointer-events-none">
-        Built by Wilsman77
+      <div 
+        class="footer-bar fixed bottom-0 left-0 w-full h-8 bg-secondary/30 backdrop-blur-sm border-t border-border/30 transition-opacity duration-300"
+        :class="{ 'opacity-0': store.isEditMode }"
+      >
+        <div class="absolute bottom-2 right-4 text-sm opacity-60">
+          Built by Wilsman77
+        </div>
       </div>
     </main>
   </div>

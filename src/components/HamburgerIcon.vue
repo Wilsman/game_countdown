@@ -14,23 +14,23 @@ defineProps<{
 
 <style scoped>
 .hamburger-icon {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
   position: relative;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  padding: 4px;
+  padding: 2px;
 }
 
 .hamburger-icon span {
   width: 100%;
-  height: 2px;
+  height: 1.5px;
   background-color: var(--text-primary);
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   transform-origin: 1px center;
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
 .hamburger-icon.open span:first-child {
