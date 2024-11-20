@@ -42,18 +42,19 @@ watch(
     'min-h-screen transition-colors duration-300',
     store.settings.theme === 'dark' ? 'dark' : ''
   ]">
-    <main class="h-screen flex">
-      <div class="flex-1 flex items-center justify-center p-4">
+    <main class="h-screen flex flex-col md:flex-row relative overflow-hidden">
+      <div class="flex-1 flex items-center justify-center p-4 md:mr-[384px]">
         <TimerDisplay />
       </div>
       
-      <div v-if="store.isEditMode" class="w-96 h-screen overflow-y-auto bg-secondary border-l border-border">
+      <div v-if="store.isEditMode" 
+           class="w-full md:w-[384px] h-[60vh] md:h-screen overflow-y-auto bg-secondary border-t md:border-l border-border md:fixed md:right-0 md:top-0">
         <SettingsPanel />
       </div>
       
       <button
         @click="store.toggleMode"
-        class="fixed bottom-6 right-6 mode-toggle"
+        class="fixed bottom-4 right-4 md:bottom-6 md:right-[400px] mode-toggle"
       >
         {{ store.isEditMode ? 'Preview Mode' : 'Edit Mode' }}
       </button>
@@ -87,7 +88,7 @@ body {
 }
 
 .mode-toggle {
-  padding: 0.875rem 2rem;
+  padding: 0.75rem 1.5rem;
   background-color: var(--primary-color);
   color: white;
   border: none;
@@ -95,9 +96,16 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 1.125rem;
+  font-size: 1rem;
   z-index: 50;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .mode-toggle {
+    padding: 0.875rem 2rem;
+    font-size: 1.125rem;
+  }
 }
 
 .mode-toggle:hover {

@@ -66,14 +66,14 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
   width: 100%;
   max-width: 800px;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .game-title {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: bold;
   text-align: center;
   color: var(--text-primary);
@@ -84,11 +84,12 @@ onUnmounted(() => {
 
 .timer-display {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  padding: 2rem;
-  border-radius: 1.5rem;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 1rem;
   transition: all 0.3s ease;
   box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1), 0 4px 8px -4px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(8px);
@@ -96,56 +97,65 @@ onUnmounted(() => {
 
 .time-section {
   text-align: center;
-  padding: 1rem;
-  border-radius: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
   backdrop-filter: brightness(1.1);
-  min-width: 120px;
-  transition: transform 0.2s ease;
-}
-
-.time-section:hover {
-  transform: translateY(-2px);
-}
-
-.time-value {
-  font-weight: bold;
-  line-height: 1;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.time-label {
-  font-size: 0.4em;
-  opacity: 0.8;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-top: 0.5rem;
+  min-width: 70px;
 }
 
 .separator {
-  font-size: 0.8em;
+  font-size: 1.5rem;
   font-weight: bold;
-  opacity: 0.6;
-  animation: pulse 1s infinite;
+  opacity: 0.7;
+  padding: 0 0.25rem;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 0.3; }
+.time-value {
+  font-size: 1.75rem;
+  font-weight: bold;
+  line-height: 1.2;
 }
 
-@media (max-width: 768px) {
+.time-label {
+  font-size: 0.875rem;
+  opacity: 0.8;
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .timer-container {
+    gap: 2rem;
+    padding: 2rem;
+  }
+
+  .game-title {
+    font-size: 2.5rem;
+  }
+
   .timer-display {
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 1rem;
+    padding: 2rem;
+    border-radius: 1.5rem;
   }
 
   .time-section {
-    min-width: 90px;
-    padding: 0.75rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    min-width: 100px;
   }
 
   .separator {
-    display: none;
+    font-size: 2rem;
+    padding: 0 0.5rem;
+  }
+
+  .time-value {
+    font-size: 2.5rem;
+  }
+
+  .time-label {
+    font-size: 1rem;
+    margin-top: 0.5rem;
   }
 }
 </style>

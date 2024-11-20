@@ -131,49 +131,52 @@ function copyShareableUrl() {
 
 <style scoped>
 .settings-panel {
+  padding: 1rem;
   height: 100%;
-  padding: 1.5rem;
-  background-color: var(--bg-secondary);
 }
 
 .panel-title {
   font-size: 1.25rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
   color: var(--text-primary);
 }
 
 .setting-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: var(--bg-primary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
 }
 
 .setting-group label {
   display: block;
-  margin-bottom: 0.375rem;
-  font-weight: 500;
-  color: var(--text-primary);
   font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
 }
 
 .settings-input {
   width: 100%;
-  padding: 0.625rem;
+  padding: 0.5rem;
   border: 1px solid var(--border-color);
   border-radius: 0.375rem;
   background-color: var(--bg-input);
   color: var(--text-primary);
-  transition: all 0.2s ease;
   font-size: 0.875rem;
+  transition: border-color 0.2s ease;
 }
 
 .settings-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px var(--primary-color-hover);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
 }
 
 .color-input {
-  height: 36px;
+  height: 40px;
   padding: 0.25rem;
   cursor: pointer;
 }
@@ -181,7 +184,7 @@ function copyShareableUrl() {
 .range-container {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .range-input {
@@ -189,10 +192,8 @@ function copyShareableUrl() {
 }
 
 .range-value {
-  min-width: 50px;
-  text-align: right;
-  color: var(--text-primary);
   font-size: 0.875rem;
+  min-width: 3.5rem;
 }
 
 .checkbox-label {
@@ -205,14 +206,6 @@ function copyShareableUrl() {
 .checkbox-input {
   width: 1rem;
   height: 1rem;
-  border-radius: 0.25rem;
-  border: 2px solid var(--border-color);
-  cursor: pointer;
-}
-
-.checkbox-text {
-  color: var(--text-primary);
-  font-size: 0.875rem;
 }
 
 .share-button {
@@ -225,16 +218,31 @@ function copyShareableUrl() {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-top: 1rem;
-  font-size: 0.875rem;
+  margin-top: 0.5rem;
 }
 
 .share-button:hover {
   background-color: var(--primary-color-hover);
-  transform: translateY(-1px);
 }
 
-.share-button:active {
-  transform: translateY(0);
+@media (min-width: 768px) {
+  .settings-panel {
+    padding: 1.5rem;
+  }
+
+  .panel-title {
+    font-size: 1.5rem;
+    margin: 0 0 1.5rem;
+  }
+
+  .setting-group {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+  }
+
+  .settings-input {
+    padding: 0.625rem;
+    font-size: 1rem;
+  }
 }
 </style>
