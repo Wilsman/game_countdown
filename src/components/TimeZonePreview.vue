@@ -39,98 +39,94 @@ const timeZonePreviews = computed(() => {
 </script>
 
 <template>
-  <div class="timezone-container">
-    <h2 class="timezone-title">Release Time Across the World</h2>
-    <div class="timezone-grid">
-      <div v-for="zone in timeZonePreviews" 
-           :key="zone.city" 
-           class="timezone-preview">
-        <div class="timezone-flag">{{ zone.flag }}</div>
-        <div class="timezone-info">
-          <div class="timezone-city">{{ zone.city }}</div>
-          <div class="timezone-time">{{ zone.time }}</div>
-          <div class="timezone-date">{{ zone.date }}</div>
-        </div>
+  <div class="timezone-grid">
+    <div v-for="zone in timeZonePreviews" 
+         :key="zone.city" 
+         class="timezone-item">
+      <div class="timezone-info">
+        <div class="timezone-name">{{ zone.city }}</div>
+        <div class="timezone-time">{{ zone.time }}</div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.timezone-container {
-  width: 100%;
-  max-width: 800px;
-  margin-top: 2rem;
-}
-
-.timezone-title {
-  text-align: center;
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
-  opacity: 0.9;
-}
-
 .timezone-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  padding: 0 1rem;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0 auto;
 }
 
-.timezone-preview {
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  opacity: 0.8;
-  text-align: center;
-  padding: 0.75rem 1.5rem;
+.timezone-item {
   background-color: var(--bg-secondary);
-  border-radius: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
   border: 1px solid var(--border-color);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s ease;
 }
 
-.timezone-preview:hover {
-  opacity: 1;
+.timezone-item:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.timezone-flag {
-  font-size: 1.5rem;
 }
 
 .timezone-info {
-  flex: 1;
+  text-align: center;
 }
 
-.timezone-city {
-  font-weight: 600;
-  color: var(--text-primary);
+.timezone-name {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-bottom: 0.125rem;
 }
 
 .timezone-time {
-  font-size: 1.1rem;
   font-weight: 500;
-  color: var(--primary-color);
-  margin-top: 0.25rem;
+  font-size: 0.875rem;
 }
 
-.timezone-date {
-  font-size: 0.9rem;
-  opacity: 0.7;
-  margin-top: 0.25rem;
-}
-
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .timezone-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 0.75rem;
   }
 
-  .timezone-preview {
+  .timezone-item {
+    padding: 0.75rem;
+  }
+
+  .timezone-name {
+    font-size: 0.875rem;
+  }
+
+  .timezone-time {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .timezone-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.25rem;
+  }
+
+  .timezone-item {
+    padding: 0.25rem;
+  }
+
+  .timezone-name {
+    font-size: 0.625rem;
+  }
+
+  .timezone-time {
     font-size: 0.75rem;
-    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .timezone-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

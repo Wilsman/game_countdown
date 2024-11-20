@@ -33,10 +33,7 @@ onUnmounted(() => {
 
 <template>
   <div class="timer-container">
-    <h1 class="game-title" :style="{ fontFamily: store.settings.fontFamily }">
-      {{ store.gameTitle }}
-    </h1>
-    <div class="timer-display" :style="containerStyle">
+    <div class="timer-display">
       <div class="time-section" :class="{ 'animate-pulse': store.settings.enableAnimation }">
         <div class="time-value">{{ formattedTime.days }}</div>
         <div class="time-label">Days</div>
@@ -57,7 +54,14 @@ onUnmounted(() => {
         <div class="time-label">Seconds</div>
       </div>
     </div>
-    <TimeZonePreview />
+
+    <h1 class="game-title" :style="{ fontFamily: store.settings.fontFamily }">
+      {{ store.gameTitle }}
+    </h1>
+
+    <div class="timezone-section">
+      <TimeZonePreview />
+    </div>
   </div>
 </template>
 
@@ -80,6 +84,7 @@ onUnmounted(() => {
   margin: 0;
   line-height: 1.2;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  order: 2;
 }
 
 .timer-display {
@@ -95,6 +100,12 @@ onUnmounted(() => {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
+  order: 1;
+}
+
+.timezone-section {
+  width: 100%;
+  order: 3;
 }
 
 .time-section {
@@ -160,6 +171,17 @@ onUnmounted(() => {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     grid-template-columns: repeat(7, auto);
+    order: 1;
+  }
+
+  .game-title {
+    order: 2;
+    font-size: clamp(1.25rem, 4vw, 2rem);
+  }
+
+  .timezone-section {
+    order: 3;
+    font-size: 0.875rem;
   }
 
   .timer-display::-webkit-scrollbar {
