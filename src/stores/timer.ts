@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { differenceInSeconds, addSeconds, format } from 'date-fns'
+import { differenceInSeconds, addSeconds } from 'date-fns'
 
 export const useTimerStore = defineStore('timer', () => {
   const targetDate = ref(addSeconds(new Date(), 3600))

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useTimerStore } from '../stores/timer'
-import { ref } from 'vue'
 
 const store = useTimerStore()
 
@@ -39,7 +38,7 @@ function copyShareableUrl() {
       <input
         type="datetime-local"
         :value="store.targetDate.toISOString().slice(0, 16)"
-        @input="(e) => store.setTargetDate(new Date(e.target.value))"
+        @input="(e) => store.setTargetDate(new Date((e.target as HTMLInputElement).value))"
         class="settings-input"
       />
     </div>
