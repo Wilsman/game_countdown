@@ -66,96 +66,137 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
   width: 100%;
-  max-width: 800px;
-  padding: 1rem;
+  padding: 2rem;
+  text-align: center;
 }
 
 .game-title {
-  font-size: 1.75rem;
-  font-weight: bold;
-  text-align: center;
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  font-weight: 700;
   color: var(--text-primary);
   transition: color 0.3s ease;
   margin: 0;
+  line-height: 1.2;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .timer-display {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(7, auto);
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem;
-  border-radius: 1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1), 0 4px 8px -4px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(8px);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background-color: var(--bg-secondary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
 }
 
 .time-section {
+  position: relative;
   text-align: center;
-  padding: 0.75rem;
-  border-radius: 0.75rem;
-  backdrop-filter: brightness(1.1);
-  min-width: 70px;
+  padding: 1.5rem;
+  background-color: var(--bg-primary);
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: min(120px, 20vw);
 }
 
-.separator {
-  font-size: 1.5rem;
-  font-weight: bold;
-  opacity: 0.7;
-  padding: 0 0.25rem;
+.time-section:hover {
+  transform: translateY(-2px);
 }
 
 .time-value {
-  font-size: 1.75rem;
-  font-weight: bold;
-  line-height: 1.2;
+  font-size: clamp(1.5rem, 4vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
 }
 
 .time-label {
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 2vw, 1rem);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   opacity: 0.8;
-  margin-top: 0.25rem;
+  color: var(--text-primary);
 }
 
-@media (min-width: 640px) {
-  .timer-container {
-    gap: 2rem;
-    padding: 2rem;
-  }
+.separator {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 300;
+  color: var(--text-primary);
+  opacity: 0.5;
+  margin: 0;
+  animation: pulse 1.5s infinite;
+  padding-bottom: 1.5rem;
+}
 
-  .game-title {
-    font-size: 2.5rem;
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.2; }
+}
+
+@media (max-width: 768px) {
+  .timer-container {
+    padding: 1rem;
+    gap: 1.5rem;
   }
 
   .timer-display {
-    gap: 1rem;
-    padding: 2rem;
-    border-radius: 1.5rem;
+    padding: 1rem;
+    gap: 0.25rem;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    grid-template-columns: repeat(7, auto);
+  }
+
+  .timer-display::-webkit-scrollbar {
+    display: none;
   }
 
   .time-section {
-    padding: 1rem;
-    border-radius: 1rem;
-    min-width: 100px;
+    padding: 0.75rem;
+    min-width: 60px;
   }
 
   .separator {
-    font-size: 2rem;
-    padding: 0 0.5rem;
+    padding-bottom: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .timer-display {
+    padding: 0.75rem;
+  }
+
+  .time-section {
+    padding: 0.5rem;
+    min-width: 50px;
   }
 
   .time-value {
-    font-size: 2.5rem;
+    font-size: 1.25rem;
   }
 
   .time-label {
-    font-size: 1rem;
-    margin-top: 0.5rem;
+    font-size: 0.625rem;
+  }
+
+  .separator {
+    font-size: 1.25rem;
+    padding-bottom: 0.75rem;
   }
 }
 </style>

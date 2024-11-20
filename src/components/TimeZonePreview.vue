@@ -44,7 +44,7 @@ const timeZonePreviews = computed(() => {
     <div class="timezone-grid">
       <div v-for="zone in timeZonePreviews" 
            :key="zone.city" 
-           class="timezone-card">
+           class="timezone-preview">
         <div class="timezone-flag">{{ zone.flag }}</div>
         <div class="timezone-info">
           <div class="timezone-city">{{ zone.city }}</div>
@@ -78,20 +78,22 @@ const timeZonePreviews = computed(() => {
   padding: 0 1rem;
 }
 
-.timezone-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
+.timezone-preview {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  opacity: 0.8;
+  text-align: center;
+  padding: 0.75rem 1.5rem;
   background-color: var(--bg-secondary);
-  border-radius: 0.75rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: default;
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.timezone-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.timezone-preview:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .timezone-flag {
@@ -126,16 +128,9 @@ const timeZonePreviews = computed(() => {
     gap: 0.75rem;
   }
 
-  .timezone-card {
-    padding: 0.75rem;
-  }
-
-  .timezone-flag {
-    font-size: 1.25rem;
-  }
-
-  .timezone-time {
-    font-size: 1rem;
+  .timezone-preview {
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
   }
 }
 </style>

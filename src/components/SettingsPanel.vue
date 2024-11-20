@@ -136,47 +136,59 @@ function copyShareableUrl() {
 }
 
 .panel-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
   color: var(--text-primary);
+  text-align: center;
 }
 
 .setting-group {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
   background-color: var(--bg-primary);
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   border: 1px solid var(--border-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.setting-group:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
 }
 
 .setting-group label {
   display: block;
   font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
   color: var(--text-primary);
+  letter-spacing: 0.025em;
 }
 
 .settings-input {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   background-color: var(--bg-input);
   color: var(--text-primary);
-  font-size: 0.875rem;
-  transition: border-color 0.2s ease;
+  font-size: 1rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .settings-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.settings-input:hover {
+  border-color: var(--primary-color);
 }
 
 .color-input {
-  height: 40px;
+  height: 48px;
   padding: 0.25rem;
   cursor: pointer;
 }
@@ -189,60 +201,103 @@ function copyShareableUrl() {
 
 .range-input {
   flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border-color);
+  border-radius: 3px;
+  outline: none;
+}
+
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.range-input::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
 }
 
 .range-value {
   font-size: 0.875rem;
-  min-width: 3.5rem;
+  font-weight: 500;
+  min-width: 4rem;
+  text-align: center;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--bg-secondary);
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-color);
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   cursor: pointer;
+  padding: 0.5rem 0;
 }
 
 .checkbox-input {
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.25rem;
+  border: 2px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .share-button {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.875rem;
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 0.375rem;
-  font-weight: 500;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 1rem;
 }
 
 .share-button:hover {
   background-color: var(--primary-color-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-@media (min-width: 768px) {
+.share-button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
   .settings-panel {
-    padding: 1.5rem;
+    padding: 0.75rem;
   }
 
   .panel-title {
-    font-size: 1.5rem;
-    margin: 0 0 1.5rem;
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
   }
 
   .setting-group {
-    margin-bottom: 1.5rem;
     padding: 1rem;
+    margin-bottom: 1rem;
   }
 
   .settings-input {
-    padding: 0.625rem;
-    font-size: 1rem;
+    padding: 0.625rem 0.875rem;
   }
 }
 </style>

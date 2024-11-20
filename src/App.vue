@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { useTimerStore } from './stores/timer'
-import { onMounted, watch } from 'vue'
+import { onMounted, watch, ref } from 'vue'
 import TimerDisplay from './components/TimerDisplay.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
+import HamburgerIcon from './components/HamburgerIcon.vue'
 
 const store = useTimerStore()
+const window = ref(globalThis.window)
 
 onMounted(() => {
   store.loadFromLocalStorage()
   
-  const params = new URLSearchParams(window.location.search)
+  const params = new URLSearchParams(window.value.location.search)
   const targetDate = params.get('target')
   const theme = params.get('theme')
   const title = params.get('title')
@@ -35,29 +37,55 @@ watch(
   },
   { immediate: true }
 )
+
+// Close drawer when clicking outside on mobile
+function handleClickOutside(event: MouseEvent) {
+  const drawer = document.querySelector('.settings-drawer')
+  const hamburger = document.querySelector('.menu-button')
+  if (drawer && hamburger && 
+      !drawer.contains(event.target as Node) && 
+      !hamburger.contains(event.target as Node)) {
+    store.isEditMode = false
+  }
+}
 </script>
 
 <template>
   <div :class="[
     'min-h-screen transition-colors duration-300',
     store.settings.theme === 'dark' ? 'dark' : ''
-  ]">
-    <main class="h-screen flex flex-col md:flex-row relative overflow-hidden">
-      <div class="flex-1 flex items-center justify-center p-4 md:mr-[384px]">
-        <TimerDisplay />
+  ]" @click="handleClickOutside">
+    <button
+      @click.stop="store.toggleMode"
+      class="menu-button fixed top-6 right-6 z-50 p-3 rounded-full bg-secondary shadow-lg border border-border hover:shadow-xl"
+      :class="{ 'bg-opacity-95': store.isEditMode }"
+    >
+      <HamburgerIcon :is-open="store.isEditMode" />
+    </button>
+
+    <main class="min-h-screen flex relative overflow-hidden">
+      <div class="flex-1 flex flex-col items-center justify-center p-4" 
+           :class="{ 'md:mr-[384px]': store.isEditMode }">
+        <div class="w-full max-w-4xl mx-auto">
+          <TimerDisplay />
+        </div>
       </div>
       
-      <div v-if="store.isEditMode" 
-           class="w-full md:w-[384px] h-[60vh] md:h-screen overflow-y-auto bg-secondary border-t md:border-l border-border md:fixed md:right-0 md:top-0">
-        <SettingsPanel />
-      </div>
-      
-      <button
-        @click="store.toggleMode"
-        class="fixed bottom-4 right-4 md:bottom-6 md:right-[400px] mode-toggle"
+      <div 
+        class="settings-drawer fixed top-0 right-0 w-full md:w-[384px] h-screen bg-secondary border-l border-border transform transition-transform duration-300 ease-in-out overflow-y-auto"
+        :class="{ 
+          'translate-x-0 shadow-2xl': store.isEditMode,
+          'translate-x-full': !store.isEditMode
+        }"
       >
-        {{ store.isEditMode ? 'Preview Mode' : 'Edit Mode' }}
-      </button>
+        <div class="p-6">
+          <SettingsPanel />
+        </div>
+      </div>
+
+      <div class="fixed bottom-4 w-full text-center text-sm opacity-60 pointer-events-none">
+        Built by Wilsman77
+      </div>
     </main>
   </div>
 </template>
@@ -87,33 +115,26 @@ body {
   color: var(--text-primary);
 }
 
-.mode-toggle {
-  padding: 0.75rem 1.5rem;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 1rem;
-  z-index: 50;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+.menu-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
 }
 
-@media (min-width: 768px) {
-  .mode-toggle {
-    padding: 0.875rem 2rem;
-    font-size: 1.125rem;
+.menu-button:hover {
+  transform: scale(1.05);
+}
+
+.menu-button:active {
+  transform: scale(0.95);
+}
+
+.settings-drawer {
+  backdrop-filter: blur(12px);
+}
+
+@media (max-width: 768px) {
+  .settings-drawer {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   }
-}
-
-.mode-toggle:hover {
-  background-color: var(--primary-color-hover);
-  transform: translateY(-1px);
-}
-
-.mode-toggle:active {
-  transform: translateY(0);
 }
 </style>
