@@ -14,6 +14,7 @@ export const useTimerStore = defineStore('timer', () => {
     fontSize: 48,
     enableAnimation: true,
     enableSound: false,
+    enableSoundToggle: true,
     theme: 'dark'
   })
 
