@@ -110,6 +110,17 @@ function copyShareableUrl() {
     </div>
 
     <div class="setting-group">
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          v-model="store.settings.enableSoundToggle"
+          class="checkbox-input"
+        />
+        <span class="checkbox-text">Enable Sound Toggle</span>
+      </label>
+    </div>
+
+    <div class="setting-group">
       <label>Theme</label>
       <select
         v-model="store.settings.theme"

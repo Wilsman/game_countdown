@@ -15,12 +15,6 @@ const formattedTime = computed(() => {
   }
 })
 
-const containerStyle = computed(() => ({
-  backgroundColor: store.settings.backgroundColor,
-  color: store.settings.textColor,
-  fontSize: `${store.settings.fontSize}px`,
-  fontFamily: store.settings.fontFamily,
-}))
 
 onMounted(() => {
   store.startTimer()
