@@ -66,6 +66,7 @@ function handleClickOutside(event: MouseEvent) {
       <div class="flex-1 flex flex-col items-center justify-center p-4" 
            :class="{ 'md:mr-[384px]': store.isEditMode }">
         <div class="w-full max-w-4xl mx-auto">
+          <h1 class="text-4xl font-bold text-center mb-8">{{ store.gameTitle }}</h1>
           <TimerDisplay />
         </div>
       </div>
@@ -139,6 +140,12 @@ body {
 @media (max-width: 768px) {
   .settings-drawer {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-height: 600px) {
+  .footer-bar {
+    display: none;
   }
 }
 </style>
