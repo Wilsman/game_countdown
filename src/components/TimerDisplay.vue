@@ -49,10 +49,6 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <h1 class="game-title" :style="{ fontFamily: store.settings.fontFamily }">
-      {{ store.gameTitle }}
-    </h1>
-
     <div class="timezone-section">
       <TimeZonePreview />
     </div>
@@ -68,17 +64,6 @@ onUnmounted(() => {
   width: 100%;
   padding: 2rem;
   text-align: center;
-}
-
-.game-title {
-  font-size: clamp(1.5rem, 5vw, 3rem);
-  font-weight: 700;
-  color: var(--text-primary);
-  transition: color 0.3s ease;
-  margin: 0;
-  line-height: 1.2;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  order: 2;
 }
 
 .timer-display {
@@ -99,7 +84,7 @@ onUnmounted(() => {
 
 .timezone-section {
   width: 100%;
-  order: 3;
+  order: 2;
 }
 
 .time-section {
@@ -168,13 +153,8 @@ onUnmounted(() => {
     order: 1;
   }
 
-  .game-title {
-    order: 2;
-    font-size: clamp(1.25rem, 4vw, 2rem);
-  }
-
   .timezone-section {
-    order: 3;
+    order: 2;
     font-size: 0.875rem;
   }
 
