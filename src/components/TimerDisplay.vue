@@ -89,9 +89,9 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
   width: 100%;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
 }
 
@@ -99,42 +99,54 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(7, auto);
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2.5rem;
-  border-radius: 2rem;
-  background-color: var(--bg-secondary);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
-  order: 1;
-  position: relative;
-  overflow: hidden;
+  gap: 0.5rem;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
+  padding: 1rem;
+  border-radius: 1rem;
+  transition: transform 0.2s;
 }
 
-.timer-display::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
-  pointer-events: none;
+@media (max-width: 640px) {
+  .timer-display {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  .separator {
+    display: none;
+  }
+
+  .time-section {
+    padding: 0.375rem;
+    min-width: unset;
+    width: 100%;
+    max-width: 80px;
+    margin: 0 auto;
+  }
+
+  .time-value {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .time-label {
+    font-size: 0.625rem;
+    margin-top: 0.125rem;
+    letter-spacing: 0;
+  }
 }
 
 .time-section {
   position: relative;
   text-align: center;
-  padding: 1.5rem;
+  padding: 0.75rem;
   background-color: var(--bg-primary);
-  border-radius: 1.25rem;
+  border-radius: 0.75rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--border-color);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: min(100px, 18vw);
+  min-width: min(80px, 15vw);
 }
 
 .time-section:hover {
@@ -143,55 +155,27 @@ onUnmounted(() => {
 }
 
 .time-value {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 700;
   line-height: 1.2;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .time-label {
-  font-size: clamp(0.875rem, 2vw, 1rem);
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem);
   font-weight: 500;
   opacity: 0.8;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .separator {
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 300;
-  opacity: 0.5;
-  margin: 0 0.5rem;
-}
-
-@media (max-width: 640px) {
-  .timer-display {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.75rem;
-    padding: 1.5rem;
-  }
-
-  .separator {
-    display: none;
-  }
-
-  .time-section {
-    padding: 1rem;
-  }
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  margin: 0 0.25rem;
 }
 
 .timezone-section {
@@ -239,9 +223,15 @@ onUnmounted(() => {
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: 1px solid var(--border-color);
-  max-width: 90%;
-  width: 400px;
+  width: 90%;
+  max-width: 400px;
+}
+
+@media (max-width: 640px) {
+  .modal-content {
+    padding: 1rem;
+    width: 95%;
+  }
 }
 
 .modal-content h3 {
@@ -275,5 +265,15 @@ onUnmounted(() => {
 
 .close-button:hover {
   background-color: var(--primary-color-hover);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 </style>

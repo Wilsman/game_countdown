@@ -62,11 +62,11 @@ const stopEditTitle = () => {
         <div class="w-full max-w-5xl mx-auto">
           <!-- Editable Title -->
           <h1 v-if="!isEditingTitle" @click="editTitle"
-            class="text-5xl md:text-6xl font-bold text-center mb-12 bg-gradient-to-r from-primary to-primary-hover bg-clip-text cursor-pointer">
+            class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-6 sm:mb-8 md:mb-12 bg-gradient-to-r from-primary to-primary-hover bg-clip-text cursor-pointer">
             {{ store.gameTitle }}
           </h1>
           <input v-else type="text" v-model="store.gameTitle" @blur="stopEditTitle" @keyup.enter="stopEditTitle"
-            class="text-5xl md:text-6xl font-bold text-center mb-12 bg-gradient-to-r from-primary to-primary-hover bg-clip-text cursor-pointer border-none outline-none"
+            class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-6 sm:mb-8 md:mb-12 bg-gradient-to-r from-primary to-primary-hover bg-clip-text cursor-pointer border-none outline-none w-full"
             ref="titleInput" />
           <TimerDisplay />
         </div>
