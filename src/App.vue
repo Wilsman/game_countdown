@@ -1,26 +1,25 @@
 <script setup lang="ts">
 import { useTimerStore } from './stores/timer'
-import { onMounted, watch, ref } from 'vue'
+import { onMounted, watch, ref, nextTick } from 'vue'
 import TimerDisplay from './components/TimerDisplay.vue'
-import SettingsPanel from './components/SettingsPanel.vue'
-import HamburgerIcon from './components/HamburgerIcon.vue'
 
 const store = useTimerStore()
 const window = ref(globalThis.window)
+const isEditingTitle = ref(false)
+const titleInput = ref<HTMLInputElement | null>(null)
 
 onMounted(() => {
   store.loadFromLocalStorage()
-  
+
   const params = new URLSearchParams(window.value.location.search)
   const targetDate = params.get('target')
   const theme = params.get('theme')
   const title = params.get('title')
-  
+
   if (targetDate) {
     store.setTargetDate(new Date(targetDate))
-    store.isEditMode = false
   }
-  
+
   if (theme) {
     store.updateSettings({ theme })
   }
@@ -38,57 +37,50 @@ watch(
   { immediate: true }
 )
 
-// Close drawer when clicking outside on mobile
-function handleClickOutside(event: MouseEvent) {
-  const drawer = document.querySelector('.settings-drawer')
-  const hamburger = document.querySelector('.menu-button')
-  if (drawer && hamburger && 
-      !drawer.contains(event.target as Node) && 
-      !hamburger.contains(event.target as Node)) {
-    store.isEditMode = false
-  }
+// Function to enable title editing
+const editTitle = () => {
+  isEditingTitle.value = true
+  nextTick(() => {
+    titleInput.value?.focus()
+    titleInput.value?.select()
+  })
+}
+
+// Function to stop title editing
+const stopEditTitle = () => {
+  isEditingTitle.value = false
 }
 </script>
 
 <template>
   <div :class="[
-    'min-h-screen transition-colors duration-300',
+    'min-h-screen transition-all duration-500',
     store.settings.theme === 'dark' ? 'dark' : ''
-  ]" @click="handleClickOutside">
-    <button
-      @click.stop="store.toggleMode"
-      class="menu-button fixed top-4 right-4 z-50 p-2 rounded-lg bg-secondary/90 hover:bg-secondary shadow-md hover:shadow-lg border border-border/50"
-    >
-      <HamburgerIcon :is-open="store.isEditMode" />
-    </button>
-
+  ]">
     <main class="min-h-screen flex relative overflow-hidden">
-      <div class="flex-1 flex flex-col items-center justify-center p-4" 
-           :class="{ 'md:mr-[384px]': store.isEditMode }">
-        <div class="w-full max-w-4xl mx-auto">
-          <h1 class="text-4xl font-bold text-center mb-8">{{ store.gameTitle }}</h1>
+      <div class="flex-1 flex flex-col items-center justify-center p-8">
+        <div class="w-full max-w-5xl mx-auto">
+          <!-- Editable Title -->
+          <h1 v-if="!isEditingTitle" @click="editTitle"
+            class="text-5xl md:text-6xl font-bold text-center mb-12 bg-gradient-to-r from-primary to-primary-hover bg-clip-text cursor-pointer">
+            {{ store.gameTitle }}
+          </h1>
+          <input v-else type="text" v-model="store.gameTitle" @blur="stopEditTitle" @keyup.enter="stopEditTitle"
+            class="text-5xl md:text-6xl font-bold text-center mb-12 bg-gradient-to-r from-primary to-primary-hover bg-clip-text cursor-pointer border-none outline-none"
+            ref="titleInput" />
           <TimerDisplay />
         </div>
       </div>
-      
-      <div 
-        class="settings-drawer fixed top-0 right-0 w-full md:w-[384px] h-screen bg-secondary border-l border-border transform transition-transform duration-300 ease-in-out overflow-y-auto"
-        :class="{ 
-          'translate-x-0 shadow-2xl': store.isEditMode,
-          'translate-x-full': !store.isEditMode
-        }"
-      >
-        <div class="p-6">
-          <SettingsPanel />
-        </div>
-      </div>
 
-      <div 
-        class="footer-bar fixed bottom-0 left-0 w-full h-8 bg-secondary/30 backdrop-blur-sm border-t border-border/30 transition-opacity duration-300"
-        :class="{ 'opacity-0': store.isEditMode }"
-      >
-        <div class="absolute bottom-2 right-4 text-sm opacity-60">
-          Built by Wilsman77
+      <div
+        class="footer-bar fixed bottom-0 left-0 w-full h-12 bg-secondary/30 backdrop-blur-sm border-t border-border/30 transition-all duration-500">
+        <div class="container mx-auto px-6 h-full flex items-center justify-between">
+          <div class="text-sm opacity-60">
+            Game Countdown Timer
+          </div>
+          <div class="text-sm opacity-60">
+            Built by Wilsman77
+          </div>
         </div>
       </div>
     </main>
@@ -107,45 +99,50 @@ function handleClickOutside(event: MouseEvent) {
 }
 
 .dark {
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #27272a;
-  --bg-input: #3f3f46;
-  --text-primary: #ffffff;
-  --border-color: #52525b;
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-input: #374151;
+  --text-primary: #f9fafb;
+  --border-color: #374151;
 }
 
 body {
   margin: 0;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-}
-
-.menu-button {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(8px);
-}
-
-.menu-button:hover {
-  transform: scale(1.05);
-}
-
-.menu-button:active {
-  transform: scale(0.95);
-}
-
-.settings-drawer {
-  backdrop-filter: blur(12px);
-}
-
-@media (max-width: 768px) {
-  .settings-drawer {
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  }
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 @media (max-height: 600px) {
   .footer-bar {
     display: none;
   }
+}
+
+/* Add smooth scrolling to the entire page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
 }
 </style>

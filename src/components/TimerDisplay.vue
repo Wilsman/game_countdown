@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useTimerStore } from '../stores/timer'
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import TimeZonePreview from './TimeZonePreview.vue'
 
 const store = useTimerStore()
+const showDatePicker = ref(false)
 
 const formattedTime = computed(() => {
   const { days, hours, minutes, seconds } = store.timeRemaining
@@ -15,6 +16,17 @@ const formattedTime = computed(() => {
   }
 })
 
+function openDatePicker() {
+  showDatePicker.value = true
+}
+
+function closeDatePicker() {
+  showDatePicker.value = false
+}
+
+function copyShareableUrl() {
+  navigator.clipboard.writeText(store.getShareableUrl())
+}
 
 onMounted(() => {
   store.startTimer()
@@ -27,7 +39,7 @@ onUnmounted(() => {
 
 <template>
   <div class="timer-container">
-    <div class="timer-display">
+    <div class="timer-display" @click="openDatePicker">
       <div class="time-section" :class="{ 'animate-pulse': store.settings.enableAnimation }">
         <div class="time-value">{{ formattedTime.days }}</div>
         <div class="time-label">Days</div>
@@ -51,6 +63,23 @@ onUnmounted(() => {
 
     <div class="timezone-section">
       <TimeZonePreview />
+      <button @click.stop="copyShareableUrl" class="share-button">
+        <span>Copy Shareable URL</span>
+      </button>
+    </div>
+
+    <!-- Date Picker Modal -->
+    <div v-if="showDatePicker" class="modal-overlay" @click="closeDatePicker">
+      <div class="modal-content" @click.stop>
+        <h3>Set Target Date/Time</h3>
+        <input 
+          type="datetime-local" 
+          :value="store.targetDate.toISOString().slice(0, 16)"
+          @input="(e) => store.setTargetDate(new Date((e.target as HTMLInputElement).value))"
+          class="settings-input"
+        />
+        <button @click="closeDatePicker" class="close-button">Close</button>
+      </div>
     </div>
   </div>
 </template>
@@ -71,20 +100,29 @@ onUnmounted(() => {
   grid-template-columns: repeat(7, auto);
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 2rem;
-  border-radius: 1.5rem;
+  gap: 1rem;
+  padding: 2.5rem;
+  border-radius: 2rem;
   background-color: var(--bg-secondary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   order: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-.timezone-section {
-  width: 100%;
-  order: 2;
+.timer-display::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .time-section {
@@ -92,107 +130,150 @@ onUnmounted(() => {
   text-align: center;
   padding: 1.5rem;
   background-color: var(--bg-primary);
-  border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--border-color);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: min(120px, 20vw);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: min(100px, 18vw);
 }
 
 .time-section:hover {
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 .time-value {
-  font-size: clamp(1.5rem, 4vw, 3.5rem);
+  font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 700;
-  line-height: 1;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  line-height: 1.2;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .time-label {
-  font-size: clamp(0.75rem, 2vw, 1rem);
+  font-size: clamp(0.875rem, 2vw, 1rem);
   font-weight: 500;
+  opacity: 0.8;
+  margin-top: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  opacity: 0.8;
-  color: var(--text-primary);
 }
 
 .separator {
-  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 300;
-  color: var(--text-primary);
   opacity: 0.5;
-  margin: 0;
-  animation: pulse 1.5s infinite;
-  padding-bottom: 1.5rem;
+  margin: 0 0.5rem;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.2; }
-}
-
-@media (max-width: 768px) {
-  .timer-container {
-    padding: 1rem;
-    gap: 1.5rem;
-  }
-
+@media (max-width: 640px) {
   .timer-display {
-    padding: 1rem;
-    gap: 0.25rem;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    grid-template-columns: repeat(7, auto);
-    order: 1;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    padding: 1.5rem;
   }
 
-  .timezone-section {
-    order: 2;
-    font-size: 0.875rem;
-  }
-
-  .timer-display::-webkit-scrollbar {
+  .separator {
     display: none;
   }
 
   .time-section {
-    padding: 0.75rem;
-    min-width: 60px;
-  }
-
-  .separator {
-    padding-bottom: 1rem;
+    padding: 1rem;
   }
 }
 
-@media (max-width: 360px) {
-  .timer-display {
-    padding: 0.75rem;
-  }
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
 
-  .time-section {
-    padding: 0.5rem;
-    min-width: 50px;
-  }
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
 
-  .time-value {
-    font-size: 1.25rem;
-  }
+.timezone-section {
+  width: 100%;
+  order: 2;
+}
 
-  .time-label {
-    font-size: 0.625rem;
-  }
+.share-button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 
-  .separator {
-    font-size: 1.25rem;
-    padding-bottom: 0.75rem;
-  }
+.share-button:hover {
+  background-color: var(--primary-color-hover);
+  transform: translateY(-2px);
+}
+
+.share-button:active {
+  transform: translateY(0);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background-color: var(--bg-primary);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--border-color);
+  max-width: 90%;
+  width: 400px;
+}
+
+.modal-content h3 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.settings-input {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.close-button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.close-button:hover {
+  background-color: var(--primary-color-hover);
 }
 </style>
