@@ -1,10 +1,274 @@
 <script setup lang="ts">
 import { useTimerStore } from '../stores/timer'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+// Timezone handling using browser's Intl API
 import TimeZonePreview from './TimeZonePreview.vue'
 
 const store = useTimerStore()
 const showDatePicker = ref(false)
+const localDateTime = ref('')
+const currentTz = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+// Initialize with a default timezone object
+const selectedTimezone = ref({
+  id: currentTz,
+  name: ''
+})
+
+// List of timezones with their display names and IANA identifiers
+const timezones = [
+  // UTC-12:00
+  { name: 'Baker Island Time (BIT)', id: 'Etc/GMT+12' },
+  
+  // UTC-11:00
+  { name: 'Niue Time (NUT)', id: 'Pacific/Niue' },
+  { name: 'Samoa Standard Time (SST)', id: 'Pacific/Pago_Pago' },
+  
+  // UTC-10:00
+  { name: 'Hawaii-Aleutian Standard Time (HAST)', id: 'Pacific/Honolulu' },
+  { name: 'Cook Islands Time (CKT)', id: 'Pacific/Rarotonga' },
+  { name: 'Tahiti Time (TAHT)', id: 'Pacific/Tahiti' },
+  
+  // UTC-09:30
+  { name: 'Marquesas Time (MART)', id: 'Pacific/Marquesas' },
+  
+  // UTC-09:00
+  { name: 'Alaska Standard Time (AKST)', id: 'America/Anchorage' },
+  { name: 'Gambier Islands Time (GAMT)', id: 'Pacific/Gambier' },
+  
+  // UTC-08:00
+  { name: 'Pacific Standard Time (PST)', id: 'America/Los_Angeles' },
+  { name: 'Clipperton Island Time (CIT)', id: 'Pacific/Pitcairn' },
+  
+  // UTC-07:00
+  { name: 'Mountain Standard Time (MST)', id: 'America/Denver' },
+  
+  // UTC-06:00
+  { name: 'Central Standard Time (CST)', id: 'America/Chicago' },
+  { name: 'Galápagos Time (GALT)', id: 'Pacific/Galapagos' },
+  
+  // UTC-05:00
+  { name: 'Eastern Standard Time (EST)', id: 'America/New_York' },
+  { name: 'Cuba Standard Time (CST)', id: 'America/Havana' },
+  { name: 'Colombia Time (COT)', id: 'America/Bogota' },
+  { name: 'Peru Time (PET)', id: 'America/Lima' },
+  { name: 'Ecuador Time (ECT)', id: 'America/Guayaquil' },
+  
+  // UTC-04:30
+  { name: 'Venezuela Standard Time (VET)', id: 'America/Caracas' },
+  
+  // UTC-04:00
+  { name: 'Atlantic Standard Time (AST)', id: 'America/Halifax' },
+  { name: 'Bolivia Time (BOT)', id: 'America/La_Paz' },
+  { name: 'Chile Standard Time (CLT)', id: 'America/Santiago' },
+  
+  // UTC-03:30
+  { name: 'Newfoundland Standard Time (NST)', id: 'America/St_Johns' },
+  
+  // UTC-03:00
+  { name: 'Argentina Time (ART)', id: 'America/Argentina/Buenos_Aires' },
+  { name: 'Brasília Time (BRT)', id: 'America/Sao_Paulo' },
+  { name: 'Uruguay Time (UYT)', id: 'America/Montevideo' },
+  
+  // UTC-02:00
+  { name: 'South Georgia Time (GST)', id: 'Atlantic/South_Georgia' },
+  
+  // UTC-01:00
+  { name: 'Azores Standard Time (AZOT)', id: 'Atlantic/Azores' },
+  { name: 'Cape Verde Time (CVT)', id: 'Atlantic/Cape_Verde' },
+  
+  // UTC±00:00
+  { name: 'Greenwich Mean Time (GMT)', id: 'GMT' },
+  { name: 'Coordinated Universal Time (UTC)', id: 'UTC' },
+  { name: 'Western European Time (WET)', id: 'Europe/Lisbon' },
+  
+  // UTC+01:00
+  { name: 'British Summer Time (BST)', id: 'Europe/London' },
+  { name: 'Central European Time (CET)', id: 'Europe/Paris' },
+  { name: 'West Africa Time (WAT)', id: 'Africa/Lagos' },
+  { name: 'Western European Summer Time (WEST)', id: 'Atlantic/Canary' },
+  { name: 'South Africa Standard Time (SAST)', id: 'Africa/Johannesburg' },
+  { name: 'Israel Standard Time (IST)', id: 'Asia/Jerusalem' },
+  
+  // UTC+03:00
+  { name: 'Moscow Standard Time (MSK)', id: 'Europe/Moscow' },
+  { name: 'Arabia Standard Time (AST)', id: 'Asia/Riyadh' },
+  
+  // UTC+03:30
+  { name: 'Iran Standard Time (IRST)', id: 'Asia/Tehran' },
+  
+  // UTC+04:00
+  { name: 'United Arab Emirates Standard Time (GST)', id: 'Asia/Dubai' },
+  
+  // UTC+04:30
+  { name: 'Afghanistan Time (AFT)', id: 'Asia/Kabul' },
+  
+  // UTC+05:00
+  { name: 'Pakistan Standard Time (PKT)', id: 'Asia/Karachi' },
+  
+  // UTC+05:30
+  { name: 'India Standard Time (IST)', id: 'Asia/Kolkata' },
+  
+  // UTC+05:45
+  { name: 'Nepal Time (NPT)', id: 'Asia/Kathmandu' },
+  
+  // UTC+06:00
+  { name: 'Bangladesh Standard Time (BST)', id: 'Asia/Dhaka' },
+  
+  // UTC+06:30
+  { name: 'Myanmar Time (MMT)', id: 'Asia/Yangon' },
+  
+  // UTC+07:00
+  { name: 'Indochina Time (ICT)', id: 'Asia/Bangkok' },
+  
+  // UTC+08:00
+  { name: 'China Standard Time (CST)', id: 'Asia/Shanghai' },
+  { name: 'Singapore Standard Time (SGT)', id: 'Asia/Singapore' },
+  
+  // UTC+09:00
+  { name: 'Japan Standard Time (JST)', id: 'Asia/Tokyo' },
+  { name: 'Korea Standard Time (KST)', id: 'Asia/Seoul' },
+  
+  // UTC+09:30
+  { name: 'Australian Central Standard Time (ACST)', id: 'Australia/Adelaide' },
+  
+  // UTC+10:00
+  { name: 'Australian Eastern Standard Time (AEST)', id: 'Australia/Sydney' },
+  
+  // UTC+10:30
+  { name: 'Lord Howe Standard Time (LHST)', id: 'Australia/Lord_Howe' },
+  
+  // UTC+11:00
+  { name: 'Solomon Islands Time (SBT)', id: 'Pacific/Guadalcanal' },
+  
+  // UTC+12:00
+  { name: 'New Zealand Standard Time (NZST)', id: 'Pacific/Auckland' },
+  { name: 'Fiji Time (FJT)', id: 'Pacific/Fiji' },
+  
+  // UTC+12:45
+  { name: 'Chatham Islands Time (CHAST)', id: 'Pacific/Chatham' },
+  
+  // UTC+13:00
+  { name: 'Tonga Time (TOT)', id: 'Pacific/Tongatapu' },
+  
+  // UTC+14:00
+  { name: 'Line Islands Time (LINT)', id: 'Pacific/Kiritimati' }
+].sort((a, b) => {
+  // Sort by UTC offset
+  const getOffset = (tz: string) => {
+    try {
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: tz,
+        timeZoneName: 'short',
+        hour: '2-digit',
+        hour12: false
+      });
+      const parts = formatter.formatToParts(new Date());
+      const tzPart = parts.find(part => part.type === 'timeZoneName')?.value || '';
+      const offsetStr = tzPart.replace(/^[^\d+-]+/, '');
+      return parseInt(offsetStr) || 0;
+    } catch {
+      return 0;
+    }
+  };
+  
+  return getOffset(a.id) - getOffset(b.id);
+})
+
+// Initialize the selected timezone name after timezones array is defined
+const currentTzName = timezones.find(tz => tz.id === currentTz)?.name || currentTz
+selectedTimezone.value.name = currentTzName
+
+// Format timezone for display
+const formatTimezone = (tz: string) => {
+  try {
+    const options = {
+      timeZone: tz,
+      timeZoneName: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    } as const;
+    
+    const formatter = new Intl.DateTimeFormat('en-US', options);
+    const parts = formatter.formatToParts(new Date());
+    const tzName = tz.split('/').pop()?.replace('_', ' ') || tz;
+    const tzPart = parts.find(part => part.type === 'timeZoneName');
+    const tzOffset = tzPart ? tzPart.value : '';
+    
+    return `(${tzOffset}) ${tzName}`;
+  } catch {
+    return tz;
+  }
+}
+
+// Convert local date string to UTC Date
+const localToUTCDate = (dateString: string, timezone: string) => {
+  if (!dateString) return new Date()
+  // Format: YYYY-MM-DDTHH:MM
+  const [datePart, timePart] = dateString.split('T')
+  const [year, month, day] = datePart.split('-').map(Number)
+  const [hours, minutes] = timePart.split(':').map(Number)
+  
+  // Create date in the target timezone
+  const localDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0))
+  // Convert to UTC
+  const utcDate = new Date(localDate.getTime() - (localDate.getTimezoneOffset() * 60000))
+  return utcDate
+}
+
+// Format UTC date to local date string for datetime-local input
+const formatLocalDate = (date: Date, timezone: string) => {
+  if (!date) return ''
+  
+  try {
+    const options = {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    } as const;
+    
+    const formatter = new Intl.DateTimeFormat('en-CA', options);
+    const parts = formatter.formatToParts(date);
+    
+    const year = parts.find(p => p.type === 'year')?.value.padStart(4, '0');
+    const month = parts.find(p => p.type === 'month')?.value.padStart(2, '0');
+    const day = parts.find(p => p.type === 'day')?.value.padStart(2, '0');
+    const hour = parts.find(p => p.type === 'hour')?.value.padStart(2, '0');
+    const minute = parts.find(p => p.type === 'minute')?.value.padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hour}:${minute}`;
+  } catch (e) {
+    console.error('Error formatting date:', e);
+    return '';
+  }
+}
+
+// Initialize local date time when modal opens
+const initLocalDateTime = () => {
+  localDateTime.value = formatLocalDate(store.targetDate, selectedTimezone.value.id)
+}
+
+const handleDateChange = () => {
+  if (!localDateTime.value) return
+  const utcDate = localToUTCDate(localDateTime.value, selectedTimezone.value.id)
+  store.setTargetDate(utcDate, selectedTimezone.value.id)
+}
+
+const handleTimezoneChange = () => {
+  if (!localDateTime.value) return
+  const utcDate = localToUTCDate(localDateTime.value, selectedTimezone.value.id)
+  store.setTargetDate(utcDate, selectedTimezone.value.id)
+  // Update the name in case it changed
+  const tz = timezones.find(t => t.id === selectedTimezone.value.id)
+  if (tz) {
+    selectedTimezone.value.name = tz.name
+  }
+}
 
 const formattedTime = computed(() => {
   const { days, hours, minutes, seconds } = store.timeRemaining
@@ -17,6 +281,13 @@ const formattedTime = computed(() => {
 })
 
 function openDatePicker() {
+  const tz = store.targetTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+  const tzName = timezones.find(t => t.id === tz)?.name || tz
+  selectedTimezone.value = { 
+    id: tz, 
+    name: tzName 
+  }
+  initLocalDateTime()
   showDatePicker.value = true
 }
 
@@ -72,13 +343,36 @@ onUnmounted(() => {
     <div v-if="showDatePicker" class="modal-overlay" @click="closeDatePicker">
       <div class="modal-content" @click.stop>
         <h3>Set Target Date/Time</h3>
-        <input 
-          type="datetime-local" 
-          :value="store.targetDate.toISOString().slice(0, 16)"
-          @input="(e) => store.setTargetDate(new Date((e.target as HTMLInputElement).value))"
-          class="settings-input"
-        />
-        <button @click="closeDatePicker" class="close-button">Close</button>
+        <div class="form-group">
+          <label for="datetime-local">Date & Time:</label>
+          <input 
+            id="datetime-local"
+            type="datetime-local" 
+            v-model="localDateTime"
+            @change="handleDateChange"
+            class="settings-input"
+          />
+        </div>
+        <div class="form-group">
+          <label for="timezone">Timezone:</label>
+          <select 
+            id="timezone"
+            v-model="selectedTimezone.id"
+            @change="handleTimezoneChange"
+            class="settings-input"
+          >
+            <option 
+              v-for="tz in timezones" 
+              :key="tz.id" 
+              :value="tz.id"
+            >
+              {{ formatTimezone(tz.id) }} - {{ tz.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button @click="closeDatePicker" class="close-button">Save</button>
+        </div>
       </div>
     </div>
   </div>
@@ -240,11 +534,25 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
+.form-group {
+  margin-bottom: 1rem;
+  text-align: left;
+  width: 100%;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
 .settings-input {
   width: 100%;
   padding: 0.75rem;
   border-radius: 0.5rem;
   border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
   background: var(--bg-input);
   color: var(--text-primary);
   font-size: 0.9rem;

@@ -11,6 +11,7 @@
   "dependencies": {
     "@types/canvas-confetti": "^1.6.4",
     "@vueuse/core": "^10.9.0",
+    "caniuse-lite": "^1.0.30001721",
     "canvas-confetti": "^1.9.3",
     "date-fns": "^3.3.1",
     "pinia": "^2.1.7",

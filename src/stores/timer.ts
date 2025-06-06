@@ -4,9 +4,21 @@ import { differenceInSeconds } from "date-fns";
 import confetti from "canvas-confetti";
 
 export const useTimerStore = defineStore("timer", () => {
-  const targetDate = ref(new Date("2025-05-30T00:00:00"));
+  // Get user's current timezone
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  
+  // Set default target date to 9 PM in user's local timezone
+  const defaultTargetDate = (() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 1); // Tomorrow
+    date.setHours(21, 0, 0, 0); // 9:00 PM
+    return date;
+  })();
+  
+  const targetDate = ref(defaultTargetDate);
+  const targetTimezone = ref(userTimezone);
   const isEditMode = ref(false);
-  const gameTitle = ref("Elden Ring Nightreign");
+  const gameTitle = ref("ARC Raiders");
   const settings = ref({
     fontFamily: "Inter",
     textColor: "#ffffff",
@@ -139,9 +151,10 @@ export const useTimerStore = defineStore("timer", () => {
     stopCelebration();
   }
 
-  function setTargetDate(date: Date) {
+  const setTargetDate = (date: Date, timezone: string = userTimezone) => {
     targetDate.value = date;
-  }
+    targetTimezone.value = timezone;
+  };
 
   function setGameTitle(title: string) {
     gameTitle.value = title;
@@ -162,22 +175,38 @@ export const useTimerStore = defineStore("timer", () => {
       JSON.stringify({
         settings: settings.value,
         targetDate: targetDate.value.toISOString(),
+        targetTimezone: targetTimezone.value,
         gameTitle: gameTitle.value,
       })
     );
   }
 
-  function loadFromLocalStorage() {
-    const saved = localStorage.getItem("timerSettings");
+  const loadFromLocalStorage = () => {
+    if (typeof window === 'undefined') return;
+
+    const saved = localStorage.getItem('countdownTimer');
     if (saved) {
-      const data = JSON.parse(saved);
-      settings.value = { ...settings.value, ...data.settings };
-      targetDate.value = new Date(data.targetDate);
-      if (data.gameTitle) {
-        gameTitle.value = data.gameTitle;
+      const parsed = JSON.parse(saved);
+      if (parsed.targetDate) {
+        targetDate.value = new Date(parsed.targetDate);
       }
+      if (parsed.targetTimezone) {
+        targetTimezone.value = parsed.targetTimezone;
+      } else {
+        // If no timezone was saved, use the current user's timezone
+        targetTimezone.value = userTimezone;
+      }
+      if (parsed.gameTitle) {
+        gameTitle.value = parsed.gameTitle;
+      }
+      if (parsed.settings) {
+        settings.value = { ...settings.value, ...parsed.settings };
+      }
+    } else {
+      // If no saved data, use the current user's timezone
+      targetTimezone.value = userTimezone;
     }
-  }
+  };
 
   function getShareableUrl() {
     const params = new URLSearchParams({
@@ -190,6 +219,7 @@ export const useTimerStore = defineStore("timer", () => {
 
   return {
     targetDate,
+    targetTimezone,
     isEditMode,
     settings,
     gameTitle,
