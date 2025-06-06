@@ -1,1 +1,1 @@
-{"root":["./src/main.ts","./src/vite-env.d.ts","./src/stores/timer.ts","./src/app.vue","./src/components/hamburgericon.vue","./src/components/helloworld.vue","./src/components/settingspanel.vue","./src/components/timezonepreview.vue","./src/components/timerdisplay.vue"],"version":"5.6.3"}
+{"root":["./src/main.ts","./src/vite-env.d.ts","./src/stores/timer.ts","./src/app.vue","./src/components/helloworld.vue","./src/components/timezonepreview.vue","./src/components/timerdisplay.vue"],"version":"5.8.3"}

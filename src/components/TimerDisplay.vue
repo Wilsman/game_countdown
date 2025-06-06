@@ -205,16 +205,33 @@ const formatTimezone = (tz: string) => {
 // Convert local date string to UTC Date
 const localToUTCDate = (dateString: string, timezone: string) => {
   if (!dateString) return new Date()
+  
   // Format: YYYY-MM-DDTHH:MM
   const [datePart, timePart] = dateString.split('T')
   const [year, month, day] = datePart.split('-').map(Number)
   const [hours, minutes] = timePart.split(':').map(Number)
   
-  // Create date in the target timezone
-  const localDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0))
-  // Convert to UTC
-  const utcDate = new Date(localDate.getTime() - (localDate.getTimezoneOffset() * 60000))
-  return utcDate
+  try {
+    // Create a date string in ISO format with the specified timezone
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
+    
+    // Use Intl to properly handle the timezone conversion
+    const date = new Date(dateStr)
+    const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }))
+    
+    // Calculate the timezone offset in minutes and convert to milliseconds
+    const tzOffset = date.getTime() - (date.getTimezoneOffset() * 60000)
+    const localOffset = tzDate.getTime() - (tzDate.getTimezoneOffset() * 60000)
+    const diff = tzOffset - localOffset
+    
+    // Return the date adjusted for the timezone
+    return new Date(date.getTime() + diff)
+  } catch (e) {
+    console.error('Error converting date with timezone:', e)
+    // Fallback to the original behavior if timezone conversion fails
+    const localDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0))
+    return new Date(localDate.getTime() - (localDate.getTimezoneOffset() * 60000))
+  }
 }
 
 // Format UTC date to local date string for datetime-local input
