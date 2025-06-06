@@ -7,16 +7,15 @@ export const useTimerStore = defineStore("timer", () => {
   // Get user's current timezone
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   
-  // Set default target date to 9 PM in user's local timezone
+  // Set default target date to Friday, June 6, 2025 11:00:00 PM in Europe/Stockholm (UTC+02:00)
   const defaultTargetDate = (() => {
-    const date = new Date();
-    date.setDate(date.getDate() + 1); // Tomorrow
-    date.setHours(21, 0, 0, 0); // 9:00 PM
+    // Europe/Stockholm is UTC+2 in June (CEST, daylight saving)
+    const date = new Date(Date.UTC(2025, 5, 6, 21, 0, 0, 0)); // 21:00 UTC = 23:00 UTC+2
     return date;
   })();
-  
+
   const targetDate = ref(defaultTargetDate);
-  const targetTimezone = ref(userTimezone);
+  const targetTimezone = ref("Europe/Stockholm");
   const isEditMode = ref(false);
   const gameTitle = ref("ARC Raiders");
   const settings = ref({

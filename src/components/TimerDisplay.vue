@@ -299,12 +299,45 @@ function copyShareableUrl() {
   navigator.clipboard.writeText(store.getShareableUrl())
 }
 
+// Keep track of the original document title
+const originalTitle = document.title
+
+// Update document title with countdown, hiding days if today and hours if less than an hour
+const updateDocumentTitle = () => {
+  const { days, hours, minutes, seconds } = store.timeRemaining
+  let timeStr = ''
+  if (days > 0) {
+    timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s`
+  } else if (hours > 0) {
+    timeStr = `${hours}h ${minutes}m ${seconds}s`
+  } else {
+    timeStr = `${minutes}m ${seconds}s`
+  }
+  document.title = `${store.gameTitle} - ${timeStr}`
+}
+
+// Use requestAnimationFrame for smoother updates
+let animationFrameId: number | null = null
+
+const updateTitle = () => {
+  updateDocumentTitle()
+  animationFrameId = requestAnimationFrame(updateTitle)
+}
+
 onMounted(() => {
   store.startTimer()
+  // Start the animation frame loop
+  animationFrameId = requestAnimationFrame(updateTitle)
 })
 
 onUnmounted(() => {
   store.stopTimer()
+  // Clean up animation frame
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId)
+  }
+  // Reset title when component is unmounted
+  document.title = originalTitle
 })
 </script>
 
