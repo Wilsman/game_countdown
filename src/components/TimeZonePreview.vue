@@ -4,35 +4,37 @@ import { computed } from 'vue'
 
 const store = useTimerStore()
 
-// Define major time zones with their offsets and cities
+// Define major time zones with their IANA timezone identifiers
 const timeZones = [
-  { city: 'Seoul', offset: 9, region: 'South Korea', flag: '🇰🇷' },
-  { city: 'London', offset: 0, region: 'UK', flag: '🇬🇧' },
-  { city: 'New York', offset: -5, region: 'US East', flag: '🇺🇸' },
-  { city: 'Los Angeles', offset: -8, region: 'US West', flag: '🇺🇸' },
-  { city: 'Moscow', offset: 3, region: 'Russia', flag: '🇷🇺' },
-  { city: 'Tokyo', offset: 9, region: 'Japan', flag: '🇯🇵' },
+  { city: 'Seoul', timezone: 'Asia/Seoul', region: 'South Korea', flag: '🇰🇷' },
+  { city: 'London', timezone: 'Europe/London', region: 'UK', flag: '🇬🇧' },
+  { city: 'New York', timezone: 'America/New_York', region: 'US East', flag: '🇺🇸' },
+  { city: 'Los Angeles', timezone: 'America/Los_Angeles', region: 'US West', flag: '🇺🇸' },
+  { city: 'Moscow', timezone: 'Europe/Moscow', region: 'Russia', flag: '🇷🇺' },
+  { city: 'Tokyo', timezone: 'Asia/Tokyo', region: 'Japan', flag: '🇯🇵' },
 ]
 
 const timeZonePreviews = computed(() => {
   return timeZones.map(zone => {
     const targetDate = new Date(store.targetDate)
-    const localOffset = targetDate.getTimezoneOffset()
-    const zoneOffset = zone.offset * 60
-    const totalOffset = (localOffset + zoneOffset) * 60 * 1000
     
-    const zoneDate = new Date(targetDate.getTime() + totalOffset)
+    const timeOptions = {
+      timeZone: zone.timezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }
+    
+    const dateOptions = {
+      timeZone: zone.timezone,
+      month: 'short',
+      day: 'numeric'
+    }
+    
     return {
       ...zone,
-      time: zoneDate.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      }),
-      date: zoneDate.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric'
-      })
+      time: targetDate.toLocaleTimeString('en-US', timeOptions),
+      date: targetDate.toLocaleDateString('en-US', dateOptions)
     }
   })
 })
