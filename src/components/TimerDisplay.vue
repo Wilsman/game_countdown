@@ -4,6 +4,10 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 // Timezone handling using browser's Intl API
 import TimeZonePreview from './TimeZonePreview.vue'
 
+defineProps<{
+  isFocusMode: boolean
+}>()
+
 const store = useTimerStore()
 const showDatePicker = ref(false)
 const localDateTime = ref('')
@@ -202,8 +206,31 @@ const formatTimezone = (tz: string) => {
   }
 }
 
+// Helper to get timezone offset in minutes for a given date
+const getOffsetMinutes = (timeZone: string, date: Date) => {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'longOffset',
+    });
+    const parts = formatter.formatToParts(date);
+    const tzPart = parts.find((p) => p.type === 'timeZoneName');
+    if (!tzPart) return 0;
+
+    // Value is like GMT-07:00 or GMT+05:30
+    const offsetStr = tzPart.value.replace('GMT', '');
+    const sign = offsetStr.startsWith('-') || offsetStr.startsWith('−') ? -1 : 1;
+    const [hours, minutes] = offsetStr.substring(1).split(':').map(Number);
+    
+    return (hours * 60 + (minutes || 0)) * sign;
+  } catch {
+    // Fallback for invalid timezone
+    return new Date().getTimezoneOffset();
+  }
+};
+
 // Convert local date string to UTC Date
-const localToUTCDate = (dateString: string, timezone: string) => {
+const localToUTCDate = (dateString: string, timezone: string): Date => {
   if (!dateString) return new Date()
   
   // Format: YYYY-MM-DDTHH:MM
@@ -212,20 +239,19 @@ const localToUTCDate = (dateString: string, timezone: string) => {
   const [hours, minutes] = timePart.split(':').map(Number)
   
   try {
-    // Create a date string in ISO format with the specified timezone
-    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
+    // Create a date as if the input time was in UTC
+    const tempDate = new Date(Date.UTC(year, month - 1, day, hours, minutes));
     
-    // Use Intl to properly handle the timezone conversion
-    const date = new Date(dateStr)
-    const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }))
+    // Get the offset of the target timezone at that specific time
+    const targetOffsetMinutes = getOffsetMinutes(timezone, tempDate);
     
-    // Calculate the timezone offset in minutes and convert to milliseconds
-    const tzOffset = date.getTime() - (date.getTimezoneOffset() * 60000)
-    const localOffset = tzDate.getTime() - (tzDate.getTimezoneOffset() * 60000)
-    const diff = tzOffset - localOffset
-    
-    // Return the date adjusted for the timezone
-    return new Date(date.getTime() + diff)
+    // The actual UTC time is the temporary UTC time minus the offset.
+    // e.g., if input is 12:00 in GMT+2, tempDate is 12:00 UTC.
+    // Offset is +120 minutes.
+    // Real UTC time is 12:00 UTC - 120 minutes = 10:00 UTC.
+    const utcMillis = tempDate.getTime() - targetOffsetMinutes * 60 * 1000;
+
+    return new Date(utcMillis);
   } catch (e) {
     console.error('Error converting date with timezone:', e)
     // Fallback to the original behavior if timezone conversion fails
@@ -382,7 +408,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="timezone-section">
+<div v-if="!isFocusMode" class="timezone-section">
       <TimeZonePreview />
       <button @click.stop="copyShareableUrl" class="share-button">
         <span>Copy Shareable URL</span>
@@ -504,6 +530,7 @@ onUnmounted(() => {
   line-height: 1.2;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

@@ -18,14 +18,14 @@ const timeZonePreviews = computed(() => {
   return timeZones.map(zone => {
     const targetDate = new Date(store.targetDate)
     
-    const timeOptions = {
+    const timeOptions: Intl.DateTimeFormatOptions = {
       timeZone: zone.timezone,
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
     }
     
-    const dateOptions = {
+    const dateOptions: Intl.DateTimeFormatOptions = {
       timeZone: zone.timezone,
       month: 'short',
       day: 'numeric'
@@ -33,8 +33,8 @@ const timeZonePreviews = computed(() => {
     
     return {
       ...zone,
-      time: targetDate.toLocaleTimeString('en-US', timeOptions),
-      date: targetDate.toLocaleDateString('en-US', dateOptions)
+      time: targetDate.toLocaleTimeString('en-US', timeOptions as any),
+      date: targetDate.toLocaleDateString('en-US', dateOptions as any)
     }
   })
 })

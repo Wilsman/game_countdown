@@ -1,24 +1,102 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import type { Ref } from "vue";
 import { differenceInSeconds } from "date-fns";
 import confetti from "canvas-confetti";
+
+interface TimerSettings {
+  fontFamily: string;
+  textColor: string;
+  backgroundColor: string;
+  fontSize: number;
+  enableAnimation: boolean;
+  enableSound: boolean;
+  enableSoundToggle: boolean;
+  theme: "light" | "dark";
+}
+
+interface TimeRemaining {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+interface Game {
+  id: string;
+  title: string;
+  targetDate: Date;
+  targetTimezone: string;
+}
 
 export const useTimerStore = defineStore("timer", () => {
   // Get user's current timezone
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  
-  // Set default target date to Friday, June 6, 2025 11:00:00 PM in Europe/Stockholm (UTC+02:00)
-  const defaultTargetDate = (() => {
-    // Europe/Stockholm is UTC+2 in June (CEST, daylight saving)
-    const date = new Date(Date.UTC(2025, 5, 6, 21, 0, 0, 0)); // 21:00 UTC = 23:00 UTC+2
-    return date;
-  })();
 
-  const targetDate = ref(defaultTargetDate);
-  const targetTimezone = ref("Europe/Stockholm");
+  // Helper function to create a date that's X minutes from now
+  const createDateMinutesFromNow = (minutes: number): Date => {
+    const date = new Date();
+    date.setMinutes(date.getMinutes() + minutes);
+    return date;
+  };
+
+  // Default games
+  const defaultGames: Game[] = [
+    {
+      id: "break-30",
+      title: "Be Right Back (30min)",
+      targetDate: createDateMinutesFromNow(30),
+      targetTimezone: userTimezone,
+    },
+    {
+      id: "break-15",
+      title: "Be Right Back (15min)",
+      targetDate: createDateMinutesFromNow(15),
+      targetTimezone: userTimezone,
+    },
+    {
+      id: "break-10",
+      title: "Be Right Back (10min)",
+      targetDate: createDateMinutesFromNow(10),
+      targetTimezone: userTimezone,
+    },
+    {
+      id: "tarkov-next-wipe",
+      title: "Escape from Tarkov Next Wipe",
+      targetDate: new Date(2025, 6, 1, 12, 0, 0), // July 1, 2025 12:00 PM (estimated based on typical 6-month wipe cycle)
+      targetTimezone: "Europe/Moscow",
+    },
+    {
+      id: "poe-3-26",
+      title: "POE1 3.26",
+      targetDate: new Date(2025, 5, 13, 21, 0, 0), // June 13, 2025 9:00 PM
+      targetTimezone: userTimezone,
+    },
+    {
+      id: "arc-raiders",
+      title: "ARC Raiders",
+      targetDate: new Date(2025, 9, 30, 0, 0, 0), // October 30, 2025
+      targetTimezone: "Europe/Stockholm",
+    },
+    {
+      id: "starcitizen-42",
+      title: "Star Citizen: Squadron 42",
+      targetDate: new Date(2025, 11, 1, 0, 0, 0), // December 1, 2025 (estimated)
+      targetTimezone: "UTC",
+    },
+    {
+      id: "marvel-1943",
+      title: "Marvel 1943: Rise of Hydra",
+      targetDate: new Date(2025, 2, 1, 0, 0, 0), // March 1, 2025
+      targetTimezone: "America/Los_Angeles",
+    },
+  ];
+
+  // Store state
+  const games = ref<Game[]>(defaultGames);
+  const activeGameIndex = ref(0);
   const isEditMode = ref(false);
-  const gameTitle = ref("ARC Raiders");
-  const settings = ref({
+  const settings: Ref<TimerSettings> = ref({
     fontFamily: "Inter",
     textColor: "#ffffff",
     backgroundColor: "#1a1a1a",
@@ -33,15 +111,24 @@ export const useTimerStore = defineStore("timer", () => {
   const audio =
     typeof window !== "undefined" ? new Audio("/timer-end.mp3") : null;
   let celebrationInterval: number | null = null;
+  const currentTime = ref(new Date());
 
-  const timeRemaining = computed(() => {
-    const now = new Date();
-    const diff = differenceInSeconds(targetDate.value, now);
+  // Computed properties for active game
+  const activeGame = computed<Game>(() => games.value[activeGameIndex.value]);
+  const gameTitle = computed(() => activeGame.value.title);
+  const targetDate = computed(() => activeGame.value.targetDate);
+  const targetTimezone = computed(() => activeGame.value.targetTimezone);
+
+  const timeRemaining = computed<TimeRemaining>(() => {
+    const diff = differenceInSeconds(targetDate.value, currentTime.value);
 
     // Check if timer just reached zero
     if (diff <= 0 && !hasReachedZero.value) {
       hasReachedZero.value = true;
       startCelebration();
+
+      // Find the next upcoming game
+      findAndSetNextUpcomingGame();
     } else if (diff > 0 && hasReachedZero.value) {
       hasReachedZero.value = false;
       stopCelebration();
@@ -56,6 +143,25 @@ export const useTimerStore = defineStore("timer", () => {
 
     return { days, hours, minutes, seconds };
   });
+
+  // Find the next upcoming game and set it as active
+  function findAndSetNextUpcomingGame() {
+    const now = new Date();
+    let nextGameIndex = -1;
+    let minTimeDiff = Infinity;
+
+    games.value.forEach((game, index) => {
+      const diff = differenceInSeconds(game.targetDate, now);
+      if (diff > 0 && diff < minTimeDiff) {
+        minTimeDiff = diff;
+        nextGameIndex = index;
+      }
+    });
+
+    if (nextGameIndex !== -1) {
+      activeGameIndex.value = nextGameIndex;
+    }
+  }
 
   let intervalId: number | null = null;
 
@@ -137,8 +243,7 @@ export const useTimerStore = defineStore("timer", () => {
   function startTimer() {
     if (intervalId) return;
     intervalId = window.setInterval(() => {
-      // Force a recomputation of timeRemaining
-      targetDate.value = new Date(targetDate.value);
+      currentTime.value = new Date();
     }, 1000);
   }
 
@@ -150,61 +255,121 @@ export const useTimerStore = defineStore("timer", () => {
     stopCelebration();
   }
 
-  const setTargetDate = (date: Date, timezone: string = userTimezone) => {
-    targetDate.value = date;
-    targetTimezone.value = timezone;
+  const setTargetDate = (date: Date, timezone: string = userTimezone): void => {
+    if (games.value[activeGameIndex.value]) {
+      games.value[activeGameIndex.value].targetDate = date;
+      games.value[activeGameIndex.value].targetTimezone = timezone;
+    }
   };
 
-  function setGameTitle(title: string) {
-    gameTitle.value = title;
-  }
+  const setGameTitle = (title: string): void => {
+    if (games.value[activeGameIndex.value]) {
+      games.value[activeGameIndex.value].title = title;
+    }
+  };
 
-  function toggleMode() {
+  const setActiveGameIndex = (index: number): void => {
+    if (index >= 0 && index < games.value.length) {
+      activeGameIndex.value = index;
+    }
+  };
+
+  const addGame = (
+    title: string,
+    date: Date,
+    timezone: string = userTimezone
+  ): void => {
+    const id = `game-${Date.now()}`;
+    games.value.push({
+      id,
+      title,
+      targetDate: date,
+      targetTimezone: timezone,
+    });
+    // Set the newly added game as active
+    activeGameIndex.value = games.value.length - 1;
+  };
+
+  const removeGame = (index: number): void => {
+    if (index >= 0 && index < games.value.length && games.value.length > 1) {
+      games.value.splice(index, 1);
+      // Adjust active index if needed
+      if (activeGameIndex.value >= games.value.length) {
+        activeGameIndex.value = games.value.length - 1;
+      }
+    }
+  };
+
+  const resetGames = (): void => {
+    games.value = JSON.parse(JSON.stringify(defaultGames));
+    activeGameIndex.value = 0;
+    findAndSetNextUpcomingGame();
+  };
+
+  function toggleMode(): void {
     isEditMode.value = !isEditMode.value;
   }
 
-  function updateSettings(newSettings: Partial<typeof settings.value>) {
+  const updateSettings = (newSettings: Partial<TimerSettings>): void => {
     settings.value = { ...settings.value, ...newSettings };
     saveToLocalStorage();
-  }
+  };
 
-  function saveToLocalStorage() {
+  function saveToLocalStorage(): void {
     localStorage.setItem(
-      "timerSettings",
+      "countdownTimer",
       JSON.stringify({
         settings: settings.value,
-        targetDate: targetDate.value.toISOString(),
-        targetTimezone: targetTimezone.value,
-        gameTitle: gameTitle.value,
+        games: games.value.map((game) => ({
+          ...game,
+          targetDate: game.targetDate.toISOString(),
+        })),
+        activeGameIndex: activeGameIndex.value,
       })
     );
   }
 
   const loadFromLocalStorage = () => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
-    const saved = localStorage.getItem('countdownTimer');
+    const saved = localStorage.getItem("countdownTimer");
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (parsed.targetDate) {
-        targetDate.value = new Date(parsed.targetDate);
+
+      if (parsed.games && Array.isArray(parsed.games)) {
+        games.value = parsed.games.map((game: any) => ({
+          ...game,
+          targetDate: new Date(game.targetDate),
+        }));
       }
-      if (parsed.targetTimezone) {
-        targetTimezone.value = parsed.targetTimezone;
-      } else {
-        // If no timezone was saved, use the current user's timezone
-        targetTimezone.value = userTimezone;
+
+      if (
+        parsed.activeGameIndex !== undefined &&
+        parsed.activeGameIndex >= 0 &&
+        parsed.activeGameIndex < games.value.length
+      ) {
+        activeGameIndex.value = parsed.activeGameIndex;
       }
-      if (parsed.gameTitle) {
-        gameTitle.value = parsed.gameTitle;
-      }
+
       if (parsed.settings) {
         settings.value = { ...settings.value, ...parsed.settings };
       }
-    } else {
-      // If no saved data, use the current user's timezone
-      targetTimezone.value = userTimezone;
+
+      // Legacy support for old format
+      if (!parsed.games && parsed.targetDate) {
+        const legacyGame = {
+          id: "legacy-game",
+          title: parsed.gameTitle || "Game",
+          targetDate: new Date(parsed.targetDate),
+          targetTimezone: parsed.targetTimezone || userTimezone,
+        };
+        games.value = [legacyGame];
+        activeGameIndex.value = 0;
+      }
     }
+
+    // Find the next upcoming game if the current one has passed
+    findAndSetNextUpcomingGame();
   };
 
   function getShareableUrl() {
@@ -217,6 +382,9 @@ export const useTimerStore = defineStore("timer", () => {
   }
 
   return {
+    games,
+    activeGameIndex,
+    activeGame,
     targetDate,
     targetTimezone,
     isEditMode,
@@ -225,6 +393,10 @@ export const useTimerStore = defineStore("timer", () => {
     timeRemaining,
     setTargetDate,
     setGameTitle,
+    setActiveGameIndex,
+    addGame,
+    removeGame,
+    resetGames,
     toggleMode,
     updateSettings,
     saveToLocalStorage,

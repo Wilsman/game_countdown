@@ -1,44 +1,31 @@
 <script setup lang="ts">
 import { useTimerStore } from './stores/timer'
 import { onMounted, watch, ref, nextTick } from 'vue'
+import { storeToRefs } from 'pinia'
 import TimerDisplay from './components/TimerDisplay.vue'
+import GameSelector from './components/GameSelector.vue'
+import type { Ref } from 'vue'
 
-const store = useTimerStore()
-const window = ref(globalThis.window)
-const isEditingTitle = ref(false)
-const titleInput = ref<HTMLInputElement | null>(null)
-
-onMounted(() => {
-  store.loadFromLocalStorage()
-
-  const params = new URLSearchParams(window.value.location.search)
-  const targetDate = params.get('target')
-  const theme = params.get('theme')
-  const title = params.get('title')
-
-  if (targetDate) {
-    store.setTargetDate(new Date(targetDate))
+declare global {
+  interface Window {
+    location: Location
   }
+}
 
-  if (theme) {
-    store.updateSettings({ theme })
-  }
+const isClient = typeof window !== 'undefined'
+type Theme = 'light' | 'dark'
 
-  if (title) {
-    store.setGameTitle(title)
-  }
-})
+// Import store and initialize it
+const timerStore = useTimerStore()
+const { gameTitle, settings } = storeToRefs(timerStore)
 
-watch(
-  () => store.settings.theme,
-  (theme) => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-  },
-  { immediate: true }
-)
+// Reactive variables
+const isEditingTitle = ref<boolean>(false)
+const titleInput: Ref<HTMLInputElement | null> = ref(null)
+const isFocusMode = ref<boolean>(false)
 
-// Function to enable title editing
-const editTitle = () => {
+// Function to handle title editing
+const handleEditTitle = (): void => {
   isEditingTitle.value = true
   nextTick(() => {
     titleInput.value?.focus()
@@ -46,41 +33,119 @@ const editTitle = () => {
   })
 }
 
-// Function to stop title editing
-const stopEditTitle = () => {
+// Function to handle stopping title edit
+const handleStopEditTitle = (): void => {
   isEditingTitle.value = false
 }
+
+// No need for exposedFunctions - we'll use the variables directly in template
+
+// Load saved state and process URL parameters
+onMounted(() => {
+  timerStore.loadFromLocalStorage()
+
+  if (!isClient) return
+  
+  const params = new URLSearchParams(window.location.search)
+  const targetDate = params.get('target')
+  const theme = params.get('theme')
+  const title = params.get('title')
+
+  if (targetDate) {
+    timerStore.setTargetDate(new Date(targetDate))
+  }
+
+  if (theme === 'light' || theme === 'dark') {
+    timerStore.updateSettings({ theme: theme as Theme })
+  }
+
+  if (title) {
+    timerStore.setGameTitle(title)
+  }
+})
+
+// Watch for theme changes
+watch(
+  () => timerStore.settings.theme as Theme,
+  (theme) => {
+    document.documentElement.classList.toggle('dark', theme === 'dark')
+  },
+  { immediate: true }
+)
+
+watch(isFocusMode, (isFocus) => {
+  const widget = document.querySelector('.bmc-widget-container') as HTMLElement | null
+  if (widget) {
+    widget.style.display = isFocus ? 'none' : 'block'
+  }
+})
 </script>
 
 <template>
   <div :class="[
     'min-h-screen transition-all duration-500',
-    store.settings.theme === 'dark' ? 'dark' : ''
+    settings.theme === 'dark' ? 'dark' : ''
   ]">
     <main class="min-h-screen flex relative overflow-hidden">
       <div class="flex-1 flex flex-col items-center justify-center p-8">
         <div class="w-full max-w-5xl mx-auto">
+          <!-- Game Selector -->
+          <div v-if="!isFocusMode" class="flex justify-center mb-4">
+            <GameSelector />
+          </div>
+          
           <!-- Editable Title -->
-          <h1 v-if="!isEditingTitle" @click="editTitle"
-            class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-6 sm:mb-8 md:mb-12 bg-gradient-to-r from-primary to-primary-hover bg-clip-text cursor-pointer">
-            {{ store.gameTitle }}
+          <h1 
+            v-if="!isEditingTitle" 
+            @click="handleEditTitle" 
+            class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center text-white cursor-pointer"
+            :class="{ 'mx-auto': gameTitle.length < 15 }"
+          >
+            {{ gameTitle }}
           </h1>
-          <input v-else type="text" v-model="store.gameTitle" @blur="stopEditTitle" @keyup.enter="stopEditTitle"
-            class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-6 sm:mb-8 md:mb-12 bg-gradient-to-r from-primary to-primary-hover bg-clip-text cursor-pointer border-none outline-none w-full"
+          <input v-else 
+            type="text" 
+            v-model="gameTitle" 
+            @blur="handleStopEditTitle" 
+            @keyup.enter="handleStopEditTitle"
+            class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center bg-white text-black cursor-pointer border-none outline-none w-full px-4 py-2 rounded"
             ref="titleInput" />
-          <TimerDisplay />
+          <TimerDisplay :is-focus-mode="isFocusMode" />
         </div>
       </div>
 
-      <div
-        class="footer-bar fixed bottom-0 left-0 w-full h-12 bg-secondary/30 backdrop-blur-sm border-t border-border/30 transition-all duration-500">
+      <div v-if="!isFocusMode" class="footer-bar fixed bottom-0 left-0 w-full h-12 bg-secondary/30 backdrop-blur-sm border-t border-border/30 transition-all duration-500">
         <div class="container mx-auto px-6 h-full flex items-center justify-between">
           <div class="text-sm opacity-60">
             Game Countdown Timer
           </div>
-          <div class="text-sm opacity-60">
-            Built by Wilsman77
+          <div class="flex items-center gap-4">
+            <button
+              @click="isFocusMode = !isFocusMode"
+              class="text-sm opacity-60 hover:opacity-100 transition-opacity"
+            >
+              Focus Mode
+            </button>
+            <button
+              @click="() => { useTimerStore().resetGames(); useTimerStore().saveToLocalStorage(); }"
+              class="text-sm opacity-60 hover:opacity-100 transition-opacity"
+            >
+              Reset Games
+            </button>
+            <div class="text-sm opacity-60">
+              Built by Wilsman77
+            </div>
           </div>
+        </div>
+      </div>
+      <div v-else class="footer-bar fixed bottom-0 left-0 w-full h-12 bg-secondary/30 backdrop-blur-sm border-t border-border/30 transition-all duration-500">
+        <div class="container mx-auto px-6 h-full flex items-center justify-center">
+          <button
+            @click="isFocusMode = !isFocusMode"
+            class="text-sm opacity-60 hover:opacity-100 transition-opacity"
+          >
+            Exit Focus Mode
+          </button>
         </div>
       </div>
     </main>
