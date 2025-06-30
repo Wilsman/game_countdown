@@ -40,9 +40,8 @@ const handleStopEditTitle = (): void => {
 
 // No need for exposedFunctions - we'll use the variables directly in template
 
-// Load saved state and process URL parameters
+// Process URL parameters
 onMounted(() => {
-  timerStore.loadFromLocalStorage()
 
   if (!isClient) return
   

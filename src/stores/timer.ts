@@ -27,6 +27,7 @@ interface Game {
   title: string;
   targetDate: Date;
   targetTimezone: string;
+  type: "game" | "utility";
 }
 
 export const useTimerStore = defineStore("timer", () => {
@@ -47,48 +48,56 @@ export const useTimerStore = defineStore("timer", () => {
       title: "Be Right Back (30min)",
       targetDate: createDateMinutesFromNow(30),
       targetTimezone: userTimezone,
+      type: "utility",
     },
     {
       id: "break-15",
       title: "Be Right Back (15min)",
       targetDate: createDateMinutesFromNow(15),
       targetTimezone: userTimezone,
+      type: "utility",
     },
     {
       id: "break-10",
       title: "Be Right Back (10min)",
       targetDate: createDateMinutesFromNow(10),
       targetTimezone: userTimezone,
+      type: "utility",
     },
-    {
-      id: "tarkov-next-wipe",
-      title: "Escape from Tarkov Next Wipe",
-      targetDate: new Date(2025, 6, 1, 12, 0, 0), // July 1, 2025 12:00 PM (estimated based on typical 6-month wipe cycle)
-      targetTimezone: "Europe/Moscow",
-    },
+    // {
+    //   id: "tarkov-next-wipe",
+    //   title: "Escape from Tarkov Next Wipe",
+    //   targetDate: new Date(2025, 6, 1, 12, 0, 0), // July 1, 2025 12:00 PM (estimated based on typical 6-month wipe cycle)
+    //   targetTimezone: "Europe/Moscow",
+    //   type: "game",
+    // },
     {
       id: "poe-3-26",
       title: "POE1 3.26",
       targetDate: new Date(2025, 5, 13, 21, 0, 0), // June 13, 2025 9:00 PM
       targetTimezone: userTimezone,
+      type: "game",
     },
     {
       id: "arc-raiders",
       title: "ARC Raiders",
       targetDate: new Date(2025, 9, 30, 0, 0, 0), // October 30, 2025
       targetTimezone: "Europe/Stockholm",
+      type: "game",
     },
     {
       id: "starcitizen-42",
       title: "Star Citizen: Squadron 42",
       targetDate: new Date(2025, 11, 1, 0, 0, 0), // December 1, 2025 (estimated)
       targetTimezone: "UTC",
+      type: "game",
     },
     {
       id: "marvel-1943",
       title: "Marvel 1943: Rise of Hydra",
       targetDate: new Date(2025, 2, 1, 0, 0, 0), // March 1, 2025
       targetTimezone: "America/Los_Angeles",
+      type: "game",
     },
   ];
 
@@ -255,6 +264,13 @@ export const useTimerStore = defineStore("timer", () => {
     stopCelebration();
   }
 
+  const gameOptions = computed(() =>
+    games.value.filter((game) => game.type === "game")
+  );
+  const utilityOptions = computed(() =>
+    games.value.filter((game) => game.type === "utility")
+  );
+
   const setTargetDate = (date: Date, timezone: string = userTimezone): void => {
     if (games.value[activeGameIndex.value]) {
       games.value[activeGameIndex.value].targetDate = date;
@@ -277,7 +293,8 @@ export const useTimerStore = defineStore("timer", () => {
   const addGame = (
     title: string,
     date: Date,
-    timezone: string = userTimezone
+    timezone: string = userTimezone,
+    type: "game" | "utility" = "game"
   ): void => {
     const id = `game-${Date.now()}`;
     games.value.push({
@@ -285,6 +302,7 @@ export const useTimerStore = defineStore("timer", () => {
       title,
       targetDate: date,
       targetTimezone: timezone,
+      type,
     });
     // Set the newly added game as active
     activeGameIndex.value = games.value.length - 1;
@@ -312,64 +330,6 @@ export const useTimerStore = defineStore("timer", () => {
 
   const updateSettings = (newSettings: Partial<TimerSettings>): void => {
     settings.value = { ...settings.value, ...newSettings };
-    saveToLocalStorage();
-  };
-
-  function saveToLocalStorage(): void {
-    localStorage.setItem(
-      "countdownTimer",
-      JSON.stringify({
-        settings: settings.value,
-        games: games.value.map((game) => ({
-          ...game,
-          targetDate: game.targetDate.toISOString(),
-        })),
-        activeGameIndex: activeGameIndex.value,
-      })
-    );
-  }
-
-  const loadFromLocalStorage = () => {
-    if (typeof window === "undefined") return;
-
-    const saved = localStorage.getItem("countdownTimer");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-
-      if (parsed.games && Array.isArray(parsed.games)) {
-        games.value = parsed.games.map((game: any) => ({
-          ...game,
-          targetDate: new Date(game.targetDate),
-        }));
-      }
-
-      if (
-        parsed.activeGameIndex !== undefined &&
-        parsed.activeGameIndex >= 0 &&
-        parsed.activeGameIndex < games.value.length
-      ) {
-        activeGameIndex.value = parsed.activeGameIndex;
-      }
-
-      if (parsed.settings) {
-        settings.value = { ...settings.value, ...parsed.settings };
-      }
-
-      // Legacy support for old format
-      if (!parsed.games && parsed.targetDate) {
-        const legacyGame = {
-          id: "legacy-game",
-          title: parsed.gameTitle || "Game",
-          targetDate: new Date(parsed.targetDate),
-          targetTimezone: parsed.targetTimezone || userTimezone,
-        };
-        games.value = [legacyGame];
-        activeGameIndex.value = 0;
-      }
-    }
-
-    // Find the next upcoming game if the current one has passed
-    findAndSetNextUpcomingGame();
   };
 
   function getShareableUrl() {
@@ -399,10 +359,11 @@ export const useTimerStore = defineStore("timer", () => {
     resetGames,
     toggleMode,
     updateSettings,
-    saveToLocalStorage,
-    loadFromLocalStorage,
+
     getShareableUrl,
     startTimer,
     stopTimer,
+    gameOptions,
+    utilityOptions,
   };
 });

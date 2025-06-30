@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { useTimerStore } from '../stores/timer';
+import { ref, watch } from "vue";
+import { useTimerStore } from "../stores/timer";
 
 const store = useTimerStore();
 const isOpen = ref(false);
@@ -14,15 +14,27 @@ function closeDropdown() {
   isOpen.value = false;
 }
 
-function selectGame(index: number) {
-  store.setActiveGameIndex(index);
-  store.saveToLocalStorage();
-  closeDropdown();
+function selectGame(gameId: string) {
+  const index = store.games.findIndex((g) => g.id === gameId);
+  if (index !== -1) {
+    // Set the active game index first
+    store.setActiveGameIndex(index);
+    
+    // If it's a break timer (10/15/30 min), always reset the target date
+    if (gameId.startsWith('break-')) {
+      const minutes = parseInt(gameId.replace('break-', ''));
+      const newDate = new Date();
+      newDate.setMinutes(newDate.getMinutes() + minutes);
+      const game = store.games[index];
+      store.setTargetDate(newDate, game.targetTimezone);
+    }
+    
+    closeDropdown();
+  }
 }
 
 function resetGames() {
   store.resetGames();
-  store.saveToLocalStorage();
   closeDropdown();
 }
 
@@ -69,27 +81,43 @@ watch(isOpen, (newValue) => {
     </button>
     
     <div v-if="isOpen" class="dropdown-menu">
-      <div class="dropdown-header">Games</div>
-      
-      <div class="dropdown-items">
-        <button 
-          v-for="(game, index) in store.games" 
-          :key="game.id"
-          @click="selectGame(index)"
-          class="dropdown-item"
-          :class="{ 'active': index === store.activeGameIndex }"
-        >
-          <span class="game-title">{{ game.title }}</span>
-          <span class="game-date">
-            {{ new Date(game.targetDate).toLocaleDateString(undefined, { 
-              year: 'numeric', 
-              month: 'short', 
-              day: 'numeric' 
-            }) }}
-          </span>
-        </button>
+      <div class="dropdown-section">
+        <div class="dropdown-header">Utility Timers</div>
+        <div class="dropdown-items">
+          <button
+            v-for="game in store.utilityOptions"
+            :key="game.id"
+            @click="selectGame(game.id)"
+            class="dropdown-item"
+            :class="{ 'active': game.id === store.activeGame.id }"
+          >
+            <span class="game-title">{{ game.title }}</span>
+          </button>
+        </div>
       </div>
-      
+
+      <div class="dropdown-section">
+        <div class="dropdown-header">Games</div>
+        <div class="dropdown-items">
+          <button
+            v-for="game in store.gameOptions"
+            :key="game.id"
+            @click="selectGame(game.id)"
+            class="dropdown-item"
+            :class="{ 'active': game.id === store.activeGame.id }"
+          >
+            <span class="game-title">{{ game.title }}</span>
+            <span class="game-date">
+              {{ new Date(game.targetDate).toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              }) }}
+            </span>
+          </button>
+        </div>
+      </div>
+
       <div class="dropdown-footer">
         <button @click="resetGames" class="reset-button">
           Reset to Default Games
@@ -153,6 +181,14 @@ watch(isOpen, (newValue) => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.dropdown-section {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dropdown-section:last-of-type {
+  border-bottom: none;
 }
 
 .dropdown-header {
