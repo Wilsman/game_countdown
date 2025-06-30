@@ -126,7 +126,7 @@ watch(isFocusMode, (isFocus) => {
               Focus Mode
             </button>
             <button
-              @click="() => { useTimerStore().resetGames(); useTimerStore().saveToLocalStorage(); }"
+              @click="() => { useTimerStore().resetGames(); }"
               class="text-sm opacity-60 hover:opacity-100 transition-opacity"
             >
               Reset Games
