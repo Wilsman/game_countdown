@@ -65,6 +65,13 @@ export const useTimerStore = defineStore("timer", () => {
       type: "utility",
     },
     {
+      id: "break-5",
+      title: "Snack Break (5min)",
+      targetDate: createDateMinutesFromNow(5),
+      targetTimezone: userTimezone,
+      type: "utility",
+    },
+    {
       id: "tarkov-wipe-maintenance",
       title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Maintenance Start",
       targetDate: new Date(2025, 6, 9, 8, 0, 0), // July 9, 2025 8:00 AM
