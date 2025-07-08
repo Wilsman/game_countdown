@@ -64,13 +64,20 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: userTimezone,
       type: "utility",
     },
-    // {
-    //   id: "tarkov-next-wipe",
-    //   title: "Escape from Tarkov Next Wipe",
-    //   targetDate: new Date(2025, 6, 1, 12, 0, 0), // July 1, 2025 12:00 PM (estimated based on typical 6-month wipe cycle)
-    //   targetTimezone: "Europe/Moscow",
-    //   type: "game",
-    // },
+    {
+      id: "tarkov-wipe-maintenance",
+      title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Maintenance Start",
+      targetDate: new Date(2025, 6, 9, 8, 0, 0), // July 9, 2025 8:00 AM
+      targetTimezone: "Europe/Moscow",
+      type: "game",
+    },
+    {
+      id: "tarkov-wipe-start",
+      title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Start (Approx)",
+      targetDate: new Date(2025, 6, 9, 14, 0, 0), // July 9, 2025 2:00 PM
+      targetTimezone: "Europe/Moscow",
+      type: "game",
+    },
     {
       id: "poe-3-26",
       title: "POE1 3.26",
@@ -103,7 +110,10 @@ export const useTimerStore = defineStore("timer", () => {
 
   // Store state
   const games = ref<Game[]>(defaultGames);
-  const activeGameIndex = ref(0);
+  // Set default active game to Tarkov Wipe Maintenance
+  const activeGameIndex = ref(
+    defaultGames.findIndex(game => game.id === 'tarkov-wipe-maintenance')
+  );
   const isEditMode = ref(false);
   const settings: Ref<TimerSettings> = ref({
     fontFamily: "Inter",
