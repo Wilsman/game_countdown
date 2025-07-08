@@ -94,15 +94,15 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "tarkov-wipe-maintenance",
       title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Maintenance Start",
-      targetDate: createDateInTimezone(2025, 6, 9, 8, 0, "Europe/Moscow"), // July 9, 2025 8:00 AM Moscow Time
-      targetTimezone: "Europe/Moscow",
+      targetDate: createDateInTimezone(2025, 6, 9, 8, 0, "Europe/London"), // July 9, 2025 8:00 AM Moscow Time
+      targetTimezone: "Europe/London ",
       type: "game",
     },
     {
       id: "tarkov-wipe-start",
       title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Start (Approx)",
-      targetDate: createDateInTimezone(2025, 6, 9, 14, 0, "Europe/Moscow"), // July 9, 2025 2:00 PM Moscow Time
-      targetTimezone: "Europe/Moscow",
+      targetDate: createDateInTimezone(2025, 6, 9, 14, 0, "Europe/London"), // July 9, 2025 2:00 PM Moscow Time
+      targetTimezone: "Europe/London",
       type: "game",
     },
     {
@@ -166,14 +166,17 @@ export const useTimerStore = defineStore("timer", () => {
   const targetTimezone = computed(() => activeGame.value.targetTimezone);
 
   const timeRemaining = computed<TimeRemaining>(() => {
-    const diff = differenceInSeconds(targetDate.value, currentTime.value);
+    // Get the current time in the target timezone
+    const now = new Date();
+    const targetTime = new Date(targetDate.value);
+    
+    // Calculate the difference in seconds
+    const diff = Math.floor((targetTime.getTime() - now.getTime()) / 1000);
 
     // Check if timer just reached zero
     if (diff <= 0 && !hasReachedZero.value) {
       hasReachedZero.value = true;
       startCelebration();
-
-      // Find the next upcoming game
       findAndSetNextUpcomingGame();
     } else if (diff > 0 && hasReachedZero.value) {
       hasReachedZero.value = false;
