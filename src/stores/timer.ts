@@ -74,15 +74,15 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "tarkov-wipe-maintenance",
       title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Maintenance Start",
-      targetDate: new Date(2025, 6, 9, 8, 0, 0), // July 9, 2025 8:00 AM
-      targetTimezone: "Europe/Moscow",
+      targetDate: new Date("2025-07-09T07:00:00Z"), // July 9, 2025 8:00 AM BST
+      targetTimezone: "Europe/London",
       type: "game",
     },
     {
       id: "tarkov-wipe-start",
       title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Start (Approx)",
-      targetDate: new Date(2025, 6, 9, 14, 0, 0), // July 9, 2025 2:00 PM
-      targetTimezone: "Europe/Moscow",
+      targetDate: new Date("2025-07-09T12:00:00Z"), // July 9, 2025 2:00 PM BST
+      targetTimezone: "Europe/London",
       type: "game",
     },
     {
