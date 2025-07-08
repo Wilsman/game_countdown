@@ -349,6 +349,25 @@ export const useTimerStore = defineStore("timer", () => {
     settings.value = { ...settings.value, ...newSettings };
   };
 
+    function restartCountdown(id: string) {
+    const gameIndex = games.value.findIndex((g) => g.id === id);
+    if (gameIndex === -1) return;
+
+    const game = games.value[gameIndex];
+    // Match titles like "Be Right Back (10min)"
+    const match = game.title.match(/\((\d+)min\)/);
+    if (!match || game.type !== "utility") return;
+
+    const minutes = parseInt(match[1], 10);
+    games.value[gameIndex].targetDate = createDateMinutesFromNow(minutes);
+
+    // If the active game is the one we just restarted, reset the celebration flag
+    if (activeGameIndex.value === gameIndex) {
+      hasReachedZero.value = false;
+      stopCelebration(); // Stop any ongoing celebration
+    }
+  }
+
   function getShareableUrl() {
     const params = new URLSearchParams({
       target: targetDate.value.toISOString(),
@@ -378,6 +397,7 @@ export const useTimerStore = defineStore("timer", () => {
     updateSettings,
 
     getShareableUrl,
+    restartCountdown,
     startTimer,
     stopTimer,
     gameOptions,

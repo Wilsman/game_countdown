@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useTimerStore } from '../stores/timer'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+// Using inline SVG for the refresh icon
 // Timezone handling using browser's Intl API
 import TimeZonePreview from './TimeZonePreview.vue'
 
@@ -386,7 +387,8 @@ onUnmounted(() => {
 
 <template>
   <div class="timer-container">
-    <div class="timer-display" @click="openDatePicker">
+        <div class="timer-display-wrapper">
+      <div class="timer-display" @click="openDatePicker">
       <div class="time-section" :class="{ 'animate-pulse': store.settings.enableAnimation }">
         <div class="time-value">{{ formattedTime.days }}</div>
         <div class="time-label">Days</div>
@@ -404,8 +406,21 @@ onUnmounted(() => {
       <div class="separator">:</div>
       <div class="time-section" :class="{ 'animate-pulse': store.settings.enableAnimation }">
         <div class="time-value">{{ formattedTime.seconds }}</div>
-        <div class="time-label">Seconds</div>
+                <div class="time-label">Seconds</div>
       </div>
+    </div>
+
+      <button
+        v-if="store.activeGame.type === 'utility'"
+        @click.stop="store.restartCountdown(store.activeGame.id)"
+        class="restart-button"
+        title="Restart countdown"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="restart-icon">
+          <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C15.0711 3 17.75 4.60718 19.25 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19 8V3H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
 
 <div v-if="!isFocusMode" class="timezone-section">
@@ -459,10 +474,63 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  height: 100%;
   width: 100%;
   padding: 1rem;
-  text-align: center;
+  box-sizing: border-box;
+}
+
+.timer-display-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.restart-button {
+  margin-left: 1rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.restart-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.restart-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.restart-button {
+  margin-left: 1rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.restart-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.restart-button svg {
+  width: 24px;
+  height: 24px;
 }
 
 .timer-display {
