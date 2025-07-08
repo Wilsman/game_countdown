@@ -34,10 +34,30 @@ export const useTimerStore = defineStore("timer", () => {
   // Get user's current timezone
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  // Helper function to create a date that's X minutes from now
+  // Helper function to create a date that's X minutes from now in user's timezone
   const createDateMinutesFromNow = (minutes: number): Date => {
     const date = new Date();
     date.setMinutes(date.getMinutes() + minutes);
+    return date;
+  };
+
+  // Helper function to create a date in a specific timezone
+  const createDateInTimezone = (year: number, month: number, day: number, hours: number, minutes: number, timezone: string): Date => {
+    // Create a date string in the target timezone
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+    
+    // Create a date object from the string in the target timezone
+    const date = new Date(`${dateStr}Z`);
+    
+    // If the timezone is not UTC, adjust for the timezone offset
+    if (timezone !== 'UTC') {
+      const options = { timeZone: timezone };
+      const tzOffset = date.getTimezoneOffset() * 60 * 1000;
+      const tzString = date.toLocaleString('en-US', options);
+      const localOffset = new Date(tzString).getTime() - date.getTime() + tzOffset;
+      return new Date(date.getTime() + localOffset);
+    }
+    
     return date;
   };
 
@@ -74,14 +94,14 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "tarkov-wipe-maintenance",
       title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Maintenance Start",
-      targetDate: new Date(2025, 6, 9, 8, 0, 0), // July 9, 2025 8:00 AM
+      targetDate: createDateInTimezone(2025, 6, 9, 8, 0, "Europe/Moscow"), // July 9, 2025 8:00 AM Moscow Time
       targetTimezone: "Europe/Moscow",
       type: "game",
     },
     {
       id: "tarkov-wipe-start",
       title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Start (Approx)",
-      targetDate: new Date(2025, 6, 9, 14, 0, 0), // July 9, 2025 2:00 PM
+      targetDate: createDateInTimezone(2025, 6, 9, 14, 0, "Europe/Moscow"), // July 9, 2025 2:00 PM Moscow Time
       targetTimezone: "Europe/Moscow",
       type: "game",
     },
