@@ -81,7 +81,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "tarkov-wipe-start",
       title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Start (Approx)",
-      targetDate: new Date("2025-07-09T12:00:00Z"), // July 9, 2025 2:00 PM BST
+      targetDate: new Date("2025-07-09T13:00:00Z"), // July 9, 2025 2:00 PM BST
       targetTimezone: "Europe/London",
       type: "game",
     },
