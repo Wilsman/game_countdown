@@ -17,12 +17,20 @@ type Theme = 'light' | 'dark'
 
 // Import store and initialize it
 const timerStore = useTimerStore()
-const { gameTitle, settings } = storeToRefs(timerStore)
+const { gameTitle, gameTitleColor, settings } = storeToRefs(timerStore)
 
 // Reactive variables
 const isEditingTitle = ref<boolean>(false)
 const titleInput: Ref<HTMLInputElement | null> = ref(null)
 const isFocusMode = ref<boolean>(false)
+
+// Watch for changes in focus mode and hide the Buy Me a Coffee button
+watch(isFocusMode, (isFocused) => {
+  const bmcButton = document.getElementById('bmc-wbtn')
+  if (bmcButton) {
+    bmcButton.style.display = isFocused ? 'none' : 'flex'
+  }
+})
 
 // Check which game background to show
 const gameBackground = computed(() => {
@@ -134,7 +142,8 @@ watch(isFocusMode, (isFocus) => {
             <h1 
               v-if="!isEditingTitle" 
               @click="handleEditTitle" 
-              class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center text-white cursor-pointer"
+              class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center cursor-pointer"
+              :style="{ color: gameTitleColor }"
               :class="{ 'mx-auto': gameTitle.length < 15 }"
             >
               {{ gameTitle }}
@@ -145,7 +154,8 @@ watch(isFocusMode, (isFocus) => {
               v-model="gameTitle" 
               @blur="handleStopEditTitle" 
               @keyup.enter="handleStopEditTitle"
-              class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center bg-white text-black cursor-pointer border-none outline-none w-full px-4 py-2 rounded"
+              class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center bg-transparent border-none outline-none w-full px-4 py-2 rounded"
+              :style="{ color: gameTitleColor }"
               ref="titleInput" 
             />
             <TimerDisplay :is-focus-mode="isFocusMode" />
@@ -158,7 +168,14 @@ watch(isFocusMode, (isFocus) => {
             <div class="text-sm opacity-60">
               Game Countdown Timer
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center space-x-2">
+              <input
+                type="color"
+                :value="gameTitleColor"
+                @input="(event) => timerStore.setGameTitleColor((event.target as HTMLInputElement).value)"
+                class="w-8 h-8 p-0 border-none rounded-md cursor-pointer bg-card"
+                title="Change title color"
+              />
               <button
                 @click="isFocusMode = !isFocusMode"
                 class="text-sm opacity-60 hover:opacity-100 transition-opacity"

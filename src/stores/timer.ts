@@ -25,6 +25,7 @@ interface TimeRemaining {
 interface Game {
   id: string;
   title: string;
+  titleColor: string;
   targetDate: Date;
   targetTimezone: string;
   type: "game" | "utility";
@@ -46,6 +47,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "break-30",
       title: "Be Right Back (30min)",
+      titleColor: "#ffffff",
       targetDate: createDateMinutesFromNow(30),
       targetTimezone: userTimezone,
       type: "utility",
@@ -53,6 +55,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "break-15",
       title: "Be Right Back (15min)",
+      titleColor: "#ffffff",
       targetDate: createDateMinutesFromNow(15),
       targetTimezone: userTimezone,
       type: "utility",
@@ -60,6 +63,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "break-10",
       title: "Be Right Back (10min)",
+      titleColor: "#ffffff",
       targetDate: createDateMinutesFromNow(10),
       targetTimezone: userTimezone,
       type: "utility",
@@ -67,6 +71,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "break-5",
       title: "Snack Break (5min)",
+      titleColor: "#ffffff",
       targetDate: createDateMinutesFromNow(5),
       targetTimezone: userTimezone,
       type: "utility",
@@ -74,13 +79,15 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "tarkov-wipe-maintenance",
       title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Maintenance Start",
+      titleColor: "#ffffff",
       targetDate: new Date("2025-07-09T07:00:00Z"), // July 9, 2025 8:00 AM BST
       targetTimezone: "Europe/London",
       type: "game",
     },
     {
       id: "tarkov-wipe-start",
-      title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Start (Approx)",
+      title: "EFT Hardcore Wipe: Start",
+      titleColor: "#ffffff",
       targetDate: new Date("2025-07-09T13:00:00Z"), // July 9, 2025 2:00 PM BST
       targetTimezone: "Europe/London",
       type: "game",
@@ -88,6 +95,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "poe-3-26",
       title: "POE1 3.26",
+      titleColor: "#ffffff",
       targetDate: new Date(2025, 5, 13, 21, 0, 0), // June 13, 2025 9:00 PM
       targetTimezone: userTimezone,
       type: "game",
@@ -95,6 +103,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "arc-raiders",
       title: "ARC Raiders",
+      titleColor: "#ffffff",
       targetDate: new Date(2025, 9, 30, 0, 0, 0), // October 30, 2025
       targetTimezone: "Europe/Stockholm",
       type: "game",
@@ -102,6 +111,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "starcitizen-42",
       title: "Star Citizen: Squadron 42",
+      titleColor: "#ffffff",
       targetDate: new Date(2025, 11, 1, 0, 0, 0), // December 1, 2025 (estimated)
       targetTimezone: "UTC",
       type: "game",
@@ -109,6 +119,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "marvel-1943",
       title: "Marvel 1943: Rise of Hydra",
+      titleColor: "#ffffff",
       targetDate: new Date(2025, 2, 1, 0, 0, 0), // March 1, 2025
       targetTimezone: "America/Los_Angeles",
       type: "game",
@@ -119,7 +130,7 @@ export const useTimerStore = defineStore("timer", () => {
   const games = ref<Game[]>(defaultGames);
   // Set default active game to Tarkov Wipe Maintenance
   const activeGameIndex = ref(
-    defaultGames.findIndex(game => game.id === 'tarkov-wipe-maintenance')
+    defaultGames.findIndex(game => game.id === 'tarkov-wipe-start')
   );
   const isEditMode = ref(false);
   const settings: Ref<TimerSettings> = ref({
@@ -142,6 +153,7 @@ export const useTimerStore = defineStore("timer", () => {
   // Computed properties for active game
   const activeGame = computed<Game>(() => games.value[activeGameIndex.value]);
   const gameTitle = computed(() => activeGame.value.title);
+  const gameTitleColor = computed(() => activeGame.value.titleColor);
   const targetDate = computed(() => activeGame.value.targetDate);
   const targetTimezone = computed(() => activeGame.value.targetTimezone);
 
@@ -295,6 +307,13 @@ export const useTimerStore = defineStore("timer", () => {
     }
   };
 
+  const setGameTitleColor = (color: string): void => {
+    const gameIndex = activeGameIndex.value;
+    if (gameIndex !== -1 && games.value[gameIndex]) {
+      games.value[gameIndex] = { ...games.value[gameIndex], titleColor: color };
+    }
+  };
+
   const setGameTitle = (title: string): void => {
     if (games.value[activeGameIndex.value]) {
       games.value[activeGameIndex.value].title = title;
@@ -317,6 +336,7 @@ export const useTimerStore = defineStore("timer", () => {
     games.value.push({
       id,
       title,
+      titleColor: "#ffffff", // Default color for new games
       targetDate: date,
       targetTimezone: timezone,
       type,
@@ -386,9 +406,11 @@ export const useTimerStore = defineStore("timer", () => {
     isEditMode,
     settings,
     gameTitle,
+    gameTitleColor,
     timeRemaining,
     setTargetDate,
     setGameTitle,
+    setGameTitleColor,
     setActiveGameIndex,
     addGame,
     removeGame,
