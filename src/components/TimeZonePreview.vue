@@ -86,6 +86,8 @@ const timeZonePreviews = computed(() => {
 .timezone-time {
   font-weight: 500;
   font-size: 0.875rem;
+  color: var(--primary-color);
+  transition: color 0.2s ease;
 }
 
 @media (min-width: 768px) {

@@ -13,6 +13,7 @@ interface TimerSettings {
   enableSound: boolean;
   enableSoundToggle: boolean;
   theme: "light" | "dark";
+  enableGameBackground: boolean;
 }
 
 interface TimeRemaining {
@@ -34,6 +35,44 @@ interface Game {
 export const useTimerStore = defineStore("timer", () => {
   // Get user's current timezone
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  
+  // Function to handle URL parameters
+  const handleUrlParams = () => {
+    if (typeof window === 'undefined') return;
+    
+    const params = new URLSearchParams(window.location.search);
+    const gameId = params.get('game');
+    const dateStr = params.get('date');
+    const timezone = params.get('timezone');
+    const color = params.get('color');
+    const bgEnabled = params.get('bg');
+    
+    // Find the game by ID
+    if (gameId) {
+      const gameIndex = games.value.findIndex(g => g.id === gameId);
+      if (gameIndex !== -1) {
+        setActiveGameIndex(gameIndex);
+        
+        // Update the game's date and timezone if provided
+        if (dateStr) {
+          const date = new Date(dateStr);
+          if (!isNaN(date.getTime())) {
+            setTargetDate(date, timezone || userTimezone);
+          }
+        }
+        
+        // Update the game's color if provided
+        if (color) {
+          setGameTitleColor(`#${color}`);
+        }
+      }
+    }
+    
+    // Update background setting if provided
+    if (bgEnabled !== null) {
+      updateSettings({ enableGameBackground: bgEnabled === '1' });
+    }
+  };
 
   // Helper function to create a date that's X minutes from now
   const createDateMinutesFromNow = (minutes: number): Date => {
@@ -142,6 +181,7 @@ export const useTimerStore = defineStore("timer", () => {
     enableSound: false,
     enableSoundToggle: true,
     theme: "dark",
+    enableGameBackground: true,
   });
 
   const hasReachedZero = ref(false);
@@ -311,6 +351,24 @@ export const useTimerStore = defineStore("timer", () => {
     const gameIndex = activeGameIndex.value;
     if (gameIndex !== -1 && games.value[gameIndex]) {
       games.value[gameIndex] = { ...games.value[gameIndex], titleColor: color };
+      
+      // Update CSS variables if running in browser
+      if (typeof window !== 'undefined') {
+        const root = document.documentElement;
+        root.style.setProperty('--primary-color', color);
+        
+        // Create a slightly darker shade for hover state
+        const hex = color.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
+          (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`);
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        
+        if (result) {
+          const r = Math.max(0, parseInt(result[1], 16) - 40).toString(16).padStart(2, '0');
+          const g = Math.max(0, parseInt(result[2], 16) - 40).toString(16).padStart(2, '0');
+          const b = Math.max(0, parseInt(result[3], 16) - 40).toString(16).padStart(2, '0');
+          root.style.setProperty('--primary-color-hover', `#${r}${g}${b}`);
+        }
+      }
     }
   };
 
@@ -389,18 +447,30 @@ export const useTimerStore = defineStore("timer", () => {
   }
 
   function getShareableUrl() {
-    const params = new URLSearchParams({
-      target: targetDate.value.toISOString(),
-      theme: settings.value.theme,
-      title: gameTitle.value,
-    });
-    return `${window.location.origin}?${params.toString()}`;
+    const game = activeGame.value;
+    if (!game) return '';
+    
+    const url = new URL(window.location.href.split('?')[0]);
+    url.searchParams.set('game', game.id);
+    url.searchParams.set('date', game.targetDate.toISOString());
+    url.searchParams.set('timezone', game.targetTimezone);
+    
+    // Add the current game title color to the URL
+    if (game.titleColor) {
+      url.searchParams.set('color', game.titleColor.replace('#', ''));
+    }
+    
+    // Add the game background setting to the URL
+    url.searchParams.set('bg', settings.value.enableGameBackground ? '1' : '0');
+    
+    return url.toString();
   }
 
   return {
     games,
     activeGameIndex,
     activeGame,
+    handleUrlParams,
     targetDate,
     targetTimezone,
     isEditMode,

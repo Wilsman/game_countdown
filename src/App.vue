@@ -68,26 +68,43 @@ const handleStopEditTitle = (): void => {
 
 // No need for exposedFunctions - we'll use the variables directly in template
 
-// Process URL parameters
+// Process URL parameters and initialize the app
 onMounted(() => {
-
-  if (!isClient) return
+  if (!isClient) return;
   
-  const params = new URLSearchParams(window.location.search)
-  const targetDate = params.get('target')
-  const theme = params.get('theme')
-  const title = params.get('title')
-
-  if (targetDate) {
-    timerStore.setTargetDate(new Date(targetDate))
+  // Handle URL parameters through the store
+  timerStore.handleUrlParams();
+  
+  // Set up the Buy Me a Coffee button
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
+  script.dataset.name = 'bmc-button';
+  script.dataset.slug = 'wilsman';
+  script.dataset.font = 'Inter';
+  script.dataset.color = '#FFDD00';
+  script.dataset.emoji = '☕';
+  script.dataset.fontColor = '#000000';
+  script.dataset.boxShadow = '0px 1px 3px rgba(0, 0, 0, 0.1)';
+  script.async = true;
+  
+  // Add the script to the document
+  document.head.appendChild(script);
+  
+  // Set the button position
+  const bmcButton = document.getElementById('bmc-wbtn');
+  if (bmcButton) {
+    bmcButton.style.position = 'fixed';
+    bmcButton.style.bottom = '20px';
+    bmcButton.style.right = '20px';
+    bmcButton.style.zIndex = '1000';
   }
-
-  if (theme === 'light' || theme === 'dark') {
-    timerStore.updateSettings({ theme: theme as Theme })
-  }
-
-  if (title) {
-    timerStore.setGameTitle(title)
+  
+  // Hide the button if focus mode is active
+  if (isFocusMode.value) {
+    const bmcButton = document.getElementById('bmc-wbtn');
+    if (bmcButton) {
+      bmcButton.style.display = 'none';
+    }
   }
 })
 
@@ -112,7 +129,7 @@ watch(isFocusMode, (isFocus) => {
   <div class="relative min-h-screen w-full">
     <!-- Game Background -->
     <div 
-      v-if="gameBackground"
+      v-if="gameBackground && settings.enableGameBackground"
       class="fixed inset-0 -z-10 w-screen h-screen transition-all duration-500"
       :style="{
         backgroundImage: gameBackground.image,
@@ -143,7 +160,7 @@ watch(isFocusMode, (isFocus) => {
               v-if="!isEditingTitle" 
               @click="handleEditTitle" 
               class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center cursor-pointer"
-              :style="{ color: gameTitleColor }"
+              style="color: var(--primary-color)"
               :class="{ 'mx-auto': gameTitle.length < 15 }"
             >
               {{ gameTitle }}
@@ -174,8 +191,20 @@ watch(isFocusMode, (isFocus) => {
                 :value="gameTitleColor"
                 @input="(event) => timerStore.setGameTitleColor((event.target as HTMLInputElement).value)"
                 class="w-8 h-8 p-0 border-none rounded-md cursor-pointer bg-card"
-                title="Change title color"
+                title="Change text color"
               />
+              <button
+                @click="timerStore.updateSettings({ enableGameBackground: !settings.enableGameBackground })"
+                class="w-8 h-8 flex items-center justify-center rounded-md transition-colors"
+                :class="settings.enableGameBackground ? 'bg-primary/20 text-primary' : 'bg-card/50 text-muted-foreground'"
+                :title="settings.enableGameBackground ? 'Disable game background' : 'Enable game background'"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image">
+                  <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                  <circle cx="9" cy="9" r="2"/>
+                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                </svg>
+              </button>
               <button
                 @click="isFocusMode = !isFocusMode"
                 class="text-sm opacity-60 hover:opacity-100 transition-opacity"
@@ -211,21 +240,21 @@ watch(isFocusMode, (isFocus) => {
 
 <style>
 :root {
-  --primary-color: #646cff;
-  --primary-color-hover: #535bf2;
-  --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
+  --primary-color: #03a9f4;
+  --primary-color-hover: #0288d1;
+  --bg-primary: ##029be5;
+  --bg-secondary: #eceff1;
   --bg-input: #ffffff;
-  --text-primary: #111827;
-  --border-color: #e5e7eb;
+  --text-primary: rgba(0,0,0,0.87);
+  --border-color: #e0e0e0;
 }
 
 .dark {
-  --bg-primary: #111827;
-  --bg-secondary: #1f2937;
-  --bg-input: #374151;
-  --text-primary: #f9fafb;
-  --border-color: #374151;
+  --bg-primary: #212121;
+  --bg-secondary: #424242;
+  --bg-input: #424242;
+  --text-primary: rgba(255,255,255,0.87);
+  --border-color: #424242;
 }
 
 body {

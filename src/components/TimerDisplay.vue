@@ -596,7 +596,7 @@ onUnmounted(() => {
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 700;
   line-height: 1.2;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover)); /* Orange gradient */
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
