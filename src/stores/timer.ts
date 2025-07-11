@@ -163,14 +163,20 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "America/Los_Angeles",
       type: "game",
     },
+    {
+      id: "path-of-exile-2",
+      title: "Path of Exile 2 - New League",
+      titleColor: "#ffffff",
+      targetDate: new Date(2025, 7, 29, 0, 0, 0), // August 29, 2025
+      targetTimezone: "UTC",
+      type: "game",
+    },
   ];
 
   // Store state
   const games = ref<Game[]>(defaultGames);
-  // Set default active game to Tarkov Wipe Maintenance
-  const activeGameIndex = ref(
-    defaultGames.findIndex(game => game.id === 'tarkov-wipe-start')
-  );
+  // Will be set to the soonest ending game by findAndSetNextUpcomingGame
+  const activeGameIndex = ref(0);
   const isEditMode = ref(false);
   const settings: Ref<TimerSettings> = ref({
     fontFamily: "Inter",
@@ -224,19 +230,29 @@ export const useTimerStore = defineStore("timer", () => {
 
   // Find the next upcoming game and set it as active
   function findAndSetNextUpcomingGame() {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     const now = new Date();
-    let nextGameIndex = -1;
+    let nextGameIndex = 0; // Default to first game if none found
     let minTimeDiff = Infinity;
+    let foundGame = false;
 
     games.value.forEach((game, index) => {
-      const diff = differenceInSeconds(game.targetDate, now);
-      if (diff > 0 && diff < minTimeDiff) {
-        minTimeDiff = diff;
-        nextGameIndex = index;
+      // Only consider games, not utilities
+      if (game.type === 'game') {
+        const diff = differenceInSeconds(game.targetDate, now);
+        // Find the game with the smallest positive time difference
+        if (diff > 0 && diff < minTimeDiff) {
+          minTimeDiff = diff;
+          nextGameIndex = index;
+          foundGame = true;
+        }
       }
     });
 
-    if (nextGameIndex !== -1) {
+    // Only update if we found a valid game
+    if (foundGame) {
       activeGameIndex.value = nextGameIndex;
     }
   }
@@ -334,10 +350,14 @@ export const useTimerStore = defineStore("timer", () => {
   }
 
   const gameOptions = computed(() =>
-    games.value.filter((game) => game.type === "game")
+    games.value
+      .filter((game) => game.type === "game")
+      .sort((a, b) => a.targetDate.getTime() - b.targetDate.getTime())
   );
   const utilityOptions = computed(() =>
-    games.value.filter((game) => game.type === "utility")
+    games.value
+      .filter((game) => game.type === "utility")
+      .sort((a, b) => a.targetDate.getTime() - b.targetDate.getTime())
   );
 
   const setTargetDate = (date: Date, timezone: string = userTimezone): void => {
@@ -464,6 +484,11 @@ export const useTimerStore = defineStore("timer", () => {
     url.searchParams.set('bg', settings.value.enableGameBackground ? '1' : '0');
     
     return url.toString();
+  }
+
+  // Set the initial active game to the soonest ending one
+  if (typeof window !== 'undefined') {
+    findAndSetNextUpcomingGame();
   }
 
   return {

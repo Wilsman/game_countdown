@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useTimerStore } from "../stores/timer";
+import { differenceInSeconds } from "date-fns";
 
 const store = useTimerStore();
 const isOpen = ref(false);
@@ -53,6 +54,22 @@ watch(isOpen, (newValue) => {
     document.removeEventListener('mousedown', handleClickOutside);
   }
 });
+
+const isGameInPast = (game: any) => {
+  return differenceInSeconds(new Date(game.targetDate), new Date()) <= 0;
+};
+
+const sortedGameOptions = computed(() => {
+  return [...store.gameOptions].sort((a, b) => {
+    return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+  });
+});
+
+const sortedUtilityOptions = computed(() => {
+  return [...store.utilityOptions].sort((a, b) => {
+    return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+  });
+});
 </script>
 
 <template>
@@ -85,13 +102,17 @@ watch(isOpen, (newValue) => {
         <div class="dropdown-header">Utility Timers</div>
         <div class="dropdown-items">
           <button
-            v-for="game in store.utilityOptions"
+            v-for="game in sortedUtilityOptions"
             :key="game.id"
             @click="selectGame(game.id)"
             class="dropdown-item"
-            :class="{ 'active': game.id === store.activeGame.id }"
+            :class="{ 
+              'active': game.id === store.activeGame.id,
+              'completed': isGameInPast(game)
+            }"
           >
             <span class="game-title">{{ game.title }}</span>
+            <span v-if="isGameInPast(game)" class="completed-badge">Completed</span>
           </button>
         </div>
       </div>
@@ -100,20 +121,26 @@ watch(isOpen, (newValue) => {
         <div class="dropdown-header">Games</div>
         <div class="dropdown-items">
           <button
-            v-for="game in store.gameOptions"
+            v-for="game in sortedGameOptions"
             :key="game.id"
             @click="selectGame(game.id)"
             class="dropdown-item"
-            :class="{ 'active': game.id === store.activeGame.id }"
+            :class="{ 
+              'active': game.id === store.activeGame.id,
+              'completed': isGameInPast(game)
+            }"
           >
             <span class="game-title">{{ game.title }}</span>
-            <span class="game-date">
-              {{ new Date(game.targetDate).toLocaleDateString(undefined, {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              }) }}
-            </span>
+            <div class="game-meta">
+              <span class="game-date">
+                {{ new Date(game.targetDate).toLocaleDateString(undefined, {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                }) }}
+              </span>
+              <span v-if="isGameInPast(game)" class="completed-badge">Completed</span>
+            </div>
           </button>
         </div>
       </div>
@@ -205,16 +232,17 @@ watch(isOpen, (newValue) => {
 
 .dropdown-item {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   text-align: left;
   background: none;
   border: none;
-  cursor: pointer;
   color: var(--text-primary);
-  transition: background-color 0.2s ease;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.1s ease, opacity 0.2s ease;
 }
 
 .dropdown-item:hover {
@@ -226,14 +254,46 @@ watch(isOpen, (newValue) => {
   color: white;
 }
 
+.dropdown-item.completed {
+  opacity: 0.7;
+}
+
+.dropdown-item.completed .game-title {
+  text-decoration: line-through;
+}
+
 .game-title {
-  font-weight: 500;
-  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.game-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 .game-date {
   font-size: 0.75rem;
-  opacity: 0.7;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.completed-badge {
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+  background-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.dropdown-item.completed .completed-badge {
+  background-color: var(--danger-color, #ef4444);
+  color: white;
 }
 
 .dropdown-footer {

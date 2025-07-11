@@ -156,25 +156,28 @@ watch(isFocusMode, (isFocus) => {
             </div>
             
             <!-- Editable Title -->
-            <h1 
-              v-if="!isEditingTitle" 
-              @click="handleEditTitle" 
-              class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center cursor-pointer"
-              style="color: var(--primary-color)"
-              :class="{ 'mx-auto': gameTitle.length < 15 }"
-            >
-              {{ gameTitle }}
-            </h1>
-            <input 
-              v-else 
-              type="text" 
-              v-model="gameTitle" 
-              @blur="handleStopEditTitle" 
-              @keyup.enter="handleStopEditTitle"
-              class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center bg-transparent border-none outline-none w-full px-4 py-2 rounded"
-              :style="{ color: gameTitleColor }"
-              ref="titleInput" 
-            />
+            <div class="flex justify-center mb-6">
+              <template v-if="!isEditingTitle">
+                <h1 
+                  @click="handleEditTitle" 
+                  class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center cursor-pointer px-6 py-3 rounded-lg inline-block"
+                  style="color: var(--primary-color)"
+                  :class="{ 'mx-auto': gameTitle.length < 15 }"
+                >
+                  {{ gameTitle }}
+                </h1>
+              </template>
+              <input 
+                v-else
+                type="text" 
+                v-model="gameTitle" 
+                @blur="handleStopEditTitle" 
+                @keyup.enter="handleStopEditTitle"
+                class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center bg-transparent border-none outline-none w-full px-4 py-2 rounded"
+                :style="{ color: gameTitleColor }"
+                ref="titleInput" 
+              />
+            </div>
             <TimerDisplay :is-focus-mode="isFocusMode" />
           </div>
         </div>
