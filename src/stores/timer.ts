@@ -445,6 +445,16 @@ export const useTimerStore = defineStore("timer", () => {
 
   const updateSettings = (newSettings: Partial<TimerSettings>): void => {
     settings.value = { ...settings.value, ...newSettings };
+    
+    // Apply font family to document if running in browser
+    if (typeof window !== 'undefined' && newSettings.fontFamily) {
+      document.documentElement.style.setProperty('--font-family', newSettings.fontFamily);
+    }
+    
+    // Apply font size to timer display if running in browser
+    if (typeof window !== 'undefined' && newSettings.fontSize) {
+      document.documentElement.style.setProperty('--timer-font-size', `${newSettings.fontSize}px`);
+    }
   };
 
     function restartCountdown(id: string) {

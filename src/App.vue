@@ -4,6 +4,7 @@ import { onMounted, watch, ref, nextTick, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import TimerDisplay from './components/TimerDisplay.vue'
 import GameSelector from './components/GameSelector.vue'
+import ControlPanel from './components/ControlPanel.vue'
 import type { Ref } from 'vue'
 
 declare global {
@@ -189,36 +190,12 @@ watch(isFocusMode, (isFocus) => {
               Game Countdown Timer
             </div>
             <div class="flex items-center space-x-2">
-              <input
-                type="color"
-                :value="gameTitleColor"
-                @input="(event) => timerStore.setGameTitleColor((event.target as HTMLInputElement).value)"
-                class="w-8 h-8 p-0 border-none rounded-md cursor-pointer bg-card"
-                title="Change text color"
-              />
-              <button
-                @click="timerStore.updateSettings({ enableGameBackground: !settings.enableGameBackground })"
-                class="w-8 h-8 flex items-center justify-center rounded-md transition-colors"
-                :class="settings.enableGameBackground ? 'bg-primary/20 text-primary' : 'bg-card/50 text-muted-foreground'"
-                :title="settings.enableGameBackground ? 'Disable game background' : 'Enable game background'"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image">
-                  <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
-                  <circle cx="9" cy="9" r="2"/>
-                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-                </svg>
-              </button>
+              <ControlPanel />
               <button
                 @click="isFocusMode = !isFocusMode"
                 class="text-sm opacity-60 hover:opacity-100 transition-opacity"
               >
                 Focus Mode
-              </button>
-              <button
-                @click="useTimerStore().resetGames()"
-                class="text-sm opacity-60 hover:opacity-100 transition-opacity"
-              >
-                Reset Games
               </button>
               <div class="text-sm opacity-60">
                 Built by Wilsman77
