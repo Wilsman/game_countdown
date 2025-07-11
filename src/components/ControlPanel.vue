@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useToast } from 'vue-toastification'
 import { useTimerStore } from '../stores/timer'
 import { storeToRefs } from 'pinia'
 
@@ -7,7 +8,32 @@ const store = useTimerStore()
 const { settings, gameTitleColor } = storeToRefs(store)
 
 const isOpen = ref(false)
-const panelRef = ref<HTMLDivElement | null>(null)
+const panelRef = ref<HTMLElement | null>(null)
+const toast = useToast()
+
+const copyShareableUrl = async () => {
+  try {
+    const url = store.getShareableUrl()
+    if (!url) return
+    
+    if (navigator && navigator.clipboard) {
+      await navigator.clipboard.writeText(url)
+      toast.success('URL copied to clipboard!')
+    } else {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement('textarea')
+      textArea.value = url
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      toast.success('URL copied to clipboard!')
+    }
+  } catch (error) {
+    console.error('Failed to copy URL:', error)
+    toast.error('Failed to copy URL')
+  }
+}
 
 function togglePanel() {
   isOpen.value = !isOpen.value
@@ -266,7 +292,7 @@ function importSettings(event: Event) {
           <h4>Actions</h4>
           
           <div class="action-buttons">
-            <button @click="store.getShareableUrl() && navigator.clipboard.writeText(store.getShareableUrl())" class="action-button">
+            <button @click="copyShareableUrl" class="action-button">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
                 <polyline points="16,6 12,2 8,6"/>
