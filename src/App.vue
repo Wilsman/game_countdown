@@ -210,7 +210,7 @@ watch(isFocusMode, (isFocus) => {
                 class="link"
                 aria-label="Creator profile"
               >
-                Built by Wilsman77 🇧🇷
+                Built by Wilsman77
               </a>
             </div>
           </div>
@@ -279,12 +279,12 @@ body {
   background: radial-gradient(
       1200px 600px at 20% -10%,
       rgba(8, 145, 178, 0.08),
-      transparent 60%
+      transparent 90%
     ),
     radial-gradient(
       1000px 520px at 110% 10%,
       rgba(34, 211, 238, 0.06),
-      transparent 60%
+      transparent 90%
     ),
     linear-gradient(180deg, #0c0c0c, #0b0b0b 40%, #0c0c0c);
   color: var(--text-primary);
@@ -303,8 +303,8 @@ body {
   height: 520px;
   background: radial-gradient(
     50% 50% at 50% 50%,
-    rgba(6, 182, 212, 0.12) 0%,
-    rgba(6, 182, 212, 0) 60%
+    rgba(6, 182, 212, 0.08) 0%,
+    rgba(6, 182, 212, 0) 90%
   );
   filter: blur(10px);
   z-index: -1;
@@ -343,8 +343,8 @@ body {
 .card-glass {
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.02),
-    rgba(255, 255, 255, 0.01)
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.6)
   );
   border: 1px solid var(--border-color);
   border-radius: 24px;
@@ -366,7 +366,7 @@ body {
   background: radial-gradient(
       1000px 200px at 50% 0%,
       rgba(34, 211, 238, 0.06),
-      rgba(0, 0, 0, 0) 60%
+      rgba(0, 0, 0, 0) 90%
     ),
     transparent;
   text-shadow: 0 0 22px rgba(34, 211, 238, 0.15);

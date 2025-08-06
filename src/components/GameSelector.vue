@@ -8,8 +8,26 @@ import { differenceInSeconds } from "date-fns";
 const store = useTimerStore();
 const isOpen = ref(false);
 const dropdownRef = ref<HTMLDivElement | null>(null);
+const dropdownStyle = ref({});
 
-function toggleDropdown() { isOpen.value = !isOpen.value; }
+const updateDropdownPosition = () => {
+  if (dropdownRef.value && isOpen.value) {
+    const rect = dropdownRef.value.getBoundingClientRect();
+    dropdownStyle.value = {
+      position: 'fixed',
+      top: `${rect.bottom + window.scrollY + 4}px`,
+      left: `${rect.left + window.scrollX}px`,
+      zIndex: 9999,
+    };
+  }
+};
+
+function toggleDropdown() { 
+  isOpen.value = !isOpen.value; 
+  if (isOpen.value) {
+    setTimeout(updateDropdownPosition, 0);
+  }
+}
 function closeDropdown() { isOpen.value = false; }
 
 function selectGame(gameId: string) {
@@ -39,8 +57,15 @@ function handleClickOutside(event: MouseEvent) {
 }
 
 watch(isOpen, (newValue) => {
-  if (newValue) document.addEventListener('mousedown', handleClickOutside);
-  else document.removeEventListener('mousedown', handleClickOutside);
+  if (newValue) {
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('resize', updateDropdownPosition);
+    window.addEventListener('scroll', updateDropdownPosition);
+  } else {
+    document.removeEventListener('mousedown', handleClickOutside);
+    window.removeEventListener('resize', updateDropdownPosition);
+    window.removeEventListener('scroll', updateDropdownPosition);
+  }
 });
 
 const isGameInPast = (game: any) => {
@@ -85,7 +110,8 @@ const sortedUtilityOptions = computed(() => {
       </svg>
     </button>
 
-    <div v-if="isOpen" class="dropdown-menu surface-3d">
+    <teleport to="body">
+      <div v-if="isOpen" class="dropdown-menu surface-3d" :style="dropdownStyle">
       <div class="dropdown-section">
         <div class="dropdown-header">Utility Timers</div>
         <div class="dropdown-items">
@@ -139,6 +165,7 @@ const sortedUtilityOptions = computed(() => {
         </button>
       </div>
     </div>
+  </teleport>
   </div>
 </template>
 
@@ -163,13 +190,14 @@ const sortedUtilityOptions = computed(() => {
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 0.4rem);
-  right: 0;
+  left: 50%;
+  /* transform: translateX(-50%); */
   min-width: 18rem;
   background: rgba(12,12,12,1); 
   border: 1px solid var(--border-color, rgba(255,255,255,0.10));
   border-radius: 12px;
   box-shadow: 0 18px 50px rgba(0,0,0,0.45);
-  z-index: 50;
+  z-index: 9999999;
   overflow: hidden;
   animation: dropdown-appear 0.18s ease;
 }
