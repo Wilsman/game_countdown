@@ -19,7 +19,7 @@ const isClient = typeof window !== "undefined";
 type Theme = "light" | "dark";
 
 const timerStore = useTimerStore();
-const { gameTitle, gameTitleColor, settings } = storeToRefs(timerStore);
+const { gameTitle, gameTitleColor, settings, isObsMode } = storeToRefs(timerStore);
 
 const isEditingTitle = ref<boolean>(false);
 const titleInput: Ref<HTMLInputElement | null> = ref(null);
@@ -28,7 +28,14 @@ const isFocusMode = ref<boolean>(false);
 watch(isFocusMode, (isFocused) => {
   const bmcButton = document.getElementById("bmc-wbtn");
   if (bmcButton) {
-    bmcButton.style.display = isFocused ? "none" : "flex";
+    bmcButton.style.display = (isFocused || isObsMode.value) ? "none" : "flex";
+  }
+});
+
+watch(isObsMode, (isObs) => {
+  const bmcButton = document.getElementById("bmc-wbtn");
+  if (bmcButton) {
+    bmcButton.style.display = (isObs || isFocusMode.value) ? "none" : "flex";
   }
 });
 
@@ -91,7 +98,7 @@ onMounted(() => {
     bmcButton.style.right = "20px";
     bmcButton.style.zIndex = "1000";
   }
-  if (isFocusMode.value) {
+  if (isFocusMode.value || isObsMode.value) {
     const btn = document.getElementById("bmc-wbtn");
     if (btn) btn.style.display = "none";
   }
@@ -144,7 +151,7 @@ watch(isFocusMode, (isFocus) => {
           <div class="w-full max-w-6xl mx-auto card-glass">
             <!-- Header bar -->
             <div
-              v-if="!isFocusMode"
+              v-if="!isFocusMode && !isObsMode"
               class="flex items-center justify-center header-bar"
             >
               <GameSelector />
@@ -179,7 +186,7 @@ watch(isFocusMode, (isFocus) => {
         </div>
 
         <!-- Footer (reimagined, #0C0C0C-based) -->
-        <div v-if="!isFocusMode" class="footer-shell">
+        <div v-if="!isFocusMode && !isObsMode" class="footer-shell">
           <div class="footer glass">
             <div class="footer-left">
               <span class="brand-dot"></span>
@@ -216,7 +223,7 @@ watch(isFocusMode, (isFocus) => {
           </div>
         </div>
 
-        <div v-else class="footer-shell">
+        <div v-else-if="isFocusMode && !isObsMode" class="footer-shell">
           <div class="footer glass compact">
             <button
               @click="isFocusMode = !isFocusMode"

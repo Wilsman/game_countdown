@@ -229,6 +229,11 @@ function copyShareableUrl() {
   navigator.clipboard.writeText(store.getShareableUrl())
 }
 
+const copyObsUrl = () => {
+  const obsUrl = store.getShareableUrl() + '&obs=1'
+  navigator.clipboard.writeText(obsUrl)
+}
+
 const originalTitle = document.title
 
 const updateDocumentTitle = () => {
@@ -261,7 +266,7 @@ onUnmounted(() => {
 <template>
   <div class="timer-container">
     <div class="timer-display-wrapper">
-      <div class="timer-display surface-3d hover-scale" @click="openDatePicker">
+      <div class="timer-display surface-3d hover-scale" @click="!store.isObsMode ? openDatePicker : null">
         <div class="time-section" :class="{ 'animate-pulse': store.settings.enableAnimation }">
           <div class="time-value gradient-text">{{ formattedTime.days }}</div>
           <div class="time-label">Days</div>
@@ -284,7 +289,7 @@ onUnmounted(() => {
       </div>
 
       <button
-        v-if="store.activeGame.type === 'utility'"
+        v-if="store.activeGame.type === 'utility' && !store.isObsMode"
         @click.stop="store.restartCountdown(store.activeGame.id)"
         class="restart-button soft-btn"
         title="Restart countdown"
@@ -297,15 +302,20 @@ onUnmounted(() => {
       </button>
     </div>
 
-    <div v-if="!isFocusMode" class="timezone-section">
+    <div v-if="!isFocusMode && !store.isObsMode" class="timezone-section">
       <TimeZonePreview />
       <button @click.stop="copyShareableUrl" class="share-button soft-btn-strong">
         <span>Copy Shareable URL</span>
       </button>
+      <button @click.stop="copyObsUrl" class="obs-button soft-btn-strong">
+        <span>Copy OBS Link</span>
+      </button>
     </div>
 
+
+
     <!-- Date Picker Modal -->
-    <div v-if="showDatePicker" class="modal-overlay" @click="closeDatePicker">
+    <div v-if="showDatePicker && !store.isObsMode" class="modal-overlay" @click="closeDatePicker">
       <div class="modal-content surface-3d strong" @click.stop>
         <h3 class="modal-title">Set Target Date/Time</h3>
         <div class="form-group">
@@ -499,6 +509,30 @@ onUnmounted(() => {
 }
 
 .share-button { min-width: 220px; }
+
+.obs-button {
+  min-width: 140px;
+}
+
+.obs-exit-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.obs-exit-button {
+  min-width: 180px;
+  background: linear-gradient(180deg, rgba(239,68,68,0.16), rgba(220,38,38,0.12));
+  border: 1px solid rgba(239,68,68,0.28);
+  box-shadow: 0 8px 26px rgba(220,38,38,0.18);
+}
+
+.obs-exit-button:hover {
+  background: linear-gradient(180deg, rgba(239,68,68,0.24), rgba(220,38,38,0.16));
+  border-color: rgba(239,68,68,0.45);
+  box-shadow: 0 14px 34px rgba(220,38,38,0.25);
+}
 
 .modal-overlay {
   position: fixed;

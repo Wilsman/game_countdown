@@ -46,6 +46,7 @@ export const useTimerStore = defineStore("timer", () => {
     const timezone = params.get('timezone');
     const color = params.get('color');
     const bgEnabled = params.get('bg');
+    const obsMode = params.get('obs');
     
     // Find the game by ID
     if (gameId) {
@@ -71,6 +72,11 @@ export const useTimerStore = defineStore("timer", () => {
     // Update background setting if provided
     if (bgEnabled !== null) {
       updateSettings({ enableGameBackground: bgEnabled === '1' });
+    }
+    
+    // Set OBS mode if parameter is present
+    if (obsMode === '1') {
+      isObsMode.value = true;
     }
   };
 
@@ -202,6 +208,7 @@ export const useTimerStore = defineStore("timer", () => {
   // Will be set to the soonest ending game by findAndSetNextUpcomingGame
   const activeGameIndex = ref(0);
   const isEditMode = ref(false);
+  const isObsMode = ref(false);
   const settings: Ref<TimerSettings> = ref({
     fontFamily: "Inter",
     textColor: "#ffffff",
@@ -533,6 +540,7 @@ export const useTimerStore = defineStore("timer", () => {
     targetDate,
     targetTimezone,
     isEditMode,
+    isObsMode,
     settings,
     gameTitle,
     gameTitleColor,
