@@ -91,17 +91,33 @@ onMounted(() => {
   script.async = true;
   document.head.appendChild(script);
 
-  const bmcButton = document.getElementById("bmc-wbtn");
-  if (bmcButton) {
-    bmcButton.style.position = "fixed";
-    bmcButton.style.bottom = "20px";
-    bmcButton.style.right = "20px";
-    bmcButton.style.zIndex = "1000";
-  }
-  if (isFocusMode.value || isObsMode.value) {
-    const btn = document.getElementById("bmc-wbtn");
-    if (btn) btn.style.display = "none";
-  }
+  // Function to hide BMC button when it appears
+  const hideBmcButton = () => {
+    const bmcButton = document.getElementById("bmc-wbtn");
+    if (bmcButton) {
+      bmcButton.style.position = "fixed";
+      bmcButton.style.bottom = "20px";
+      bmcButton.style.right = "20px";
+      bmcButton.style.zIndex = "1000";
+      
+      if (isFocusMode.value || isObsMode.value) {
+        bmcButton.style.display = "none";
+      }
+    }
+  };
+
+  // Check immediately and then periodically for the button
+  hideBmcButton();
+  const checkInterval = setInterval(() => {
+    const bmcButton = document.getElementById("bmc-wbtn");
+    if (bmcButton) {
+      hideBmcButton();
+      clearInterval(checkInterval); // Stop checking once found
+    }
+  }, 100); // Check every 100ms
+
+  // Clear interval after 5 seconds to avoid infinite checking
+  setTimeout(() => clearInterval(checkInterval), 5000);
 });
 
 watch(

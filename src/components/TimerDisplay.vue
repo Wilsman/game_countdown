@@ -230,7 +230,11 @@ function copyShareableUrl() {
 }
 
 const copyObsUrl = () => {
-  const obsUrl = store.getShareableUrl() + '&obs=1'
+  let obsUrl = store.getShareableUrl() + '&obs=1'
+  // if "bg=1" in url replace bg=1 with "bg=0"
+  if (obsUrl.includes('bg=1')) {
+    obsUrl = obsUrl.replace('bg=1', 'bg=0')
+  }
   navigator.clipboard.writeText(obsUrl)
 }
 
