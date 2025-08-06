@@ -84,6 +84,30 @@ export const useTimerStore = defineStore("timer", () => {
   // Default games
   const defaultGames: Game[] = [
     {
+      id: "bf6-early-access",
+      title: "Battlefield 6 Beta: Early Access Start",
+      titleColor: "#00a8ff",
+      targetDate: new Date('2025-08-07T09:00:00+01:00'), // Aug 7, 9am BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "bf6-weekend1",
+      title: "Battlefield 6 Beta: Weekend 1 Start",
+      titleColor: "#00a8ff",
+      targetDate: new Date('2025-08-09T09:00:00+01:00'), // Aug 9, 9am BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "bf6-weekend2",
+      title: "Battlefield 6 Beta: Weekend 2 Start",
+      titleColor: "#00a8ff",
+      targetDate: new Date('2025-08-16T09:00:00+01:00'), // Aug 16, 9am BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "break-30",
       title: "Be Right Back (30min)",
       titleColor: "#ffffff",

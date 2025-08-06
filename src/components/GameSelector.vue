@@ -1,3 +1,5 @@
+<!-- components/GameSelector.vue -->
+
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useTimerStore } from "../stores/timer";
@@ -7,21 +9,13 @@ const store = useTimerStore();
 const isOpen = ref(false);
 const dropdownRef = ref<HTMLDivElement | null>(null);
 
-function toggleDropdown() {
-  isOpen.value = !isOpen.value;
-}
-
-function closeDropdown() {
-  isOpen.value = false;
-}
+function toggleDropdown() { isOpen.value = !isOpen.value; }
+function closeDropdown() { isOpen.value = false; }
 
 function selectGame(gameId: string) {
   const index = store.games.findIndex((g) => g.id === gameId);
   if (index !== -1) {
-    // Set the active game index first
     store.setActiveGameIndex(index);
-    
-    // If it's a break timer (10/15/30 min), always reset the target date
     if (gameId.startsWith('break-')) {
       const minutes = parseInt(gameId.replace('break-', ''));
       const newDate = new Date();
@@ -29,7 +23,6 @@ function selectGame(gameId: string) {
       const game = store.games[index];
       store.setTargetDate(newDate, game.targetTimezone);
     }
-    
     closeDropdown();
   }
 }
@@ -39,20 +32,15 @@ function resetGames() {
   closeDropdown();
 }
 
-// Close dropdown when clicking outside
 function handleClickOutside(event: MouseEvent) {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     closeDropdown();
   }
 }
 
-// Add and remove event listener
 watch(isOpen, (newValue) => {
-  if (newValue) {
-    document.addEventListener('mousedown', handleClickOutside);
-  } else {
-    document.removeEventListener('mousedown', handleClickOutside);
-  }
+  if (newValue) document.addEventListener('mousedown', handleClickOutside);
+  else document.removeEventListener('mousedown', handleClickOutside);
 });
 
 const isGameInPast = (game: any) => {
@@ -74,30 +62,30 @@ const sortedUtilityOptions = computed(() => {
 
 <template>
   <div class="game-selector" ref="dropdownRef">
-    <button 
-      @click="toggleDropdown" 
-      class="dropdown-button"
+    <button
+      @click="toggleDropdown"
+      class="dropdown-button soft-btn"
       :class="{ 'is-active': isOpen }"
     >
       <span>Choose Option</span>
-      <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        width="16" 
-        height="16" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        stroke-width="2" 
-        stroke-linecap="round" 
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
         stroke-linejoin="round"
         :class="{ 'rotate-180': isOpen }"
-        class="transition-transform duration-200"
+        style="transition: transform 0.2s ease;"
       >
         <polyline points="6 9 12 15 18 9"></polyline>
       </svg>
     </button>
-    
-    <div v-if="isOpen" class="dropdown-menu">
+
+    <div v-if="isOpen" class="dropdown-menu surface-3d">
       <div class="dropdown-section">
         <div class="dropdown-header">Utility Timers</div>
         <div class="dropdown-items">
@@ -106,7 +94,7 @@ const sortedUtilityOptions = computed(() => {
             :key="game.id"
             @click="selectGame(game.id)"
             class="dropdown-item"
-            :class="{ 
+            :class="{
               'active': game.id === store.activeGame.id,
               'completed': isGameInPast(game)
             }"
@@ -125,7 +113,7 @@ const sortedUtilityOptions = computed(() => {
             :key="game.id"
             @click="selectGame(game.id)"
             class="dropdown-item"
-            :class="{ 
+            :class="{
               'active': game.id === store.activeGame.id,
               'completed': isGameInPast(game)
             }"
@@ -146,7 +134,7 @@ const sortedUtilityOptions = computed(() => {
       </div>
 
       <div class="dropdown-footer">
-        <button @click="resetGames" class="reset-button">
+        <button @click="resetGames" class="reset-button soft-btn-strong">
           Reset to Default Games
         </button>
       </div>
@@ -161,160 +149,102 @@ const sortedUtilityOptions = computed(() => {
 }
 
 .dropdown-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.dropdown-button:hover {
-  background-color: var(--primary-color);
-  color: white;
+  gap: 0.55rem;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.9rem;
 }
 
 .dropdown-button.is-active {
-  background-color: var(--primary-color);
-  color: white;
+  outline: 2px solid rgba(34,211,238,0.25);
 }
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.25rem);
-  left: 0;
-  min-width: 16rem;
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  top: calc(100% + 0.4rem);
+  right: 0;
+  min-width: 18rem;
+  background: rgba(12,12,12,1); 
+  border: 1px solid var(--border-color, rgba(255,255,255,0.10));
+  border-radius: 12px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.45);
   z-index: 50;
   overflow: hidden;
-  animation: dropdown-appear 0.2s ease;
+  animation: dropdown-appear 0.18s ease;
 }
 
 @keyframes dropdown-appear {
-  from {
-    opacity: 0;
-    transform: translateY(-0.25rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.dropdown-section {
-  border-bottom: 1px solid var(--border-color);
-}
-
-.dropdown-section:last-of-type {
-  border-bottom: none;
-}
+.dropdown-section { border-bottom: 1px solid var(--border-color); }
+.dropdown-section:last-of-type { border-bottom: none; }
 
 .dropdown-header {
-  padding: 0.75rem 1rem;
-  font-weight: 600;
-  font-size: 0.875rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 0.9rem;
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
 }
 
-.dropdown-items {
-  max-height: 15rem;
-  overflow-y: auto;
-}
+.dropdown-items { max-height: 16rem; overflow-y: auto; }
 
 .dropdown-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.55rem 0.9rem;
   text-align: left;
   background: none;
   border: none;
   color: var(--text-primary);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: background-color 0.1s ease, opacity 0.2s ease;
+  transition: background-color 0.12s ease, opacity 0.2s ease;
 }
-
-.dropdown-item:hover {
-  background-color: var(--bg-secondary);
-}
-
+.dropdown-item:hover { background-color: rgba(255,255,255,0.3); }
 .dropdown-item.active {
-  background-color: var(--primary-color);
-  color: white;
+  background: rgba(6,182,212,0.6);
+  border-left: 2px solid var(--accent-300);
 }
+.dropdown-item.completed { opacity: 0.6; }
+.dropdown-item.completed .game-title { text-decoration: line-through; }
 
-.dropdown-item.completed {
-  opacity: 0.7;
-}
-
-.dropdown-item.completed .game-title {
-  text-decoration: line-through;
-}
-
-.game-title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-}
-
+.game-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
 .game-meta {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-left: 0.5rem;
 }
-
-.game-date {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
+.game-date { font-size: 0.78rem; color: var(--text-300); white-space: nowrap; }
 
 .completed-badge {
-  font-size: 0.65rem;
-  font-weight: 500;
+  font-size: 0.68rem;
+  font-weight: 800;
   padding: 0.15rem 0.35rem;
-  border-radius: 0.25rem;
-  background-color: var(--border-color);
-  color: var(--text-secondary);
-}
-
-.dropdown-item.completed .completed-badge {
-  background-color: var(--danger-color, #ef4444);
-  color: white;
+  border-radius: 0.35rem;
+  background: rgba(239,68,68,0.8);
+  color: #FCA5A5;
+  border: 1px solid rgba(239,68,68,0.8);
 }
 
 .dropdown-footer {
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 0.9rem;
   border-top: 1px solid var(--border-color);
 }
 
 .reset-button {
   width: 100%;
-  padding: 0.5rem;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.25rem;
-  color: var(--text-primary);
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.reset-button:hover {
-  background-color: var(--primary-color);
-  color: white;
+  font-size: 0.83rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
