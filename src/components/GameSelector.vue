@@ -15,8 +15,8 @@ const updateDropdownPosition = () => {
     const rect = dropdownRef.value.getBoundingClientRect();
     dropdownStyle.value = {
       position: 'fixed',
-      top: `${rect.bottom + window.scrollY + 4}px`,
-      left: `${rect.left + window.scrollX}px`,
+      top: `${rect.bottom + 4}px`,
+      left: `${rect.left}px`,
       zIndex: 9999,
     };
   }
@@ -51,7 +51,9 @@ function resetGames() {
 }
 
 function handleClickOutside(event: MouseEvent) {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+  const dropdownElement = document.querySelector('.dropdown-menu-teleport');
+  if (dropdownElement && !dropdownElement.contains(event.target as Node) && 
+      dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     closeDropdown();
   }
 }
@@ -111,7 +113,7 @@ const sortedUtilityOptions = computed(() => {
     </button>
 
     <teleport to="body">
-      <div v-if="isOpen" class="dropdown-menu surface-3d" :style="dropdownStyle">
+      <div v-if="isOpen" class="dropdown-menu surface-3d dropdown-menu-teleport" :style="dropdownStyle">
       <div class="dropdown-section">
         <div class="dropdown-header">Utility Timers</div>
         <div class="dropdown-items">
@@ -188,16 +190,13 @@ const sortedUtilityOptions = computed(() => {
 }
 
 .dropdown-menu {
-  position: absolute;
-  top: calc(100% + 0.4rem);
-  left: 50%;
-  /* transform: translateX(-50%); */
+  position: fixed;
   min-width: 18rem;
   background: rgba(12,12,12,1); 
   border: 1px solid var(--border-color, rgba(255,255,255,0.10));
   border-radius: 12px;
   box-shadow: 0 18px 50px rgba(0,0,0,0.45);
-  z-index: 9999999;
+  z-index: 9999;
   overflow: hidden;
   animation: dropdown-appear 0.18s ease;
 }
