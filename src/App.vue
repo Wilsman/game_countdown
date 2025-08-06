@@ -210,7 +210,7 @@ watch(isFocusMode, (isFocus) => {
                 class="link"
                 aria-label="Creator profile"
               >
-                Built by Wilsman77
+                Built by Wilsman77 🇧🇷
               </a>
             </div>
           </div>
