@@ -93,24 +93,24 @@ export const useTimerStore = defineStore("timer", () => {
       id: "bf6-early-access",
       title: "Battlefield 6 Beta: Early Access Start",
       titleColor: "#00a8ff",
-      targetDate: new Date('2025-08-07T09:00:00+01:00'), // Aug 7, 9am BST
-      targetTimezone: "Europe/London",
+      targetDate: new Date('2025-08-07T01:00:00-07:00'), // Aug 7, 1am PT (PDT)
+      targetTimezone: "America/Los_Angeles",
       type: "game",
     },
     {
       id: "bf6-weekend1",
-      title: "Battlefield 6 Beta: Weekend 1 Start",
+      title: "Battlefield 6 Beta: Weekend 1 Start (available to all)",
       titleColor: "#00a8ff",
-      targetDate: new Date('2025-08-09T09:00:00+01:00'), // Aug 9, 9am BST
-      targetTimezone: "Europe/London",
+      targetDate: new Date('2025-08-09T01:00:00-07:00'), // Aug 9, 1am PT (PDT)
+      targetTimezone: "America/Los_Angeles",
       type: "game",
     },
     {
       id: "bf6-weekend2",
-      title: "Battlefield 6 Beta: Weekend 2 Start",
+      title: "Battlefield 6 Beta: Weekend 2 Start (available to all)",
       titleColor: "#00a8ff",
-      targetDate: new Date('2025-08-16T09:00:00+01:00'), // Aug 16, 9am BST
-      targetTimezone: "Europe/London",
+      targetDate: new Date('2025-08-14T01:00:00-07:00'), // Aug 14, 1am PT (PDT)
+      targetTimezone: "America/Los_Angeles",
       type: "game",
     },
     {
