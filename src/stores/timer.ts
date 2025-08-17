@@ -162,6 +162,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkov-predicted-vbs-2025-08-19",
+      title: "EFT Predicted Event (VeryBadSCAV): Aug 19, 2025",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-08-19T00:00:00Z"), // Predicted date per VeryBadSCAV
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "poe-3-26",
       title: "POE1 3.26",
       titleColor: "#ffffff",
