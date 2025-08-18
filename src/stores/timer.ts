@@ -162,11 +162,19 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "tarkov-predicted-vbs-2025-08-19",
-      title: "EFT Predicted Event (VeryBadSCAV): Aug 19, 2025",
+      id: "tarkov-maintenance-start-2025-08-19",
+      title: "Tarkov Maintenance Start",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-08-19T00:00:00Z"), // Predicted date per VeryBadSCAV
-      targetTimezone: "UTC",
+      targetDate: new Date("2025-08-19T21:00:00Z"), // Aug 19, 2025 10:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-maintenance-end-2025-08-20",
+      title: "Tarkov Maintenance End",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-08-20T03:00:00Z"), // Aug 20, 2025 4:00 AM BST
+      targetTimezone: "Europe/London",
       type: "game",
     },
     {
