@@ -171,9 +171,25 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "tarkov-maintenance-end-2025-08-20",
-      title: "Tarkov Maintenance End",
+      title: "Tarkov data center maintenance end",
       titleColor: "#ffffff",
       targetDate: new Date("2025-08-20T03:00:00Z"), // Aug 20, 2025 4:00 AM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-patch-0-16-9-0-install",
+      title: "EFT Patch 0.16.9.0 Start",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-08-20T07:00:00Z"), // Aug 20, 2025 8:00 AM BST / 3:00 AM EDT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-patch-0-16-9-0-install-end",
+      title: "EFT Patch 0.16.9.0 End",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-08-20T13:00:00Z"), // Aug 20, 2025 2:00 PM BST / 9:00 AM EDT
       targetTimezone: "Europe/London",
       type: "game",
     },
