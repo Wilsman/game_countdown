@@ -14,6 +14,11 @@ const showDatePicker = ref(false)
 const localDateTime = ref('')
 const currentTz = Intl.DateTimeFormat().resolvedOptions().timeZone
 
+// Manual timer modal state
+const showManualDialog = ref(false)
+const manualTitle = ref('')
+const manualDateTime = ref('')
+
 const selectedTimezone = ref({
   id: currentTz,
   name: ''
@@ -225,6 +230,24 @@ function closeDatePicker() {
   showDatePicker.value = false
 }
 
+// Manual timer handlers
+function openManualDialog() {
+  manualTitle.value = ''
+  manualDateTime.value = formatLocalDate(new Date(), currentTz)
+  showManualDialog.value = true
+}
+
+function closeManualDialog() {
+  showManualDialog.value = false
+}
+
+function saveManualTimer() {
+  if (!manualTitle.value || !manualDateTime.value) return
+  const utcDate = localToUTCDate(manualDateTime.value, currentTz)
+  store.addGame(manualTitle.value, utcDate)
+  showManualDialog.value = false
+}
+
 function copyShareableUrl() {
   navigator.clipboard.writeText(store.getShareableUrl())
 }
@@ -314,6 +337,9 @@ onUnmounted(() => {
       <button @click.stop="copyObsUrl" class="obs-button soft-btn-strong">
         <span>Copy OBS Link</span>
       </button>
+      <button @click.stop="openManualDialog" class="soft-btn-strong">
+        <span>Manual Timer</span>
+      </button>
     </div>
 
 
@@ -351,6 +377,35 @@ onUnmounted(() => {
         </div>
         <div class="form-group">
           <button @click="closeDatePicker" class="close-button soft-btn-strong">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Timer Modal -->
+    <div v-if="showManualDialog && !store.isObsMode" class="modal-overlay" @click="closeManualDialog">
+      <div class="modal-content surface-3d strong" @click.stop>
+        <h3 class="modal-title">Create Manual Timer</h3>
+        <div class="form-group">
+          <label for="manual-title">Set Title</label>
+          <input
+            id="manual-title"
+            type="text"
+            v-model="manualTitle"
+            placeholder="Enter title"
+            class="settings-input"
+          />
+        </div>
+        <div class="form-group">
+          <label for="manual-datetime">Set Time</label>
+          <input
+            id="manual-datetime"
+            type="datetime-local"
+            v-model="manualDateTime"
+            class="settings-input"
+          />
+        </div>
+        <div class="form-group">
+          <button @click="saveManualTimer" class="close-button soft-btn-strong">Save</button>
         </div>
       </div>
     </div>

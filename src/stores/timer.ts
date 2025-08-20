@@ -44,6 +44,7 @@ export const useTimerStore = defineStore("timer", () => {
     const gameId = params.get('game');
     const dateStr = params.get('date');
     const timezone = params.get('timezone');
+    const titleParam = params.get('title');
     const color = params.get('color');
     const bgEnabled = params.get('bg');
     const obsMode = params.get('obs');
@@ -65,6 +66,18 @@ export const useTimerStore = defineStore("timer", () => {
         // Update the game's color if provided
         if (color) {
           setGameTitleColor(`#${color}`);
+        }
+      } else if (dateStr) {
+        // Game not found: reconstruct a manual timer from URL params
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+          const newTitle = titleParam || 'Custom Timer';
+          const tz = timezone || userTimezone;
+          const colorHex = color ? `#${color.replace(/^#/, '')}` : undefined;
+          // Create with the provided id so subsequent shares are stable
+          addGame(newTitle, date, tz, 'game', gameId);
+          // Apply color if provided
+          if (colorHex) setGameTitleColor(colorHex);
         }
       }
     }
@@ -471,9 +484,10 @@ export const useTimerStore = defineStore("timer", () => {
     title: string,
     date: Date,
     timezone: string = userTimezone,
-    type: "game" | "utility" = "game"
+    type: "game" | "utility" = "game",
+    idOverride?: string
   ): void => {
-    const id = `game-${Date.now()}`;
+    const id = idOverride || `game-${Date.now()}`;
     games.value.push({
       id,
       title,
@@ -547,6 +561,7 @@ export const useTimerStore = defineStore("timer", () => {
     url.searchParams.set('game', game.id);
     url.searchParams.set('date', game.targetDate.toISOString());
     url.searchParams.set('timezone', game.targetTimezone);
+    url.searchParams.set('title', game.title);
     
     // Add the current game title color to the URL
     if (game.titleColor) {
