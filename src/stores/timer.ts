@@ -127,6 +127,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "bf6-release-2025-10-10",
+      title: "Battlefield 6 - October 10th",
+      titleColor: "#00a8ff",
+      targetDate: new Date("2025-10-10T00:00:00Z"), // Oct 10, 2025 (time not specified)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "break-30",
       title: "Be Right Back (30min)",
       titleColor: "#ffffff",
@@ -204,6 +212,14 @@ export const useTimerStore = defineStore("timer", () => {
       titleColor: "#ffffff",
       targetDate: new Date("2025-08-20T13:00:00Z"), // Aug 20, 2025 2:00 PM BST / 9:00 AM EDT
       targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-1-0-release",
+      title: "Escape from Tarkov 1.0 Release",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-11-15T00:00:00Z"), // Nov 15, 2025 (time not specified)
+      targetTimezone: "UTC",
       type: "game",
     },
     {
