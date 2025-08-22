@@ -215,6 +215,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "call-of-duty-black-ops-7-2025-11-14",
+      title: "Call of Duty: Black Ops 7",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-11-14T00:00:00Z"), // Nov 14, 2025 (midnight UTC)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "tarkov-1-0-release",
       title: "Escape from Tarkov 1.0 Release",
       titleColor: "#ffffff",
@@ -228,6 +236,22 @@ export const useTimerStore = defineStore("timer", () => {
       titleColor: "#ffffff",
       targetDate: new Date(2025, 5, 13, 21, 0, 0), // June 13, 2025 9:00 PM
       targetTimezone: userTimezone,
+      type: "game",
+    },
+    {
+      id: "marathon-2025-09-23",
+      title: "Marathon",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-09-23T00:00:00Z"), // Sep 23, 2025 (midnight UTC)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "high-on-life-2-q4-2025",
+      title: "High on Life 2 (Q4 placeholder)",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-10-01T00:00:00Z"), // Q4 2025 start (midnight UTC)
+      targetTimezone: "UTC",
       type: "game",
     },
     {
@@ -252,6 +276,14 @@ export const useTimerStore = defineStore("timer", () => {
       titleColor: "#ffffff",
       targetDate: new Date(2025, 2, 1, 0, 0, 0), // March 1, 2025
       targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "metal-gear-solid-delta-snake-eater-2025-08-28",
+      title: "METAL GEAR SOLID Δ: SNAKE EATER",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-08-28T00:00:00Z"), // Aug 28, 2025 (midnight UTC)
+      targetTimezone: "UTC",
       type: "game",
     },
     {
