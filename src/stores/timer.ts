@@ -290,8 +290,8 @@ export const useTimerStore = defineStore("timer", () => {
       id: "path-of-exile-2",
       title: "Path of Exile 2 - New League",
       titleColor: "#ffffff",
-      targetDate: new Date(2025, 7, 29, 0, 0, 0), // August 29, 2025
-      targetTimezone: "UTC",
+      targetDate: new Date('2025-08-29T13:00:00-07:00'), // Aug 29, 2025 1:00 PM PDT
+      targetTimezone: "America/Los_Angeles",
       type: "game",
     },
   ];
