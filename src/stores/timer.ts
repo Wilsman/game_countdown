@@ -240,7 +240,7 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon-2025-09-23",
-      title: "Marathon",
+      title: "Marathon (delayed indefinitely)",
       titleColor: "#ffffff",
       targetDate: new Date("2025-09-23T00:00:00Z"), // Sep 23, 2025 (midnight UTC)
       targetTimezone: "UTC",
@@ -296,9 +296,9 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "borderlands-4",
-      title: "Borderlands 4",
+      title: "Borderlands 4 (PC Early Access)",
       titleColor: "#ff6b35",
-      targetDate: new Date("2025-09-12T00:00:00Z"), // Sep 12, 2025
+      targetDate: new Date("2025-09-11T16:00:00Z"), // Sep 11, 2025 4:00 PM UTC (9 AM PT)
       targetTimezone: "UTC",
       type: "game",
     },
@@ -306,7 +306,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "no-im-not-a-human",
       title: "No, I'm not a Human",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-09-16T00:00:00Z"), // Sep 16, 2025
+      targetDate: new Date("2025-09-15T00:00:00Z"), // Sep 15, 2025
       targetTimezone: "UTC",
       type: "game",
     },
@@ -320,25 +320,25 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "jump-space",
-      title: "Jump Space",
+      title: "Jump Space (Early Access)",
       titleColor: "#4a90e2",
       targetDate: new Date("2025-09-19T00:00:00Z"), // Sep 19, 2025
       targetTimezone: "UTC",
       type: "game",
     },
     {
-      id: "king-maker",
-      title: "King Maker",
+      id: "kingmakers",
+      title: "Kingmakers (Early Access)",
       titleColor: "#ffd700",
-      targetDate: new Date("2025-10-08T00:00:00Z"), // Oct 8, 2025
-      targetTimezone: "UTC",
+      targetDate: new Date("2025-10-08T05:00:00Z"), // Oct 8, 2025 midnight ET (5:00 UTC)
+      targetTimezone: "America/New_York",
       type: "game",
     },
     {
       id: "misery",
       title: "MISERY",
       titleColor: "#8b0000",
-      targetDate: new Date("2025-10-23T00:00:00Z"), // Oct 23, 2025
+      targetDate: new Date("2025-10-23T17:00:00Z"), // Oct 23, 2025 17:00 UTC
       targetTimezone: "UTC",
       type: "game",
     },
@@ -352,33 +352,17 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "midnight-walkers",
-      title: "Midnight Walkers (Zombie Dark and Darker)",
+      title: "The Midnight Walkers (Early Access)",
       titleColor: "#2d2d2d",
       targetDate: new Date("2025-10-01T00:00:00Z"), // Q4 2025 placeholder
       targetTimezone: "UTC",
       type: "game",
     },
     {
-      id: "path-to-abyss",
-      title: "Path to Abyss",
-      titleColor: "#6a0dad",
-      targetDate: new Date("2025-12-21T00:00:00Z"), // Dec 21, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "beta-decay",
-      title: "Beta Decay",
-      titleColor: "#00ff00",
-      targetDate: new Date("2025-11-01T00:00:00Z"), // Late 2025 placeholder
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
       id: "slay-the-spire-2",
-      title: "Slay the Spire 2",
+      title: "Slay the Spire 2 (Early Access)",
       titleColor: "#ff69b4",
-      targetDate: new Date("2025-12-01T00:00:00Z"), // TBA placeholder
+      targetDate: new Date("2025-11-01T00:00:00Z"), // Late 2025 placeholder
       targetTimezone: "UTC",
       type: "game",
     },
@@ -386,15 +370,15 @@ export const useTimerStore = defineStore("timer", () => {
       id: "enter-the-gungeon-2",
       title: "Enter the Gungeon 2",
       titleColor: "#ff4500",
-      targetDate: new Date("2025-12-01T00:00:00Z"), // TBA placeholder
+      targetDate: new Date("2026-01-01T00:00:00Z"), // 2026 placeholder
       targetTimezone: "UTC",
       type: "game",
     },
     {
       id: "road-to-vostok",
-      title: "Road to Vostok",
+      title: "Road to Vostok (Demo Oct 2025)",
       titleColor: "#708090",
-      targetDate: new Date("2025-12-01T00:00:00Z"), // TBA placeholder
+      targetDate: new Date("2025-10-15T00:00:00Z"), // Demo placeholder
       targetTimezone: "UTC",
       type: "game",
     },

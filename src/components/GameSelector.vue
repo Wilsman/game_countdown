@@ -75,15 +75,19 @@ const isGameInPast = (game: any) => {
 };
 
 const sortedGameOptions = computed(() => {
-  return [...store.gameOptions].sort((a, b) => {
-    return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
-  });
+  return [...store.gameOptions]
+    .filter(game => !isGameInPast(game))
+    .sort((a, b) => {
+      return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+    });
 });
 
 const sortedUtilityOptions = computed(() => {
-  return [...store.utilityOptions].sort((a, b) => {
-    return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
-  });
+  return [...store.utilityOptions]
+    .filter(game => !isGameInPast(game))
+    .sort((a, b) => {
+      return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+    });
 });
 </script>
 
@@ -123,12 +127,10 @@ const sortedUtilityOptions = computed(() => {
             @click="selectGame(game.id)"
             class="dropdown-item"
             :class="{
-              'active': game.id === store.activeGame.id,
-              'completed': isGameInPast(game)
+              'active': game.id === store.activeGame.id
             }"
           >
             <span class="game-title">{{ game.title }}</span>
-            <span v-if="isGameInPast(game)" class="completed-badge">Completed</span>
           </button>
         </div>
       </div>
@@ -142,8 +144,7 @@ const sortedUtilityOptions = computed(() => {
             @click="selectGame(game.id)"
             class="dropdown-item"
             :class="{
-              'active': game.id === store.activeGame.id,
-              'completed': isGameInPast(game)
+              'active': game.id === store.activeGame.id
             }"
           >
             <span class="game-title">{{ game.title }}</span>
@@ -155,7 +156,6 @@ const sortedUtilityOptions = computed(() => {
                   day: 'numeric'
                 }) }}
               </span>
-              <span v-if="isGameInPast(game)" class="completed-badge">Completed</span>
             </div>
           </button>
         </div>
@@ -240,9 +240,6 @@ const sortedUtilityOptions = computed(() => {
   background: rgba(6,182,212,0.6);
   border-left: 2px solid var(--accent-300);
 }
-.dropdown-item.completed { opacity: 0.6; }
-.dropdown-item.completed .game-title { text-decoration: line-through; }
-
 .game-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
 .game-meta {
   display: flex;
@@ -251,16 +248,6 @@ const sortedUtilityOptions = computed(() => {
   margin-left: 0.5rem;
 }
 .game-date { font-size: 0.78rem; color: var(--text-300); white-space: nowrap; }
-
-.completed-badge {
-  font-size: 0.68rem;
-  font-weight: 800;
-  padding: 0.15rem 0.35rem;
-  border-radius: 0.35rem;
-  background: rgba(239,68,68,0.8);
-  color: #FCA5A5;
-  border: 1px solid rgba(239,68,68,0.8);
-}
 
 .dropdown-footer {
   padding: 0.75rem 0.9rem;
