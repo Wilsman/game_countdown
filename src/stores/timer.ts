@@ -322,8 +322,8 @@ export const useTimerStore = defineStore("timer", () => {
       id: "jump-space",
       title: "Jump Space (Early Access)",
       titleColor: "#4a90e2",
-      targetDate: new Date("2025-09-19T00:00:00Z"), // Sep 19, 2025
-      targetTimezone: "UTC",
+      targetDate: new Date("2025-09-19T15:00:00+01:00"), // Sep 19, 2025 3:00 PM BST
+      targetTimezone: "Europe/London",
       type: "game",
     },
     {
