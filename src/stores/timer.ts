@@ -314,8 +314,8 @@ export const useTimerStore = defineStore("timer", () => {
       id: "dying-light-the-beast",
       title: "Dying Light: The Beast",
       titleColor: "#ff4444",
-      targetDate: new Date("2025-09-19T00:00:00Z"), // Sep 19, 2025
-      targetTimezone: "UTC",
+      targetDate: new Date("2025-09-18T16:00:00Z"), // 5 PM BST (4 PM UTC) on Sep 18, 2025
+      targetTimezone: "Europe/London",
       type: "game",
     },
     {
