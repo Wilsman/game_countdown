@@ -19,7 +19,8 @@ const isClient = typeof window !== "undefined";
 type Theme = "light" | "dark";
 
 const timerStore = useTimerStore();
-const { gameTitle, gameTitleColor, settings, isObsMode } = storeToRefs(timerStore);
+const { gameTitle, gameTitleColor, settings, isObsMode } =
+  storeToRefs(timerStore);
 
 const isEditingTitle = ref<boolean>(false);
 const titleInput: Ref<HTMLInputElement | null> = ref(null);
@@ -28,14 +29,14 @@ const isFocusMode = ref<boolean>(false);
 watch(isFocusMode, (isFocused) => {
   const bmcButton = document.getElementById("bmc-wbtn");
   if (bmcButton) {
-    bmcButton.style.display = (isFocused || isObsMode.value) ? "none" : "flex";
+    bmcButton.style.display = isFocused || isObsMode.value ? "none" : "flex";
   }
 });
 
 watch(isObsMode, (isObs) => {
   const bmcButton = document.getElementById("bmc-wbtn");
   if (bmcButton) {
-    bmcButton.style.display = (isObs || isFocusMode.value) ? "none" : "flex";
+    bmcButton.style.display = isObs || isFocusMode.value ? "none" : "flex";
   }
 });
 
@@ -99,7 +100,7 @@ onMounted(() => {
       bmcButton.style.bottom = "20px";
       bmcButton.style.right = "20px";
       bmcButton.style.zIndex = "1000";
-      
+
       if (isFocusMode.value || isObsMode.value) {
         bmcButton.style.display = "none";
       }
@@ -164,7 +165,10 @@ watch(isFocusMode, (isFocus) => {
         <div
           class="flex flex-col items-center justify-center p-6 sm:p-8 min-h-screen w-full"
         >
-          <div class="w-full max-w-6xl mx-auto card-glass">
+          <div
+            class="w-full max-w-6xl mx-auto card-glass"
+            :class="{ 'obs-glow': isObsMode }"
+          >
             <!-- Header bar -->
             <div
               v-if="!isFocusMode && !isObsMode"
@@ -364,11 +368,7 @@ body {
 }
 
 .card-glass {
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.4),
-    rgba(0, 0, 0, 0.6)
-  );
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
   border: 1px solid var(--border-color);
   border-radius: 24px;
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45),
@@ -649,5 +649,65 @@ html {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #2a2a2a, #333);
+}
+
+/* OBS Yellow Pulsing Glow */
+.obs-glow {
+  position: relative;
+  border: 3px solid transparent;
+  background: linear-gradient(225deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.9))
+      padding-box,
+    linear-gradient(45deg, #fbbf24, #f59e0b, #d97706, #fbbf24) border-box;
+  background-size: 100% 100%, 400% 400%;
+  animation: obs-border-glow 5s ease-in-out infinite,
+    obs-gradient 3s ease-in-out infinite;
+}
+
+.obs-glow::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 36px;
+  background: linear-gradient(45deg, #fbbf24, #f59e0b, #d97706, #fbbf24);
+  background-size: 400% 400%;
+  opacity: 0.15;
+  filter: blur(20px);
+  z-index: -1;
+  animation: obs-pulse 5s ease-in-out infinite,
+    obs-gradient 5s ease-in-out infinite;
+}
+
+@keyframes obs-border-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3),
+      0 0 40px rgba(251, 191, 36, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.6),
+      0 0 60px rgba(251, 191, 36, 0.25);
+  }
+}
+
+@keyframes obs-pulse {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes obs-gradient {
+  0%,
+  100% {
+    background-position: 0% 50%, 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%, 100% 50%;
+  }
 }
 </style>

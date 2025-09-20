@@ -239,14 +239,6 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "marathon-2025-09-23",
-      title: "Marathon (delayed indefinitely)",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-09-23T00:00:00Z"), // Sep 23, 2025 (midnight UTC)
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
       id: "high-on-life-2-q4-2025",
       title: "High on Life 2 (Q4 placeholder)",
       titleColor: "#ffffff",
