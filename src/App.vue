@@ -651,63 +651,133 @@ html {
   background: linear-gradient(180deg, #2a2a2a, #333);
 }
 
-/* OBS Yellow Pulsing Glow */
+/* OBS Simple Animated Border */
 .obs-glow {
   position: relative;
-  border: 3px solid transparent;
-  background: linear-gradient(225deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.9))
-      padding-box,
-    linear-gradient(45deg, #fbbf24, #f59e0b, #d97706, #fbbf24) border-box;
-  background-size: 100% 100%, 400% 400%;
-  animation: obs-border-glow 5s ease-in-out infinite,
-    obs-gradient 3s ease-in-out infinite;
+  background: linear-gradient(225deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9));
+  border: 3px solid;
+  border-radius: 24px;
+  border-image: linear-gradient(
+      90deg,
+      #00baff,
+      transparent,
+      transparent,
+      transparent,
+      #00baff
+    )
+    1;
+  animation: border-rotate 3s linear infinite;
 }
 
-.obs-glow::before {
+.obs-glow::after {
   content: "";
   position: absolute;
-  inset: -12px;
-  border-radius: 36px;
-  background: linear-gradient(45deg, #fbbf24, #f59e0b, #d97706, #fbbf24);
-  background-size: 400% 400%;
-  opacity: 0.15;
-  filter: blur(20px);
-  z-index: -1;
-  animation: obs-pulse 5s ease-in-out infinite,
-    obs-gradient 5s ease-in-out infinite;
+  inset: 0;
+  background: radial-gradient(
+      circle at 20% 50%,
+      rgba(0, 186, 255, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 50%,
+      rgba(0, 186, 255, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 20%,
+      rgba(0, 186, 255, 0.08) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 60% 80%,
+      rgba(0, 186, 255, 0.12) 0%,
+      transparent 40%
+    );
+  background-size: 300% 300%, 250% 250%, 200% 200%, 280% 280%;
+  opacity: 0.7;
+  z-index: 1;
+  pointer-events: none;
+  animation: blue-shimmer 6s ease-in-out infinite;
 }
 
-@keyframes obs-border-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3),
-      0 0 40px rgba(251, 191, 36, 0.15);
+@keyframes border-rotate {
+  0% {
+    border-image: linear-gradient(
+        0deg,
+        #00baff,
+        transparent,
+        transparent,
+        transparent,
+        #00baff
+      )
+      1;
+  }
+  25% {
+    border-image: linear-gradient(
+        90deg,
+        #00baff,
+        transparent,
+        transparent,
+        transparent,
+        #00baff
+      )
+      1;
   }
   50% {
-    box-shadow: 0 0 30px rgba(251, 191, 36, 0.6),
-      0 0 60px rgba(251, 191, 36, 0.25);
+    border-image: linear-gradient(
+        180deg,
+        #00baff,
+        transparent,
+        transparent,
+        transparent,
+        #00baff
+      )
+      1;
+  }
+  75% {
+    border-image: linear-gradient(
+        270deg,
+        #00baff,
+        transparent,
+        transparent,
+        transparent,
+        #00baff
+      )
+      1;
+  }
+  100% {
+    border-image: linear-gradient(
+        360deg,
+        #00baff,
+        transparent,
+        transparent,
+        transparent,
+        #00baff
+      )
+      1;
   }
 }
 
-@keyframes obs-pulse {
-  0%,
-  100% {
-    opacity: 0.1;
-    transform: scale(1);
+@keyframes blue-shimmer {
+  0% {
+    background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%;
+    opacity: 0.4;
+  }
+  25% {
+    background-position: 100% 0%, 0% 0%, 50% 50%, 50% 50%;
+    opacity: 0.7;
   }
   50% {
-    opacity: 0.5;
-    transform: scale(1.02);
+    background-position: 100% 100%, 0% 100%, 100% 0%, 0% 100%;
+    opacity: 0.9;
   }
-}
-
-@keyframes obs-gradient {
-  0%,
+  75% {
+    background-position: 0% 100%, 100% 0%, 50% 50%, 50% 50%;
+    opacity: 0.7;
+  }
   100% {
-    background-position: 0% 50%, 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%, 100% 50%;
+    background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%;
+    opacity: 0.4;
   }
 }
 </style>
