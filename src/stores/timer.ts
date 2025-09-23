@@ -374,6 +374,38 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "UTC",
       type: "game",
     },
+    {
+      id: "escape-from-duckov",
+      title: "Escape from Duckov",
+      titleColor: "#708090",
+      targetDate: new Date("2025-10-16T00:00:00Z"), // Demo placeholder
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "cod-open-beta",
+      title: "Call of Duty: Open Beta",
+      titleColor: "#708090",
+      targetDate: new Date("2025-10-05T00:00:00Z"), // Demo placeholder
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "arc-raiders-open-beta-start",
+      title: "ARC Raiders Open Beta",
+      titleColor: "#708090",
+      targetDate: new Date("2025-10-17T00:00:00Z"), // Demo placeholder
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "arc-raiders-open-beta-end",
+      title: "ARC Raiders Open Beta End",
+      titleColor: "#708090",
+      targetDate: new Date("2025-10-19T00:00:00Z"), // Demo placeholder
+      targetTimezone: "UTC",
+      type: "game",
+    },
   ];
 
   // Store state
