@@ -92,173 +92,88 @@ const sortedUtilityOptions = computed(() => {
 </script>
 
 <template>
-  <div class="game-selector" ref="dropdownRef">
+  <div ref="dropdownRef" class="relative inline-flex">
     <button
+      type="button"
+      class="btn-muted pl-3 pr-2"
+      :class="{ 'ring-2 ring-sky-500/40': isOpen }"
       @click="toggleDropdown"
-      class="dropdown-button soft-btn"
-      :class="{ 'is-active': isOpen }"
     >
-      <span>Choose Option</span>
+      <span class="text-sm font-semibold">Choose Option</span>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
+        class="h-4 w-4 transition-transform duration-200"
+        :class="{ 'rotate-180': isOpen }"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        :class="{ 'rotate-180': isOpen }"
-        style="transition: transform 0.2s ease;"
       >
-        <polyline points="6 9 12 15 18 9"></polyline>
+        <polyline points="6 9 12 15 18 9" />
       </svg>
     </button>
 
     <teleport to="body">
-      <div v-if="isOpen" class="dropdown-menu surface-3d dropdown-menu-teleport" :style="dropdownStyle">
-      <div class="dropdown-section">
-        <div class="dropdown-header">Utility Timers</div>
-        <div class="dropdown-items">
-          <button
-            v-for="game in sortedUtilityOptions"
-            :key="game.id"
-            @click="selectGame(game.id)"
-            class="dropdown-item"
-            :class="{
-              'active': game.id === store.activeGame.id
-            }"
-          >
-            <span class="game-title">{{ game.title }}</span>
-          </button>
-        </div>
-      </div>
+      <div
+        v-if="isOpen"
+        class="dropdown-menu-teleport"
+        :style="dropdownStyle"
+      >
+        <div
+          class="glass-section w-72 overflow-hidden border-slate-800/70 bg-slate-950/95 shadow-2xl shadow-slate-950/60"
+        >
+          <div class="border-b border-slate-800/80 bg-slate-900/80 px-4 py-3">
+            <h3 class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+              Utility Timers
+            </h3>
+          </div>
+          <div class="max-h-56 overflow-y-auto px-2 py-2">
+            <button
+              v-for="game in sortedUtilityOptions"
+              :key="game.id"
+              type="button"
+              class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-200 transition duration-150 hover:bg-slate-800/60"
+              :class="{ 'bg-sky-600/30 text-sky-100': game.id === store.activeGame.id }"
+              @click="selectGame(game.id)"
+            >
+              <span class="truncate">{{ game.title }}</span>
+            </button>
+          </div>
 
-      <div class="dropdown-section">
-        <div class="dropdown-header">Games</div>
-        <div class="dropdown-items">
-          <button
-            v-for="game in sortedGameOptions"
-            :key="game.id"
-            @click="selectGame(game.id)"
-            class="dropdown-item"
-            :class="{
-              'active': game.id === store.activeGame.id
-            }"
-          >
-            <span class="game-title">{{ game.title }}</span>
-            <div class="game-meta">
-              <span class="game-date">
+          <div class="border-b border-t border-slate-800/80 bg-slate-900/80 px-4 py-3">
+            <h3 class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+              Games
+            </h3>
+          </div>
+          <div class="max-h-72 overflow-y-auto px-2 py-2">
+            <button
+              v-for="game in sortedGameOptions"
+              :key="game.id"
+              type="button"
+              class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-200 transition duration-150 hover:bg-slate-800/60"
+              :class="{ 'bg-sky-600/30 text-sky-100': game.id === store.activeGame.id }"
+              @click="selectGame(game.id)"
+            >
+              <span class="truncate">{{ game.title }}</span>
+              <span class="text-xs font-medium text-slate-400">
                 {{ new Date(game.targetDate).toLocaleDateString(undefined, {
                   year: 'numeric',
                   month: 'short',
                   day: 'numeric'
                 }) }}
               </span>
-            </div>
-          </button>
+            </button>
+          </div>
+
+          <div class="border-t border-slate-800/80 bg-slate-900/80 px-4 py-3">
+            <button type="button" class="btn-muted w-full justify-center" @click="resetGames">
+              Reset to Default Games
+            </button>
+          </div>
         </div>
       </div>
-
-      <div class="dropdown-footer">
-        <button @click="resetGames" class="reset-button soft-btn-strong">
-          Reset to Default Games
-        </button>
-      </div>
-    </div>
-  </teleport>
+    </teleport>
   </div>
 </template>
-
-<style scoped>
-.game-selector {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 0.9rem;
-  font-size: 0.9rem;
-}
-
-.dropdown-button.is-active {
-  outline: 2px solid rgba(34,211,238,0.25);
-}
-
-.dropdown-menu {
-  position: fixed;
-  min-width: 18rem;
-  background: rgba(12,12,12,1); 
-  border: 1px solid var(--border-color, rgba(255,255,255,0.10));
-  border-radius: 12px;
-  box-shadow: 0 18px 50px rgba(0,0,0,0.45);
-  z-index: 9999;
-  overflow: hidden;
-  animation: dropdown-appear 0.18s ease;
-}
-
-@keyframes dropdown-appear {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.dropdown-section { border-bottom: 1px solid var(--border-color); }
-.dropdown-section:last-of-type { border-bottom: none; }
-
-.dropdown-header {
-  padding: 0.75rem 0.9rem;
-  font-weight: 800;
-  font-size: 0.82rem;
-  color: var(--text-primary);
-  letter-spacing: 0.02em;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-}
-
-.dropdown-items { max-height: 16rem; overflow-y: auto; }
-
-.dropdown-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 0.55rem 0.9rem;
-  text-align: left;
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background-color 0.12s ease, opacity 0.2s ease;
-}
-.dropdown-item:hover { background-color: rgba(255,255,255,0.3); }
-.dropdown-item.active {
-  background: rgba(6,182,212,0.6);
-  border-left: 2px solid var(--accent-300);
-}
-.game-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
-.game-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-left: 0.5rem;
-}
-.game-date { font-size: 0.78rem; color: var(--text-300); white-space: nowrap; }
-
-.dropdown-footer {
-  padding: 0.75rem 0.9rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.reset-button {
-  width: 100%;
-  font-size: 0.83rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>

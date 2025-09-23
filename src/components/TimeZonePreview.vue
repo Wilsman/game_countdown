@@ -41,96 +41,19 @@ const timeZonePreviews = computed(() => {
 </script>
 
 <template>
-  <div class="timezone-grid">
-    <div v-for="zone in timeZonePreviews" 
-         :key="zone.city" 
-         class="timezone-item">
-      <div class="timezone-info">
-        <div class="timezone-name">{{ zone.city }}</div>
-        <div class="timezone-time">{{ zone.time }}</div>
-      </div>
+  <div
+    class="grid w-full gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
+  >
+    <div
+      v-for="zone in timeZonePreviews"
+      :key="zone.city"
+      class="flex flex-col items-center gap-1 rounded-xl border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-center shadow-sm shadow-slate-950/30 transition duration-150 hover:-translate-y-0.5 hover:border-sky-500/40"
+    >
+      <span class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+        {{ zone.city }}
+      </span>
+      <span class="text-sm font-bold text-sky-200">{{ zone.time }}</span>
+      <span class="text-[11px] font-medium text-slate-500">{{ zone.date }}</span>
     </div>
   </div>
 </template>
-
-<style scoped>
-.timezone-grid {
-  display: grid;
-  gap: 0.5rem;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.timezone-item {
-  background-color: var(--bg-secondary);
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--border-color);
-  transition: transform 0.2s ease;
-}
-
-.timezone-item:hover {
-  transform: translateY(-1px);
-}
-
-.timezone-info {
-  text-align: center;
-}
-
-.timezone-name {
-  font-size: 0.75rem;
-  opacity: 0.7;
-  margin-bottom: 0.125rem;
-}
-
-.timezone-time {
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: var(--primary-color);
-  transition: color 0.2s ease;
-}
-
-@media (min-width: 768px) {
-  .timezone-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .timezone-item {
-    padding: 0.75rem;
-  }
-
-  .timezone-name {
-    font-size: 0.875rem;
-  }
-
-  .timezone-time {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 767px) {
-  .timezone-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.25rem;
-  }
-
-  .timezone-item {
-    padding: 0.25rem;
-  }
-
-  .timezone-name {
-    font-size: 0.625rem;
-  }
-
-  .timezone-time {
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 360px) {
-  .timezone-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-</style>

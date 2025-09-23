@@ -218,6 +218,13 @@ const formattedTime = computed(() => {
   }
 })
 
+const timeSegments = computed(() => [
+  { label: 'Days', value: formattedTime.value.days },
+  { label: 'Hours', value: formattedTime.value.hours },
+  { label: 'Minutes', value: formattedTime.value.minutes },
+  { label: 'Seconds', value: formattedTime.value.seconds }
+])
+
 function openDatePicker() {
   const tz = store.targetTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone
   const tzName = timezones.find(t => t.id === tz)?.name || tz
@@ -291,385 +298,170 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="timer-container">
-    <div class="timer-display-wrapper">
-      <div class="timer-display surface-3d hover-scale" @click="!store.isObsMode ? openDatePicker : null">
-        <div class="time-section" :class="{ 'animate-pulse': store.settings.enableAnimation }">
-          <div class="time-value gradient-text">{{ formattedTime.days }}</div>
-          <div class="time-label">Days</div>
-        </div>
-        <div class="separator">:</div>
-        <div class="time-section" :class="{ 'animate-pulse': store.settings.enableAnimation }">
-          <div class="time-value gradient-text">{{ formattedTime.hours }}</div>
-          <div class="time-label">Hours</div>
-        </div>
-        <div class="separator">:</div>
-        <div class="time-section" :class="{ 'animate-pulse': store.settings.enableAnimation }">
-          <div class="time-value gradient-text">{{ formattedTime.minutes }}</div>
-          <div class="time-label">Minutes</div>
-        </div>
-        <div class="separator">:</div>
-        <div class="time-section" :class="{ 'animate-pulse': store.settings.enableAnimation }">
-          <div class="time-value gradient-text">{{ formattedTime.seconds }}</div>
-          <div class="time-label">Seconds</div>
-        </div>
-      </div>
+  <div class="flex w-full flex-col items-center gap-6">
+    <div
+      class="glass-section relative w-full overflow-hidden px-6 py-8 sm:px-10"
+      @click="!store.isObsMode ? openDatePicker() : null"
+    >
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-sky-500/50 via-purple-500/30 to-emerald-400/40"
+      ></div>
 
       <button
         v-if="store.activeGame.type === 'utility' && !store.isObsMode"
-        @click.stop="store.restartCountdown(store.activeGame.id)"
-        class="restart-button soft-btn"
+        type="button"
+        class="btn-ghost absolute right-4 top-4"
         title="Restart countdown"
         aria-label="Restart countdown"
+        @click.stop="store.restartCountdown(store.activeGame.id)"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="restart-icon">
-          <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C15.0711 3 17.75 4.60718 19.25 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M19 8V3H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 12a9 9 0 1 1-9-9 9 9 0 0 1 9 9Z" />
+          <path d="M21 3v6h-6" />
         </svg>
       </button>
-    </div>
 
-    <div v-if="!isFocusMode && !store.isObsMode" class="timezone-section">
-      <TimeZonePreview />
-      <button @click.stop="copyShareableUrl" class="share-button soft-btn-strong">
-        <span>Copy Shareable URL</span>
-      </button>
-      <button @click.stop="copyObsUrl" class="obs-button soft-btn-strong">
-        <span>Copy OBS Link</span>
-      </button>
-      <button @click.stop="openManualDialog" class="soft-btn-strong">
-        <span>Manual Timer</span>
-      </button>
-    </div>
-
-
-
-    <!-- Date Picker Modal -->
-    <div v-if="showDatePicker && !store.isObsMode" class="modal-overlay" @click="closeDatePicker">
-      <div class="modal-content surface-3d strong" @click.stop>
-        <h3 class="modal-title">Set Target Date/Time</h3>
-        <div class="form-group">
-          <label for="datetime-local">Date & Time</label>
-          <input
-            id="datetime-local"
-            type="datetime-local"
-            v-model="localDateTime"
-            @change="handleDateChange"
-            class="settings-input"
-          />
-        </div>
-        <div class="form-group">
-          <label for="timezone">Timezone</label>
-          <select
-            id="timezone"
-            v-model="selectedTimezone.id"
-            @change="handleTimezoneChange"
-            class="settings-input"
-          >
-            <option
-              v-for="tz in timezones"
-              :key="tz.id"
-              :value="tz.id"
-            >
-              {{ formatTimezone(tz.id) }} - {{ tz.name }}
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <button @click="closeDatePicker" class="close-button soft-btn-strong">Save</button>
+      <div class="grid w-full gap-4 sm:grid-cols-4">
+        <div
+          v-for="segment in timeSegments"
+          :key="segment.label"
+          class="flex flex-col items-center gap-3 rounded-2xl border border-slate-800/70 bg-slate-900/70 px-6 py-4 text-center shadow-lg shadow-slate-950/30 transition-transform duration-200 hover:-translate-y-1"
+          :class="{ 'animate-pulse': store.settings.enableAnimation }"
+        >
+          <span class="text-xs font-semibold uppercase tracking-[0.32em] text-slate-500">
+            {{ segment.label }}
+          </span>
+          <span class="text-4xl font-black text-slate-100 sm:text-5xl">
+            {{ segment.value }}
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- Manual Timer Modal -->
-    <div v-if="showManualDialog && !store.isObsMode" class="modal-overlay" @click="closeManualDialog">
-      <div class="modal-content surface-3d strong" @click.stop>
-        <h3 class="modal-title">Create Manual Timer</h3>
-        <div class="form-group">
-          <label for="manual-title">Set Title</label>
-          <input
-            id="manual-title"
-            type="text"
-            v-model="manualTitle"
-            placeholder="Enter title"
-            class="settings-input"
-          />
+    <div
+      v-if="!isFocusMode && !store.isObsMode"
+      class="glass-section w-full px-5 py-6 sm:px-8"
+    >
+      <div class="flex flex-col gap-6">
+        <TimeZonePreview />
+
+        <div class="flex flex-wrap justify-center gap-3">
+          <button type="button" class="btn-accent" @click.stop="copyShareableUrl">
+            Copy Shareable URL
+          </button>
+          <button
+            type="button"
+            class="btn-muted min-w-[180px]"
+            @click.stop="copyObsUrl"
+          >
+            Copy OBS Link
+          </button>
+          <button type="button" class="btn-muted" @click.stop="openManualDialog">
+            Manual Timer
+          </button>
         </div>
-        <div class="form-group">
-          <label for="manual-datetime">Set Time</label>
-          <input
-            id="manual-datetime"
-            type="datetime-local"
-            v-model="manualDateTime"
-            class="settings-input"
-          />
+      </div>
+    </div>
+
+    <div
+      v-if="showDatePicker && !store.isObsMode"
+      class="dialog-overlay"
+      @click="closeDatePicker"
+    >
+      <div class="dialog-panel space-y-5" @click.stop>
+        <div class="space-y-2 text-left">
+          <h3 class="text-xl font-bold text-slate-50">Set Target Date/Time</h3>
+          <p class="text-sm text-slate-400">
+            Choose a launch time and timezone for the active countdown.
+          </p>
         </div>
-        <div class="form-group">
-          <button @click="saveManualTimer" class="close-button soft-btn-strong">Save</button>
+        <div class="space-y-3">
+          <label class="flex flex-col gap-2 text-sm font-semibold text-slate-300">
+            Date &amp; Time
+            <input
+              id="datetime-local"
+              v-model="localDateTime"
+              type="datetime-local"
+              class="input-field"
+              @change="handleDateChange"
+            />
+          </label>
+          <label class="flex flex-col gap-2 text-sm font-semibold text-slate-300">
+            Timezone
+            <select
+              id="timezone"
+              v-model="selectedTimezone.id"
+              class="input-field"
+              @change="handleTimezoneChange"
+            >
+              <option
+                v-for="tz in timezones"
+                :key="tz.id"
+                :value="tz.id"
+              >
+                {{ formatTimezone(tz.id) }} — {{ tz.name }}
+              </option>
+            </select>
+          </label>
+        </div>
+        <div class="flex justify-end">
+          <button type="button" class="btn-accent" @click="closeDatePicker">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="showManualDialog && !store.isObsMode"
+      class="dialog-overlay"
+      @click="closeManualDialog"
+    >
+      <div class="dialog-panel space-y-5" @click.stop>
+        <div class="space-y-2 text-left">
+          <h3 class="text-xl font-bold text-slate-50">Create Manual Timer</h3>
+          <p class="text-sm text-slate-400">
+            Add a custom timer to your list with a unique title and time.
+          </p>
+        </div>
+        <div class="space-y-3">
+          <label class="flex flex-col gap-2 text-sm font-semibold text-slate-300">
+            Title
+            <input
+              id="manual-title"
+              v-model="manualTitle"
+              type="text"
+              placeholder="Enter title"
+              class="input-field"
+            />
+          </label>
+          <label class="flex flex-col gap-2 text-sm font-semibold text-slate-300">
+            Time
+            <input
+              id="manual-datetime"
+              v-model="manualDateTime"
+              type="datetime-local"
+              class="input-field"
+            />
+          </label>
+        </div>
+        <div class="flex justify-end gap-3">
+          <button type="button" class="btn-ghost" @click="closeManualDialog">
+            Cancel
+          </button>
+          <button type="button" class="btn-accent" @click="saveManualTimer">
+            Save
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.timer-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  height: 100%;
-  width: 100%;
-  padding: 0 0.5rem 0.5rem;
-}
-
-.timer-display-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.surface-3d {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border: 1px solid var(--border-color);
-  box-shadow:
-    0 18px 60px rgba(0,0,0,0.45),
-    inset 0 1px 0 rgba(255,255,255,0.03),
-    inset 0 -1px 0 rgba(0,0,0,0.25);
-  border-radius: 18px;
-}
-
-.strong {
-  box-shadow:
-    0 24px 80px rgba(0,0,0,0.55),
-    inset 0 1px 0 rgba(255,255,255,0.04),
-    inset 0 -1px 0 rgba(0,0,0,0.35);
-}
-
-.hover-scale { transition: transform 0.2s ease; }
-.hover-scale:hover { transform: translateY(-1px); }
-
-.soft-btn, .soft-btn-strong {
-  background: linear-gradient(180deg, rgba(34,211,238,0.16), rgba(6,182,212,0.12));
-  color: var(--text-primary);
-  border: 1px solid rgba(34,211,238,0.28);
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.25px;
-  cursor: pointer;
-  transition: transform 0.15s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 8px 26px rgba(6,182,212,0.18);
-}
-.soft-btn:hover, .soft-btn-strong:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(180deg, rgba(34,211,238,0.24), rgba(6,182,212,0.16));
-  border-color: rgba(34,211,238,0.45);
-  box-shadow: 0 14px 34px rgba(6,182,212,0.25);
-}
-.soft-btn:active, .soft-btn-strong:active { transform: translateY(0); }
-
-.soft-btn-strong {
-  padding: 12px 16px;
-  border-radius: 14px;
-}
-
-.restart-button {
-  margin-left: 0.75rem;
-  color: var(--text-primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.restart-button svg { width: 22px; height: 22px; }
-
-.timer-display {
-  display: grid;
-  grid-template-columns: repeat(7, auto);
-  align-items: center;
-  gap: 0.65rem;
-  font-variant-numeric: tabular-nums;
-  cursor: pointer;
-  padding: 0.85rem 1rem;
-  border-radius: 1.1rem;
-}
-
-@media (max-width: 640px) {
-  .timer-display {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.5rem;
-  }
-  .separator { display: none; }
-  .time-section {
-    padding: 0.5rem;
-    min-width: unset;
-    width: 100%;
-    max-width: 92px;
-    margin: 0 auto;
-  }
-  .time-value { font-size: 1.35rem; line-height: 1; }
-  .time-label { font-size: 0.625rem; margin-top: 0.15rem; letter-spacing: 0.06em; }
-}
-
-.time-section {
-  position: relative;
-  text-align: center;
-  padding: 0.75rem 0.85rem;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border-radius: 0.9rem;
-  border: 1px solid var(--border-color);
-  transition: all 0.25s ease;
-  min-width: min(92px, 18vw);
-}
-.time-section:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(0,0,0,0.35);
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, var(--accent-200), var(--accent-400));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.time-value {
-  font-size: clamp(1.6rem, 4.6vw, var(--timer-font-size, 2.8rem));
-  font-weight: 800;
-  line-height: 1.1;
-  font-family: Inter, ui-sans-serif, system-ui;
-}
-
-.time-label {
-  font-size: clamp(0.72rem, 1.5vw, 0.8rem);
-  font-weight: 600;
-  color: var(--text-300);
-  margin-top: 0.28rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.separator {
-  font-size: clamp(1.65rem, 4.6vw, 2.8rem);
-  font-weight: 500;
-  color: var(--text-300);
-  margin: 0 0.1rem;
-}
-
-.timezone-section {
-  width: 100%;
-  display: flex;
-  gap: 10px;
-  margin-top: 8px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.share-button { min-width: 220px; }
-
-.obs-button {
-  min-width: 140px;
-}
-
-.obs-exit-section {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 8px;
-}
-
-.obs-exit-button {
-  min-width: 180px;
-  background: linear-gradient(180deg, rgba(239,68,68,0.16), rgba(220,38,38,0.12));
-  border: 1px solid rgba(239,68,68,0.28);
-  box-shadow: 0 8px 26px rgba(220,38,38,0.18);
-}
-
-.obs-exit-button:hover {
-  background: linear-gradient(180deg, rgba(239,68,68,0.24), rgba(220,38,38,0.16));
-  border-color: rgba(239,68,68,0.45);
-  box-shadow: 0 14px 34px rgba(220,38,38,0.25);
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(6,6,6,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(8px);
-}
-
-.modal-content {
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
-  border: 1px solid var(--border-color);
-  border-radius: 18px;
-  padding: 1.25rem;
-  width: 92%;
-  max-width: 420px;
-}
-
-@media (max-width: 640px) {
-  .modal-content { padding: 1rem; width: 94%; }
-}
-
-.modal-title {
-  margin: 0 0 0.75rem 0;
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-}
-
-.form-group {
-  margin-bottom: 0.85rem;
-  text-align: left;
-  width: 100%;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-weight: 700;
-  font-size: 0.8rem;
-  color: var(--text-200);
-}
-
-.settings-input {
-  width: 100%;
-  padding: 0.75rem 0.8rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-input);
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  outline: none;
-}
-.settings-input:focus {
-  border-color: rgba(34,211,238,0.45);
-  box-shadow: 0 0 0 4px rgba(6,182,212,0.15);
-}
-
-.close-button {
-  width: 100%;
-  padding: 0.85rem 1.25rem;
-  border: 0;
-  border-radius: 12px;
-  font-weight: 800;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-</style>
