@@ -41,23 +41,27 @@ const gameBackground = computed<GameBackgroundMeta | null>(() => {
     return {
       image:
         "url(https://www.dexerto.com/cdn-image/wp-content/uploads/2025/07/31/How-to-play-Battlefield-6-Open-Beta.jpg?width=1200&quality=100&format=auto)",
-      overlay: "bg-slate-950/80",
+      overlay: "bg-slate-950/55",
     };
   }
   if (gameId.includes("tarkov") || gameId.includes("0.16.8.0")) {
     return {
       image: "url(/Hardcore%20Wipe.webp)",
-      overlay: "bg-slate-950/80",
+      overlay: "bg-slate-950/60",
     };
   }
   if (gameId.includes("arc") || gameId.includes("raiders")) {
     return {
       image: "url(/arc.webp)",
-      overlay: "bg-slate-950/75",
+      overlay: "bg-slate-950/45",
     };
   }
   return null;
 });
+
+const hasGameBackground = computed(
+  () => Boolean(gameBackground.value && settings.value.enableGameBackground)
+);
 
 const activeGameSummary = computed(() =>
   timerStore.activeGame?.type === "utility"
@@ -193,13 +197,16 @@ watch(
 </script>
 
 <template>
-  <div class="background-mesh relative min-h-screen overflow-hidden">
+  <div
+    class="background-mesh relative min-h-screen overflow-hidden"
+    :class="{ 'with-game-background': hasGameBackground }"
+  >
     <div
       v-if="gameBackground && settings.enableGameBackground"
       class="pointer-events-none absolute inset-0 -z-10"
     >
       <div
-        class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+        class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
         :style="{ backgroundImage: gameBackground.image }"
       ></div>
       <div :class="['absolute inset-0', gameBackground.overlay]"></div>
@@ -253,7 +260,7 @@ watch(
               class="absolute inset-x-0 top-0 h-1 rounded-full bg-gradient-to-r from-sky-500/60 via-purple-500/50 to-emerald-400/60"
             ></div>
 
-            <div class="flex flex-col items-center gap-3 text-center">
+            <div class="flex flex-col items-center gap-2 text-center">
               <p
                 class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
               >
@@ -262,10 +269,24 @@ watch(
               <button
                 v-if="!isEditingTitle"
                 type="button"
-                class="heading-display transition-colors hover:text-sky-200"
+                class="group flex items-center gap-3 rounded-2xl border border-transparent bg-slate-900/40 px-6 py-4 text-4xl font-black text-slate-100 transition duration-200 ease-out hover:border-sky-500/60 hover:bg-slate-900/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500/60 sm:text-5xl"
                 :style="{ color: gameTitleColor || undefined }"
+                title="Click to rename the event"
                 @click="handleEditTitle"
               >
+                <svg
+                  aria-hidden="true"
+                  class="h-6 w-6 text-slate-400 transition-colors duration-200 group-hover:text-sky-300"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M16.862 4.487a2.1 2.1 0 0 1 2.967 2.967l-9.49 9.49-3.955.988.988-3.955 9.49-9.49Z" />
+                  <path d="m15 6 3 3" />
+                </svg>
                 {{ gameTitle }}
               </button>
               <input
@@ -273,11 +294,17 @@ watch(
                 ref="titleInput"
                 v-model="gameTitle"
                 type="text"
-                class="w-full max-w-3xl rounded-2xl border border-slate-800/70 bg-slate-900/70 px-5 py-3 text-center text-3xl font-bold text-slate-50 shadow-inner focus:border-sky-500/60 focus:outline-none focus:ring-2 focus:ring-sky-500/40"
+                class="w-full max-w-3xl rounded-2xl border border-slate-800/70 bg-slate-900/70 px-5 py-3 text-center text-4xl font-bold text-slate-50 shadow-inner focus:border-sky-500/60 focus:outline-none focus:ring-2 focus:ring-sky-500/40 sm:text-5xl"
                 :style="{ color: gameTitleColor || undefined }"
                 @blur="handleStopEditTitle"
                 @keyup.enter="handleStopEditTitle"
               />
+              <p
+                v-if="!isEditingTitle"
+                class="text-sm font-medium text-slate-500"
+              >
+                Click the event name to edit it
+              </p>
             </div>
 
             <TimerDisplay :is-focus-mode="isFocusMode" />
@@ -298,10 +325,6 @@ watch(
             </div>
 
             <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-              <span class="hidden sm:inline"
-                >Tip: Click the title to rename or the timer to edit the
-                date.</span
-              >
               <a
                 class="btn-ghost"
                 href="https://github.com/wilsman"
@@ -328,39 +351,115 @@ watch(
 </template>
 
 <style scoped>
+.background-mesh {
+  position: relative;
+  background:
+    radial-gradient(125% 125% at 50% 15%, rgba(8, 145, 178, 0.32), transparent 75%),
+    radial-gradient(150% 150% at 55% 85%, rgba(12, 74, 110, 0.18), transparent 80%),
+    linear-gradient(180deg, rgba(1, 6, 18, 0.8) 0%, rgba(1, 3, 10, 0.92) 38%, rgba(0, 2, 6, 1) 100%),
+    #01030f;
+  overflow: hidden;
+}
+
+.background-mesh.with-game-background {
+  background: linear-gradient(
+      180deg,
+      rgba(2, 6, 20, 0.92) 0%,
+      rgba(1, 3, 10, 0.96) 38%,
+      #00030a 100%
+    )
+    #00030a;
+}
+
+.background-mesh.with-game-background::before {
+  opacity: 0.3;
+  filter: blur(90px);
+}
+
+.background-mesh.with-game-background::after {
+  opacity: 0.28;
+  filter: blur(22px) saturate(140%);
+}
+
 .background-mesh::before,
 .background-mesh::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -20;
+  pointer-events: none;
 }
 
 .background-mesh::before {
-  background: radial-gradient(
-      600px 480px at 15% 10%,
-      rgba(56, 189, 248, 0.18),
-      transparent 70%
-    ),
-    radial-gradient(
-      720px 520px at 90% 0%,
-      rgba(14, 165, 233, 0.12),
-      transparent 80%
-    );
-  filter: blur(60px);
+  background:
+    radial-gradient(38% 42% at 18% 20%, rgba(56, 189, 248, 0.32), transparent 72%),
+    radial-gradient(40% 46% at 78% 22%, rgba(125, 211, 252, 0.24), transparent 75%),
+    radial-gradient(48% 54% at 52% 72%, rgba(14, 165, 233, 0.2), transparent 82%),
+    radial-gradient(2px 2px at 22% 18%, rgba(148, 233, 255, 0.9), transparent 55%),
+    radial-gradient(2px 2px at 64% 36%, rgba(168, 239, 255, 0.75), transparent 55%),
+    radial-gradient(2px 2px at 84% 70%, rgba(148, 233, 255, 0.8), transparent 55%),
+    radial-gradient(2px 2px at 38% 78%, rgba(125, 211, 252, 0.78), transparent 55%);
+  background-size:
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    260px 260px,
+    320px 320px,
+    380px 380px,
+    340px 340px;
+  filter: blur(80px);
+  animation: starDrift 90s ease-in-out infinite;
+  mix-blend-mode: screen;
+  opacity: 0.6;
 }
 
 .background-mesh::after {
-  background: radial-gradient(
-      520px 420px at 80% 85%,
-      rgba(139, 92, 246, 0.16),
-      transparent 75%
-    ),
-    radial-gradient(
-      440px 360px at 10% 85%,
-      rgba(34, 197, 94, 0.12),
-      transparent 80%
-    );
-  filter: blur(80px);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(148, 233, 255, 0.55) 1px, transparent 1.4px),
+    radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.45) 1px, transparent 1.6px),
+    repeating-linear-gradient(120deg, transparent 0 120px, rgba(14, 165, 233, 0.08) 120px 122px, rgba(14, 165, 233, 0.65) 122px 128px, rgba(14, 165, 233, 0.08) 128px 140px),
+    repeating-linear-gradient(60deg, transparent 0 160px, rgba(56, 189, 248, 0.08) 160px 162px, rgba(56, 189, 248, 0.55) 162px 170px, rgba(56, 189, 248, 0.08) 170px 190px),
+    repeating-linear-gradient(0deg, transparent 0 260px, rgba(37, 99, 235, 0.12) 260px 262px, rgba(56, 189, 248, 0.45) 262px 268px, rgba(37, 99, 235, 0.12) 268px 280px);
+  background-size:
+    160px 160px,
+    240px 240px,
+    320px 320px,
+    360px 360px,
+    100% 360px;
+  mix-blend-mode: screen;
+  filter: blur(18px) saturate(160%);
+  animation: gridFlow 28s linear infinite;
+  opacity: 0.55;
+}
+
+@keyframes starDrift {
+  0% {
+    transform: translate3d(-2%, -2%, 0) scale(1.02);
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) scale(1.05);
+  }
+  100% {
+    transform: translate3d(-2%, -2%, 0) scale(1.02);
+  }
+}
+
+@keyframes gridFlow {
+  0% {
+    background-position:
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0;
+  }
+  100% {
+    background-position:
+      -80px 80px,
+      120px -120px,
+      -320px 300px,
+      320px 360px,
+      0 -360px;
+  }
 }
 </style>

@@ -239,10 +239,10 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "high-on-life-2-q4-2025",
+      id: "high-on-life-2-13-february-2026",
       title: "High on Life 2 (Q4 placeholder)",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-10-01T00:00:00Z"), // Q4 2025 start (midnight UTC)
+      targetDate: new Date("2026-02-13T00:00:00Z"), // Q4 2025 start (midnight UTC)
       targetTimezone: "UTC",
       type: "game",
     },
@@ -345,8 +345,8 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "midnight-walkers",
       title: "The Midnight Walkers (Early Access)",
-      titleColor: "#2d2d2d",
-      targetDate: new Date("2025-10-01T00:00:00Z"), // Q4 2025 placeholder
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-12-01T00:00:00Z"), // Q4 2025 placeholder
       targetTimezone: "UTC",
       type: "game",
     },
@@ -369,7 +369,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "road-to-vostok",
       title: "Road to Vostok (Demo Oct 2025)",
-      titleColor: "#708090",
+      titleColor: "#ffffff",
       targetDate: new Date("2025-10-15T00:00:00Z"), // Demo placeholder
       targetTimezone: "UTC",
       type: "game",
@@ -377,7 +377,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "escape-from-duckov",
       title: "Escape from Duckov",
-      titleColor: "#708090",
+      titleColor: "#ffffff",
       targetDate: new Date("2025-10-16T00:00:00Z"), // Demo placeholder
       targetTimezone: "UTC",
       type: "game",
@@ -385,7 +385,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "cod-open-beta",
       title: "Call of Duty: Open Beta",
-      titleColor: "#708090",
+      titleColor: "#ffffff",
       targetDate: new Date("2025-10-05T00:00:00Z"), // Demo placeholder
       targetTimezone: "UTC",
       type: "game",
@@ -393,7 +393,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "arc-raiders-open-beta-start",
       title: "ARC Raiders Open Beta",
-      titleColor: "#708090",
+      titleColor: "#ffffff",
       targetDate: new Date("2025-10-17T00:00:00Z"), // Demo placeholder
       targetTimezone: "UTC",
       type: "game",
@@ -401,7 +401,7 @@ export const useTimerStore = defineStore("timer", () => {
     {
       id: "arc-raiders-open-beta-end",
       title: "ARC Raiders Open Beta End",
-      titleColor: "#708090",
+      titleColor: "#ffffff",
       targetDate: new Date("2025-10-19T00:00:00Z"), // Demo placeholder
       targetTimezone: "UTC",
       type: "game",
