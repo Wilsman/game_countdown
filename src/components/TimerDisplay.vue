@@ -336,10 +336,10 @@ onUnmounted(() => {
           class="flex flex-col items-center gap-3 rounded-2xl border border-slate-800/70 bg-slate-900/70 px-6 py-4 text-center shadow-lg shadow-slate-950/30 transition-transform duration-200 hover:-translate-y-1"
           :class="{ 'animate-pulse': store.settings.enableAnimation }"
         >
-          <span class="text-xs font-semibold uppercase tracking-[0.32em] text-slate-500">
+          <span class="text-[0.6rem] font-semibold uppercase tracking-[0.32em] text-slate-500">
             {{ segment.label }}
           </span>
-          <span class="text-4xl font-black text-slate-100 sm:text-5xl">
+          <span class="text-4xl font-black text-slate-100 sm:text-8xl">
             {{ segment.value }}
           </span>
         </div>
