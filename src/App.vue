@@ -524,6 +524,7 @@ watch(
 
 /* OBS Simple Animated Border */
 .obs-frame {
+  padding: 1rem;
   position: relative;
   background: #0c0c0c;
   border: 3px solid;
