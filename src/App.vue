@@ -2,14 +2,7 @@
 
 <script setup lang="ts">
 import { useTimerStore } from "./stores/timer";
-import {
-  onMounted,
-  onUnmounted,
-  watch,
-  ref,
-  nextTick,
-  computed,
-} from "vue";
+import { onMounted, onUnmounted, watch, ref, nextTick, computed } from "vue";
 import { storeToRefs } from "pinia";
 import TimerDisplay from "./components/TimerDisplay.vue";
 import GameSelector from "./components/GameSelector.vue";
@@ -59,8 +52,8 @@ const gameBackground = computed<GameBackgroundMeta | null>(() => {
   return null;
 });
 
-const hasGameBackground = computed(
-  () => Boolean(gameBackground.value && settings.value.enableGameBackground)
+const hasGameBackground = computed(() =>
+  Boolean(gameBackground.value && settings.value.enableGameBackground)
 );
 
 const activeGameSummary = computed(() =>
@@ -199,7 +192,10 @@ watch(
 <template>
   <div
     class="background-mesh relative min-h-screen overflow-hidden"
-    :class="{ 'with-game-background': hasGameBackground }"
+    :class="{
+      'with-game-background': hasGameBackground,
+      'obs-mode': isObsMode,
+    }"
   >
     <div
       v-if="gameBackground && settings.enableGameBackground"
@@ -262,12 +258,13 @@ watch(
 
             <div class="flex flex-col items-center gap-2 text-center">
               <p
+                v-if="!isObsMode"
                 class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
               >
                 Active Event
               </p>
               <button
-                v-if="!isEditingTitle"
+                v-if="!isObsMode && !isEditingTitle"
                 type="button"
                 class="group flex items-center gap-3 rounded-2xl border border-transparent bg-slate-900/40 px-6 py-4 text-4xl font-black text-slate-100 transition duration-200 ease-out hover:border-sky-500/60 hover:bg-slate-900/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500/60 sm:text-5xl"
                 :style="{ color: gameTitleColor || undefined }"
@@ -284,13 +281,15 @@ watch(
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <path d="M16.862 4.487a2.1 2.1 0 0 1 2.967 2.967l-9.49 9.49-3.955.988.988-3.955 9.49-9.49Z" />
+                  <path
+                    d="M16.862 4.487a2.1 2.1 0 0 1 2.967 2.967l-9.49 9.49-3.955.988.988-3.955 9.49-9.49Z"
+                  />
                   <path d="m15 6 3 3" />
                 </svg>
                 {{ gameTitle }}
               </button>
               <input
-                v-else
+                v-else-if="!isObsMode"
                 ref="titleInput"
                 v-model="gameTitle"
                 type="text"
@@ -300,7 +299,14 @@ watch(
                 @keyup.enter="handleStopEditTitle"
               />
               <p
-                v-if="!isEditingTitle"
+                v-else
+                class="rounded-2xl border border-transparent bg-slate-900/40 px-6 py-4 text-4xl font-black text-slate-100 sm:text-7xl"
+                :style="{ color: gameTitleColor || undefined }"
+              >
+                {{ gameTitle }}
+              </p>
+              <p
+                v-if="!isEditingTitle && !isObsMode"
                 class="text-sm font-medium text-slate-500"
               >
                 Click the event name to edit it
@@ -324,7 +330,9 @@ watch(
               <span>v1</span>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+            <div
+              class="flex flex-wrap items-center gap-3 text-sm text-slate-500"
+            >
               <a
                 class="btn-ghost"
                 href="https://github.com/wilsman"
@@ -353,10 +361,22 @@ watch(
 <style scoped>
 .background-mesh {
   position: relative;
-  background:
-    radial-gradient(125% 125% at 50% 15%, rgba(8, 145, 178, 0.32), transparent 75%),
-    radial-gradient(150% 150% at 55% 85%, rgba(12, 74, 110, 0.18), transparent 80%),
-    linear-gradient(180deg, rgba(1, 6, 18, 0.8) 0%, rgba(1, 3, 10, 0.92) 38%, rgba(0, 2, 6, 1) 100%),
+  background: radial-gradient(
+      125% 125% at 50% 15%,
+      rgba(126, 139, 143, 0.32),
+      transparent 75%
+    ),
+    radial-gradient(
+      150% 150% at 55% 85%,
+      rgba(12, 74, 110, 0.18),
+      transparent 80%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(1, 6, 18, 0.8) 0%,
+      rgba(1, 3, 10, 0.92) 38%,
+      rgba(0, 2, 6, 1) 100%
+    ),
     #01030f;
   overflow: hidden;
 }
@@ -391,22 +411,43 @@ watch(
 }
 
 .background-mesh::before {
-  background:
-    radial-gradient(38% 42% at 18% 20%, rgba(56, 189, 248, 0.32), transparent 72%),
-    radial-gradient(40% 46% at 78% 22%, rgba(125, 211, 252, 0.24), transparent 75%),
-    radial-gradient(48% 54% at 52% 72%, rgba(14, 165, 233, 0.2), transparent 82%),
-    radial-gradient(2px 2px at 22% 18%, rgba(148, 233, 255, 0.9), transparent 55%),
-    radial-gradient(2px 2px at 64% 36%, rgba(168, 239, 255, 0.75), transparent 55%),
-    radial-gradient(2px 2px at 84% 70%, rgba(148, 233, 255, 0.8), transparent 55%),
-    radial-gradient(2px 2px at 38% 78%, rgba(125, 211, 252, 0.78), transparent 55%);
-  background-size:
-    100% 100%,
-    100% 100%,
-    100% 100%,
-    260px 260px,
-    320px 320px,
-    380px 380px,
-    340px 340px;
+  background: radial-gradient(
+      38% 42% at 18% 20%,
+      rgba(56, 189, 248, 0.32),
+      transparent 72%
+    ),
+    radial-gradient(
+      40% 46% at 78% 22%,
+      rgba(125, 211, 252, 0.24),
+      transparent 75%
+    ),
+    radial-gradient(
+      48% 54% at 52% 72%,
+      rgba(14, 165, 233, 0.2),
+      transparent 82%
+    ),
+    radial-gradient(
+      2px 2px at 22% 18%,
+      rgba(148, 233, 255, 0.9),
+      transparent 55%
+    ),
+    radial-gradient(
+      2px 2px at 64% 36%,
+      rgba(168, 239, 255, 0.75),
+      transparent 55%
+    ),
+    radial-gradient(
+      2px 2px at 84% 70%,
+      rgba(148, 233, 255, 0.8),
+      transparent 55%
+    ),
+    radial-gradient(
+      2px 2px at 38% 78%,
+      rgba(125, 211, 252, 0.78),
+      transparent 55%
+    );
+  background-size: 100% 100%, 100% 100%, 100% 100%, 260px 260px, 320px 320px,
+    380px 380px, 340px 340px;
   filter: blur(80px);
   animation: starDrift 90s ease-in-out infinite;
   mix-blend-mode: screen;
@@ -414,17 +455,38 @@ watch(
 }
 
 .background-mesh::after {
-  background:
-    radial-gradient(circle at 50% 50%, rgba(148, 233, 255, 0.55) 1px, transparent 1.4px),
-    radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.45) 1px, transparent 1.6px),
-    repeating-linear-gradient(120deg, transparent 0 120px, rgba(14, 165, 233, 0.08) 120px 122px, rgba(14, 165, 233, 0.65) 122px 128px, rgba(14, 165, 233, 0.08) 128px 140px),
-    repeating-linear-gradient(60deg, transparent 0 160px, rgba(56, 189, 248, 0.08) 160px 162px, rgba(56, 189, 248, 0.55) 162px 170px, rgba(56, 189, 248, 0.08) 170px 190px),
-    repeating-linear-gradient(0deg, transparent 0 260px, rgba(37, 99, 235, 0.12) 260px 262px, rgba(56, 189, 248, 0.45) 262px 268px, rgba(37, 99, 235, 0.12) 268px 280px);
-  background-size:
-    160px 160px,
-    240px 240px,
-    320px 320px,
-    360px 360px,
+  background: radial-gradient(
+      circle at 50% 50%,
+      rgba(148, 233, 255, 0.55) 1px,
+      transparent 1.4px
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(56, 189, 248, 0.45) 1px,
+      transparent 1.6px
+    ),
+    repeating-linear-gradient(
+      120deg,
+      transparent 0 120px,
+      rgba(14, 165, 233, 0.08) 120px 122px,
+      rgba(14, 165, 233, 0.65) 122px 128px,
+      rgba(14, 165, 233, 0.08) 128px 140px
+    ),
+    repeating-linear-gradient(
+      60deg,
+      transparent 0 160px,
+      rgba(56, 189, 248, 0.08) 160px 162px,
+      rgba(56, 189, 248, 0.55) 162px 170px,
+      rgba(56, 189, 248, 0.08) 170px 190px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 260px,
+      rgba(37, 99, 235, 0.12) 260px 262px,
+      rgba(56, 189, 248, 0.45) 262px 268px,
+      rgba(37, 99, 235, 0.12) 268px 280px
+    );
+  background-size: 160px 160px, 240px 240px, 320px 320px, 360px 360px,
     100% 360px;
   mix-blend-mode: screen;
   filter: blur(18px) saturate(160%);
@@ -432,34 +494,129 @@ watch(
   opacity: 0.55;
 }
 
-@keyframes starDrift {
-  0% {
-    transform: translate3d(-2%, -2%, 0) scale(1.02);
-  }
-  50% {
-    transform: translate3d(4%, 3%, 0) scale(1.05);
-  }
-  100% {
-    transform: translate3d(-2%, -2%, 0) scale(1.02);
-  }
+.background-mesh.obs-mode::before,
+.background-mesh.obs-mode::after {
+  animation: none;
+}
+
+:deep(.obs-mode .obs-frame::before) {
+  animation: none !important;
+  inset: 0 !important;
+  background: linear-gradient(
+    115deg,
+    rgba(56, 189, 248, 0.32),
+    rgba(129, 140, 248, 0.28),
+    rgba(16, 185, 129, 0.26)
+  ) !important;
+  opacity: 0.35 !important;
+  border-radius: inherit;
 }
 
 @keyframes gridFlow {
   0% {
-    background-position:
-      0 0,
-      0 0,
-      0 0,
-      0 0,
-      0 0;
+    background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
   }
   100% {
-    background-position:
-      -80px 80px,
-      120px -120px,
-      -320px 300px,
-      320px 360px,
+    background-position: -80px 80px, 120px -120px, -320px 300px, 320px 360px,
       0 -360px;
+  }
+}
+
+/* OBS Simple Animated Border */
+.obs-frame {
+  position: relative;
+  background: #0c0c0c;
+  border: 3px solid;
+  border-radius: 24px;
+  border-image: linear-gradient(
+      90deg,
+      #00baff,
+      transparent,
+      transparent,
+      transparent,
+      #00baff
+    )
+    1;
+}
+
+@keyframes border-rotate {
+  0% {
+    border-image: linear-gradient(
+        0deg,
+        #00baff,
+        transparent,
+        transparent,
+        transparent,
+        #00baff
+      )
+      1;
+  }
+  25% {
+    border-image: linear-gradient(
+        90deg,
+        #00baff,
+        transparent,
+        transparent,
+        transparent,
+        #00baff
+      )
+      1;
+  }
+  50% {
+    border-image: linear-gradient(
+        180deg,
+        #00baff,
+        transparent,
+        transparent,
+        transparent,
+        #00baff
+      )
+      1;
+  }
+  75% {
+    border-image: linear-gradient(
+        270deg,
+        #00baff,
+        transparent,
+        transparent,
+        transparent,
+        #00baff
+      )
+      1;
+  }
+  100% {
+    border-image: linear-gradient(
+        360deg,
+        #00baff,
+        transparent,
+        transparent,
+        transparent,
+        #00baff
+      )
+      1;
+  }
+}
+
+@keyframes blue-shimmer {
+  0% {
+    background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%;
+    opacity: 0.4;
+  }
+  25% {
+    background-position: 100% 0%, 0% 0%, 50% 50%, 50% 50%;
+    opacity: 0.7;
+  }
+  50% {
+    background-position: 100% 100%, 0% 100%, 100% 0%, 0% 100%;
+    opacity: 0.9;
+  }
+  75% {
+    background-position: 0% 100%, 100% 0%, 50% 50%, 50% 50%;
+    opacity: 0.7;
+  }
+  100% {
+    background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%;
+    opacity: 0.4;
   }
 }
 </style>
