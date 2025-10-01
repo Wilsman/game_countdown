@@ -255,6 +255,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "outer-worlds-2-2025-10-29",
+      title: "The Outer Worlds 2",
+      titleColor: "#14b8a6",
+      targetDate: new Date("2025-10-29T00:00:00Z"), // Oct 29, 2025
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "starcitizen-42",
       title: "Star Citizen: Squadron 42",
       titleColor: "#ffffff",
@@ -319,6 +327,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "ghost-of-yotei-2025-10-02",
+      title: "Ghost of Yotei",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-10-02T00:00:00Z"), // Oct 2, 2025
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "kingmakers",
       title: "Kingmakers (Early Access)",
       titleColor: "#ffd700",
@@ -327,10 +343,58 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "blue-protocol-star-resonance-2025-10-09",
+      title: "Blue Protocol: Star Resonance",
+      titleColor: "#3b82f6",
+      targetDate: new Date("2025-10-09T00:00:00Z"), // Oct 9, 2025
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "little-nightmares-3-2025-10-09",
+      title: "Little Nightmares 3",
+      titleColor: "#f97316",
+      targetDate: new Date("2025-10-09T00:00:00Z"), // Oct 9, 2025
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "new-world-nighthaven-2025-10-13",
+      title: "New World: Nighthaven",
+      titleColor: "#38bdf8",
+      targetDate: new Date("2025-10-13T00:00:00Z"), // Oct 13, 2025
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "misery",
       title: "MISERY",
       titleColor: "#8b0000",
       targetDate: new Date("2025-10-23T17:00:00Z"), // Oct 23, 2025 17:00 UTC
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "painkiller-2025-10-21",
+      title: "Painkiller",
+      titleColor: "#e11d48",
+      targetDate: new Date("2025-10-21T00:00:00Z"), // Oct 21, 2025
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "vampire-bloodlines-2-2025-10-21",
+      title: "Vampire: The Masquerade - Bloodlines 2",
+      titleColor: "#a855f7",
+      targetDate: new Date("2025-10-21T00:00:00Z"), // Oct 21, 2025
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "ninja-gaiden-4-2025-10-21",
+      title: "Ninja Gaiden 4",
+      titleColor: "#ef4444",
+      targetDate: new Date("2025-10-21T00:00:00Z"), // Oct 21, 2025
       targetTimezone: "UTC",
       type: "game",
     },
@@ -375,10 +439,34 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "fellowship-2025-10-16",
+      title: "Fellowship",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-10-16T00:00:00Z"), // Oct 16, 2025
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "escape-from-duckov",
       title: "Escape from Duckov",
       titleColor: "#ffffff",
       targetDate: new Date("2025-10-16T00:00:00Z"), // Demo placeholder
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "keeper-2025-10-17",
+      title: "Keeper",
+      titleColor: "#22c55e",
+      targetDate: new Date("2025-10-17T00:00:00Z"), // Oct 17, 2025
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "arc-raiders-playtest-2025-10-17",
+      title: "ARC Raiders (Playtest)",
+      titleColor: "#facc15",
+      targetDate: new Date("2025-10-17T00:00:00Z"), // Oct 17, 2025
       targetTimezone: "UTC",
       type: "game",
     },
