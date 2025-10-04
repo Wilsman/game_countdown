@@ -474,7 +474,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "cod-open-beta",
       title: "Call of Duty: Open Beta",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-10-05T00:00:00Z"), // Demo placeholder
+      targetDate: new Date("2025-10-04T17:00:00Z"), // Demo placeholder
       targetTimezone: "UTC",
       type: "game",
     },
