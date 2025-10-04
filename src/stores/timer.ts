@@ -334,14 +334,14 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "UTC",
       type: "game",
     },
-    {
-      id: "kingmakers",
-      title: "Kingmakers (Early Access)",
-      titleColor: "#ffd700",
-      targetDate: new Date("2025-10-08T05:00:00Z"), // Oct 8, 2025 midnight ET (5:00 UTC)
-      targetTimezone: "America/New_York",
-      type: "game",
-    },
+    // {
+    //   id: "kingmakers",
+    //   title: "Kingmakers (Early Access)",
+    //   titleColor: "#ffd700",
+    //   targetDate: new Date("2025-10-08T05:00:00Z"), // Oct 8, 2025 midnight ET (5:00 UTC)
+    //   targetTimezone: "America/New_York",
+    //   type: "game",
+    // },
     {
       id: "blue-protocol-star-resonance-2025-10-09",
       title: "Blue Protocol: Star Resonance",
