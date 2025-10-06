@@ -231,6 +231,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkov-softcore",
+      title: "Escape from Tarkov Softcore(TBC)",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-10-08T08:00:00Z"), // Nov 15, 2025 (time not specified)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "poe-3-26",
       title: "POE1 3.26",
       titleColor: "#ffffff",
