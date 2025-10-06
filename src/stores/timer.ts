@@ -463,14 +463,6 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "arc-raiders-playtest-2025-10-17",
-      title: "ARC Raiders (Playtest)",
-      titleColor: "#facc15",
-      targetDate: new Date("2025-10-17T00:00:00Z"), // Oct 17, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
       id: "cod-open-beta",
       title: "Call of Duty: Open Beta",
       titleColor: "#ffffff",
