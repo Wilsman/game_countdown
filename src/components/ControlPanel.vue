@@ -623,7 +623,7 @@ function importSettings(event: Event) {
 /* Panel */
 .settings-panel {
   position: absolute;
-  bottom: calc(100% + 10px);
+  top: calc(100% + 10px);
   right: 0;
   width: min(380px, 92vw);
   max-height: 78vh;
