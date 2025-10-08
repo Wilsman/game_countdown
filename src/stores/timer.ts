@@ -234,7 +234,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "tarkov-softcore",
       title: "Escape from Tarkov Softcore(TBC)",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-10-08T08:00:00Z"), // Oct 8, 2025 8:00 AM (UTC)
+      targetDate: new Date("2025-10-08T09:00:00Z"), // Oct 8, 2025 8:00 AM (UTC)
       targetTimezone: "UTC",
       type: "game",
     },
