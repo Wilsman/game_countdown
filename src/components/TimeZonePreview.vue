@@ -22,7 +22,7 @@ const timeZonePreviews = computed(() => {
       timeZone: zone.timezone,
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true
+      hour12: false
     }
     
     const dateOptions: Intl.DateTimeFormatOptions = {

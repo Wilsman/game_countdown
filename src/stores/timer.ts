@@ -23,6 +23,11 @@ interface TimeRemaining {
   seconds: number;
 }
 
+interface RegionalReleaseTime {
+  timezone: string;
+  date: Date;
+}
+
 interface Game {
   id: string;
   title: string;
@@ -30,6 +35,7 @@ interface Game {
   targetDate: Date;
   targetTimezone: string;
   type: "game" | "utility";
+  regionalReleaseTimes?: RegionalReleaseTime[];
 }
 
 export const useTimerStore = defineStore("timer", () => {
@@ -128,11 +134,25 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "bf6-release-2025-10-10",
-      title: "Battlefield 6 - October 10th",
+      title: "Battlefield 6 - Release",
       titleColor: "#00a8ff",
-      targetDate: new Date("2025-10-10T00:00:00Z"), // Oct 10, 2025 (time not specified)
+      targetDate: new Date("2025-10-10T15:00:00Z"), // Default fallback
       targetTimezone: "UTC",
       type: "game",
+      regionalReleaseTimes: [
+        { timezone: "America/Los_Angeles", date: new Date("2025-10-10T15:00:00Z") }, // 08:00 PDT (UTC-7)
+        { timezone: "America/Mexico_City", date: new Date("2025-10-10T15:00:00Z") }, // 09:00 CST (UTC-6)
+        { timezone: "America/New_York", date: new Date("2025-10-10T15:00:00Z") }, // 11:00 EDT (UTC-4)
+        { timezone: "America/Sao_Paulo", date: new Date("2025-10-10T15:00:00Z") }, // 12:00 BRT (UTC-3)
+        { timezone: "Europe/London", date: new Date("2025-10-10T15:00:00Z") }, // 16:00 BST (UTC+1)
+        { timezone: "Europe/Stockholm", date: new Date("2025-10-10T15:00:00Z") }, // 17:00 CEST (UTC+2)
+        { timezone: "Africa/Cairo", date: new Date("2025-10-10T16:00:00Z") }, // 18:00 EEST (UTC+2)
+        { timezone: "Asia/Baku", date: new Date("2025-10-10T15:00:00Z") }, // 19:00 AZT (UTC+4)
+        { timezone: "Asia/Kolkata", date: new Date("2025-10-10T20:30:00Z") }, // 20:30 UTC
+        { timezone: "Asia/Ho_Chi_Minh", date: new Date("2025-10-10T15:00:00Z") }, // 22:00 ICT (UTC+7)
+        { timezone: "Asia/Tokyo", date: new Date("2025-10-10T15:00:00Z") }, // 00:00 JST Oct 11 (UTC+9)
+        { timezone: "Australia/Sydney", date: new Date("2025-10-10T15:00:00Z") }, // 02:00 AEDT Oct 11 (UTC+11)
+      ],
     },
     {
       id: "break-30",
@@ -520,12 +540,37 @@ export const useTimerStore = defineStore("timer", () => {
   let celebrationInterval: number | null = null;
   const currentTime = ref(new Date());
 
+  // Helper function to get the appropriate target date based on user's timezone
+  const getTargetDateForTimezone = (game: Game): { date: Date; timezone: string } => {
+    if (!game.regionalReleaseTimes || game.regionalReleaseTimes.length === 0) {
+      return { date: game.targetDate, timezone: game.targetTimezone };
+    }
+
+    // Find a matching regional release time for the user's timezone
+    const regionalMatch = game.regionalReleaseTimes.find(
+      (regional) => regional.timezone === userTimezone
+    );
+
+    if (regionalMatch) {
+      return { date: regionalMatch.date, timezone: regionalMatch.timezone };
+    }
+
+    // No match found, use the default
+    return { date: game.targetDate, timezone: game.targetTimezone };
+  };
+
   // Computed properties for active game
   const activeGame = computed<Game>(() => games.value[activeGameIndex.value]);
   const gameTitle = computed(() => activeGame.value.title);
   const gameTitleColor = computed(() => activeGame.value.titleColor);
-  const targetDate = computed(() => activeGame.value.targetDate);
-  const targetTimezone = computed(() => activeGame.value.targetTimezone);
+  const targetDate = computed(() => {
+    const { date } = getTargetDateForTimezone(activeGame.value);
+    return date;
+  });
+  const targetTimezone = computed(() => {
+    const { timezone } = getTargetDateForTimezone(activeGame.value);
+    return timezone;
+  });
 
   const timeRemaining = computed<TimeRemaining>(() => {
     const diff = differenceInSeconds(targetDate.value, currentTime.value);
@@ -565,7 +610,8 @@ export const useTimerStore = defineStore("timer", () => {
     games.value.forEach((game, index) => {
       // Only consider games, not utilities
       if (game.type === 'game') {
-        const diff = differenceInSeconds(game.targetDate, now);
+        const { date } = getTargetDateForTimezone(game);
+        const diff = differenceInSeconds(date, now);
         // Find the game with the smallest positive time difference
         if (diff > 0 && diff < minTimeDiff) {
           minTimeDiff = diff;
