@@ -246,9 +246,12 @@ export const useTimerStore = defineStore("timer", () => {
       id: "tarkov-1-0-release",
       title: "Escape from Tarkov 1.0 Release",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-11-15T00:00:00Z"), // Nov 15, 2025 (time not specified)
-      targetTimezone: "UTC",
+      targetDate: new Date(2025, 10, 15, 8, 0, 0), // Nov 15, 2025 8am uk
+      targetTimezone: "Europe/London",
       type: "game",
+      regionalReleaseTimes: [
+        { timezone: "Europe/London", date: new Date("2025-11-15T08:00:00Z") }, // 16:00 BST (UTC+1)
+      ],
     },
     {
       id: "tarkov-softcore",
@@ -278,9 +281,23 @@ export const useTimerStore = defineStore("timer", () => {
       id: "arc-raiders",
       title: "ARC Raiders",
       titleColor: "#ffffff",
-      targetDate: new Date(2025, 9, 30, 0, 0, 0), // October 30, 2025
-      targetTimezone: "Europe/Stockholm",
+      targetDate: new Date(2025, 9, 30, 16, 0, 0), // October 30, 2025
+      targetTimezone: "Europe/London",
       type: "game",
+      regionalReleaseTimes: [
+        { timezone: "America/Los_Angeles", date: new Date("2025-10-30T16:00:00Z") }, // 08:00 PDT (UTC-7)
+        { timezone: "America/Mexico_City", date: new Date("2025-10-30T16:00:00Z") }, // 09:00 CST (UTC-6)
+        { timezone: "America/New_York", date: new Date("2025-10-30T16:00:00Z") }, // 11:00 EDT (UTC-4)
+        { timezone: "America/Sao_Paulo", date: new Date("2025-10-30T16:00:00Z") }, // 12:00 BRT (UTC-3)
+        { timezone: "Europe/London", date: new Date("2025-10-30T16:00:00Z") }, // 16:00 BST (UTC+1)
+        { timezone: "Europe/Stockholm", date: new Date("2025-10-30T16:00:00Z") }, // 17:00 CEST (UTC+2)
+        { timezone: "Africa/Cairo", date: new Date("2025-10-30T16:00:00Z") }, // 18:00 EEST (UTC+2)
+        { timezone: "Asia/Baku", date: new Date("2025-10-30T16:00:00Z") }, // 19:00 AZT (UTC+4)
+        { timezone: "Asia/Kolkata", date: new Date("2025-10-30T16:00:00Z") }, // 20:30 UTC
+        { timezone: "Asia/Ho_Chi_Minh", date: new Date("2025-10-30T16:00:00Z") }, // 22:00 ICT (UTC+7)
+        { timezone: "Asia/Tokyo", date: new Date("2025-10-30T16:00:00Z") }, // 00:00 JST Oct 31 (UTC+9)
+        { timezone: "Australia/Sydney", date: new Date("2025-10-30T16:00:00Z") }, // 02:00 AEDT Oct 31 (UTC+11)
+      ],
     },
     {
       id: "outer-worlds-2-2025-10-29",
@@ -502,16 +519,16 @@ export const useTimerStore = defineStore("timer", () => {
       id: "arc-raiders-open-beta-start",
       title: "ARC Raiders Open Beta",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-10-17T00:00:00Z"), // Demo placeholder
-      targetTimezone: "UTC",
+      targetDate: new Date(2025, 9, 17, 16, 0, 0 ), // 2025-10-17T15:00:00
+      targetTimezone: "Europe/London",
       type: "game",
     },
     {
       id: "arc-raiders-open-beta-end",
       title: "ARC Raiders Open Beta End",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-10-19T00:00:00Z"), // Demo placeholder
-      targetTimezone: "UTC",
+      targetDate: new Date(2025, 9, 19, 16, 0, 0), // 2025-10-19T15:00:00
+      targetTimezone: "Europe/London",
       type: "game",
     },
   ];
