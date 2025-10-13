@@ -171,22 +171,16 @@ export const useTimerStore = defineStore("timer", () => {
       id: "arc-raiders",
       title: "ARC Raiders",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-10-30T16:00:00Z"), // October 30, 2025 4pm UTC
+      targetDate: new Date("2025-10-30T09:30:00Z"), // October 30, 2025 9:30 AM UTC
       targetTimezone: "Europe/London",
       type: "game",
       regionalReleaseTimes: [
-        { timezone: "America/Los_Angeles", date: new Date("2025-10-30T16:00:00Z") }, // 08:00 PDT (UTC-7)
-        { timezone: "America/Mexico_City", date: new Date("2025-10-30T16:00:00Z") }, // 09:00 CST (UTC-6)
-        { timezone: "America/New_York", date: new Date("2025-10-30T16:00:00Z") }, // 11:00 EDT (UTC-4)
-        { timezone: "America/Sao_Paulo", date: new Date("2025-10-30T16:00:00Z") }, // 12:00 BRT (UTC-3)
-        { timezone: "Europe/London", date: new Date("2025-10-30T16:00:00Z") }, // 16:00 BST (UTC+1)
-        { timezone: "Europe/Stockholm", date: new Date("2025-10-30T16:00:00Z") }, // 17:00 CEST (UTC+2)
-        { timezone: "Africa/Cairo", date: new Date("2025-10-30T16:00:00Z") }, // 18:00 EEST (UTC+2)
-        { timezone: "Asia/Baku", date: new Date("2025-10-30T16:00:00Z") }, // 19:00 AZT (UTC+4)
-        { timezone: "Asia/Kolkata", date: new Date("2025-10-30T16:00:00Z") }, // 20:30 UTC
-        { timezone: "Asia/Ho_Chi_Minh", date: new Date("2025-10-30T16:00:00Z") }, // 22:00 ICT (UTC+7)
-        { timezone: "Asia/Tokyo", date: new Date("2025-10-30T16:00:00Z") }, // 00:00 JST Oct 31 (UTC+9)
-        { timezone: "Australia/Sydney", date: new Date("2025-10-30T16:00:00Z") }, // 02:00 AEDT Oct 31 (UTC+11)
+        { timezone: "America/Los_Angeles", date: new Date("2025-10-30T09:30:00Z") }, // 02:30 PDT (UTC-7)
+        { timezone: "America/Chicago", date: new Date("2025-10-30T09:30:00Z") }, // 04:30 CDT (UTC-5)
+        { timezone: "America/New_York", date: new Date("2025-10-30T09:30:00Z") }, // 05:30 EDT (UTC-4)
+        { timezone: "Europe/London", date: new Date("2025-10-30T09:30:00Z") }, // 09:30 UTC
+        { timezone: "Europe/Paris", date: new Date("2025-10-30T09:30:00Z") }, // 10:30 CET (UTC+1)
+        { timezone: "Europe/Athens", date: new Date("2025-10-30T09:30:00Z") }, // 11:30 EET (UTC+2)
       ],
     },
     {
