@@ -7,5 +7,10 @@ export default defineConfig({
   plugins: [
     vue(),
     vueJsx()
-  ]
+  ],
+  server: {
+    watch: {
+      usePolling: true
+    }
+  }
 })
