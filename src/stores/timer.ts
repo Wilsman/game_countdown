@@ -152,11 +152,11 @@ export const useTimerStore = defineStore("timer", () => {
       id: "tarkov-1-0-release",
       title: "Escape from Tarkov 1.0 Release",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-11-15T08:00:00Z"), // Nov 15, 2025 8am UTC
+      targetDate: new Date("2025-11-15T08:00:00Z"), // Nov 15, 2025 8am BST (UTC+1)
       targetTimezone: "Europe/London",
       type: "game",
       regionalReleaseTimes: [
-        { timezone: "Europe/London", date: new Date("2025-11-15T08:00:00Z") }, // 16:00 BST (UTC+1)
+        { timezone: "Europe/London", date: new Date("2025-11-15T08:00:00Z") }, // 08:00 BST (UTC+1)
       ],
     },
     {
@@ -241,8 +241,8 @@ export const useTimerStore = defineStore("timer", () => {
       id: "halloween-tarkov-event",
       title: "Halloween Tarkov Event (Maybe)",
       titleColor: "#ff8c00",
-      targetDate: new Date("2025-10-31T00:00:00Z"), // Oct 31, 2025
-      targetTimezone: "UTC",
+      targetDate: new Date("2025-10-31T08:00:00Z"), // Oct 31, 2025
+      targetTimezone: "Europe/London",
       type: "game",
     },
     {
