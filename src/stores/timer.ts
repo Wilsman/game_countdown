@@ -109,52 +109,6 @@ export const useTimerStore = defineStore("timer", () => {
   // Default games
   const defaultGames: Game[] = [
     {
-      id: "bf6-early-access",
-      title: "Battlefield 6 Beta: Early Access Start",
-      titleColor: "#00a8ff",
-      targetDate: new Date('2025-08-07T01:00:00-07:00'), // Aug 7, 1am PT (PDT)
-      targetTimezone: "America/Los_Angeles",
-      type: "game",
-    },
-    {
-      id: "bf6-weekend1",
-      title: "Battlefield 6 Beta: Weekend 1 Start (available to all)",
-      titleColor: "#00a8ff",
-      targetDate: new Date('2025-08-09T01:00:00-07:00'), // Aug 9, 1am PT (PDT)
-      targetTimezone: "America/Los_Angeles",
-      type: "game",
-    },
-    {
-      id: "bf6-weekend2",
-      title: "Battlefield 6 Beta: Weekend 2 Start (available to all)",
-      titleColor: "#00a8ff",
-      targetDate: new Date('2025-08-14T01:00:00-07:00'), // Aug 14, 1am PT (PDT)
-      targetTimezone: "America/Los_Angeles",
-      type: "game",
-    },
-    {
-      id: "bf6-release-2025-10-10",
-      title: "Battlefield 6 - Release",
-      titleColor: "#00a8ff",
-      targetDate: new Date("2025-10-10T15:00:00Z"), // Default fallback
-      targetTimezone: "UTC",
-      type: "game",
-      regionalReleaseTimes: [
-        { timezone: "America/Los_Angeles", date: new Date("2025-10-10T15:00:00Z") }, // 08:00 PDT (UTC-7)
-        { timezone: "America/Mexico_City", date: new Date("2025-10-10T15:00:00Z") }, // 09:00 CST (UTC-6)
-        { timezone: "America/New_York", date: new Date("2025-10-10T15:00:00Z") }, // 11:00 EDT (UTC-4)
-        { timezone: "America/Sao_Paulo", date: new Date("2025-10-10T15:00:00Z") }, // 12:00 BRT (UTC-3)
-        { timezone: "Europe/London", date: new Date("2025-10-10T15:00:00Z") }, // 16:00 BST (UTC+1)
-        { timezone: "Europe/Stockholm", date: new Date("2025-10-10T15:00:00Z") }, // 17:00 CEST (UTC+2)
-        { timezone: "Africa/Cairo", date: new Date("2025-10-10T16:00:00Z") }, // 18:00 EEST (UTC+2)
-        { timezone: "Asia/Baku", date: new Date("2025-10-10T15:00:00Z") }, // 19:00 AZT (UTC+4)
-        { timezone: "Asia/Kolkata", date: new Date("2025-10-10T20:30:00Z") }, // 20:30 UTC
-        { timezone: "Asia/Ho_Chi_Minh", date: new Date("2025-10-10T15:00:00Z") }, // 22:00 ICT (UTC+7)
-        { timezone: "Asia/Tokyo", date: new Date("2025-10-10T15:00:00Z") }, // 00:00 JST Oct 11 (UTC+9)
-        { timezone: "Australia/Sydney", date: new Date("2025-10-10T15:00:00Z") }, // 02:00 AEDT Oct 11 (UTC+11)
-      ],
-    },
-    {
       id: "break-30",
       title: "Be Right Back (30min)",
       titleColor: "#ffffff",
@@ -187,54 +141,6 @@ export const useTimerStore = defineStore("timer", () => {
       type: "utility",
     },
     {
-      id: "tarkov-wipe-maintenance",
-      title: "Escape from Tarkov 0.16.8.0 Hardcore Wipe: Maintenance Start",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-07-09T07:00:00Z"), // July 9, 2025 8:00 AM BST
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "tarkov-wipe-start",
-      title: "EFT Hardcore Wipe: Start",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-07-09T13:00:00Z"), // July 9, 2025 2:00 PM BST
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "tarkov-maintenance-start-2025-08-19",
-      title: "Tarkov Maintenance Start",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-08-19T21:00:00Z"), // Aug 19, 2025 10:00 PM BST
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "tarkov-maintenance-end-2025-08-20",
-      title: "Tarkov data center maintenance end",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-08-20T03:00:00Z"), // Aug 20, 2025 4:00 AM BST
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "tarkov-patch-0-16-9-0-install",
-      title: "EFT Patch 0.16.9.0 Start",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-08-20T07:00:00Z"), // Aug 20, 2025 8:00 AM BST / 3:00 AM EDT
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "tarkov-patch-0-16-9-0-install-end",
-      title: "EFT Patch 0.16.9.0 End",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-08-20T13:00:00Z"), // Aug 20, 2025 2:00 PM BST / 9:00 AM EDT
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
       id: "call-of-duty-black-ops-7-2025-11-14",
       title: "Call of Duty: Black Ops 7",
       titleColor: "#ffffff",
@@ -246,28 +152,12 @@ export const useTimerStore = defineStore("timer", () => {
       id: "tarkov-1-0-release",
       title: "Escape from Tarkov 1.0 Release",
       titleColor: "#ffffff",
-      targetDate: new Date(2025, 10, 15, 8, 0, 0), // Nov 15, 2025 8am uk
+      targetDate: new Date("2025-11-15T08:00:00Z"), // Nov 15, 2025 8am UTC
       targetTimezone: "Europe/London",
       type: "game",
       regionalReleaseTimes: [
         { timezone: "Europe/London", date: new Date("2025-11-15T08:00:00Z") }, // 16:00 BST (UTC+1)
       ],
-    },
-    {
-      id: "tarkov-softcore",
-      title: "Escape from Tarkov Softcore",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-10-08T09:00:00Z"), // Oct 8, 2025 8:00 AM (UTC)
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "poe-3-26",
-      title: "POE1 3.26",
-      titleColor: "#ffffff",
-      targetDate: new Date(2025, 5, 13, 21, 0, 0), // June 13, 2025 9:00 PM
-      targetTimezone: userTimezone,
-      type: "game",
     },
     {
       id: "high-on-life-2-13-february-2026",
@@ -281,7 +171,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "arc-raiders",
       title: "ARC Raiders",
       titleColor: "#ffffff",
-      targetDate: new Date(2025, 9, 30, 16, 0, 0), // October 30, 2025
+      targetDate: new Date("2025-10-30T16:00:00Z"), // October 30, 2025 4pm UTC
       targetTimezone: "Europe/London",
       type: "game",
       regionalReleaseTimes: [
@@ -311,103 +201,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "starcitizen-42",
       title: "Star Citizen: Squadron 42",
       titleColor: "#ffffff",
-      targetDate: new Date(2025, 11, 1, 0, 0, 0), // December 1, 2025 (estimated)
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "marvel-1943",
-      title: "Marvel 1943: Rise of Hydra",
-      titleColor: "#ffffff",
-      targetDate: new Date(2025, 2, 1, 0, 0, 0), // March 1, 2025
-      targetTimezone: "America/Los_Angeles",
-      type: "game",
-    },
-    {
-      id: "metal-gear-solid-delta-snake-eater-2025-08-28",
-      title: "METAL GEAR SOLID Δ: SNAKE EATER",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-08-28T00:00:00Z"), // Aug 28, 2025 (midnight UTC)
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "path-of-exile-2",
-      title: "Path of Exile 2 - New League",
-      titleColor: "#ffffff",
-      targetDate: new Date('2025-08-29T13:00:00-07:00'), // Aug 29, 2025 1:00 PM PDT
-      targetTimezone: "America/Los_Angeles",
-      type: "game",
-    },
-    {
-      id: "borderlands-4",
-      title: "Borderlands 4 (PC Early Access)",
-      titleColor: "#ff6b35",
-      targetDate: new Date("2025-09-11T16:00:00Z"), // Sep 11, 2025 4:00 PM UTC (9 AM PT)
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "no-im-not-a-human",
-      title: "No, I'm not a Human",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-09-15T00:00:00Z"), // Sep 15, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "dying-light-the-beast",
-      title: "Dying Light: The Beast",
-      titleColor: "#ff4444",
-      targetDate: new Date("2025-09-18T16:00:00Z"), // 5 PM BST (4 PM UTC) on Sep 18, 2025
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "jump-space",
-      title: "Jump Space (Early Access)",
-      titleColor: "#4a90e2",
-      targetDate: new Date("2025-09-19T15:00:00+01:00"), // Sep 19, 2025 3:00 PM BST
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "ghost-of-yotei-2025-10-02",
-      title: "Ghost of Yotei",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-10-02T00:00:00Z"), // Oct 2, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    // {
-    //   id: "kingmakers",
-    //   title: "Kingmakers (Early Access)",
-    //   titleColor: "#ffd700",
-    //   targetDate: new Date("2025-10-08T05:00:00Z"), // Oct 8, 2025 midnight ET (5:00 UTC)
-    //   targetTimezone: "America/New_York",
-    //   type: "game",
-    // },
-    {
-      id: "blue-protocol-star-resonance-2025-10-09",
-      title: "Blue Protocol: Star Resonance",
-      titleColor: "#3b82f6",
-      targetDate: new Date("2025-10-09T00:00:00Z"), // Oct 9, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "little-nightmares-3-2025-10-09",
-      title: "Little Nightmares 3",
-      titleColor: "#f97316",
-      targetDate: new Date("2025-10-09T00:00:00Z"), // Oct 9, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "new-world-nighthaven-2025-10-13",
-      title: "New World: Nighthaven",
-      titleColor: "#38bdf8",
-      targetDate: new Date("2025-10-13T00:00:00Z"), // Oct 13, 2025
+      targetDate: new Date("2025-12-01T00:00:00Z"), // December 1, 2025 (estimated)
       targetTimezone: "UTC",
       type: "game",
     },
@@ -508,18 +302,10 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "cod-open-beta",
-      title: "Call of Duty: Open Beta",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-10-04T17:00:00Z"), // Demo placeholder
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
       id: "arc-raiders-open-beta-start",
       title: "ARC Raiders Open Beta",
       titleColor: "#ffffff",
-      targetDate: new Date(2025, 9, 17, 14, 0, 0), // Oct 17, 2025 6am PDT / 9am EDT / 2pm BST
+      targetDate: new Date("2025-10-17T13:00:00Z"), // Oct 17, 2025 6am PDT / 9am EDT / 2pm BST
       targetTimezone: "Europe/London",
       type: "game",
     },
@@ -527,7 +313,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "arc-raiders-open-beta-end",
       title: "ARC Raiders Open Beta End",
       titleColor: "#ffffff",
-      targetDate: new Date(2025, 9, 19, 16, 0, 0), // Oct 19, 2025 8am PDT / 11am EDT / 4pm BST
+      targetDate: new Date("2025-10-19T15:00:00Z"), // Oct 19, 2025 8am PDT / 11am EDT / 4pm BST
       targetTimezone: "Europe/London",
       type: "game",
     },

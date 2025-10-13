@@ -46,29 +46,29 @@ bun run scripts/verify-dates.ts
 - Regional release times verified for 12 timezones
 - All regional times synchronized to 2025-10-30T16:00:00Z
 
-## Important: JavaScript Date Month Indexing
+## Important: Always Use UTC Time Strings
 
-⚠️ **Month parameter is 0-indexed:**
-- 0 = January
-- 1 = February
-- 2 = March
-- 3 = April
-- 4 = May
-- 5 = June
-- 6 = July
-- 7 = August
-- 8 = September
-- 9 = October
-- 10 = November
-- 11 = December
+⚠️ **CRITICAL: Always use ISO 8601 UTC strings for dates**
 
-### Example
+### Why?
+The `new Date(year, month, day, hour, ...)` constructor creates dates in the **user's local timezone**, causing different countdown times for users in different timezones.
+
+### Example of the Problem
 ```typescript
-// ✅ Correct: October 17, 2025
+// ❌ WRONG: Creates date in user's local timezone
 new Date(2025, 9, 17, 14, 0, 0)
+// In London (GMT+1): Oct 17, 2025 14:00 London time
+// In Korea (GMT+9): Oct 17, 2025 14:00 Korea time (8 hours later!)
 
-// ❌ Wrong: November 17, 2025
-new Date(2025, 10, 17, 14, 0, 0)
+// ✅ CORRECT: Creates date in UTC, same for all users
+new Date("2025-10-17T13:00:00Z")
+// Everyone sees the same absolute time
+```
+
+### Best Practice
+Always use ISO 8601 UTC strings with the `Z` suffix:
+```typescript
+targetDate: new Date("2025-10-17T13:00:00Z") // 1pm UTC = 2pm BST = 6am PDT
 ```
 
 ## Test Files

@@ -28,102 +28,89 @@ describe('Game Timer Date Tests', () => {
   });
 
   describe('Tarkov 1.0 Release', () => {
-    it('should have correct date: Nov 15, 2025 at 8am UK', () => {
-      const releaseDate = new Date(2025, 10, 15, 8, 0, 0);
+    it('should have correct date: Nov 15, 2025 at 8am UTC', () => {
+      const releaseDate = new Date("2025-11-15T08:00:00Z");
       
-      expect(releaseDate.getMonth()).toBe(10); // November
-      expect(releaseDate.getDate()).toBe(15);
-      expect(releaseDate.getFullYear()).toBe(2025);
-      expect(releaseDate.getHours()).toBe(8);
-      expect(releaseDate.toDateString()).toContain('Nov');
+      expect(releaseDate.getUTCMonth()).toBe(10); // November
+      expect(releaseDate.getUTCDate()).toBe(15);
+      expect(releaseDate.getUTCFullYear()).toBe(2025);
+      expect(releaseDate.getUTCHours()).toBe(8);
+      expect(releaseDate.toISOString()).toBe('2025-11-15T08:00:00.000Z');
       
-      console.log('Tarkov 1.0:', releaseDate.toString());
+      console.log('Tarkov 1.0:', releaseDate.toISOString());
     });
   });
 
   describe('POE1 3.26', () => {
-    it('should have correct date: June 13, 2025 at 9pm', () => {
-      const releaseDate = new Date(2025, 5, 13, 21, 0, 0);
+    it('should have correct date: June 13, 2025 at 9pm UTC', () => {
+      const releaseDate = new Date("2025-06-13T21:00:00Z");
       
-      expect(releaseDate.getMonth()).toBe(5); // June
-      expect(releaseDate.getDate()).toBe(13);
-      expect(releaseDate.getFullYear()).toBe(2025);
-      expect(releaseDate.getHours()).toBe(21);
-      expect(releaseDate.toDateString()).toContain('Jun');
+      expect(releaseDate.getUTCMonth()).toBe(5); // June
+      expect(releaseDate.getUTCDate()).toBe(13);
+      expect(releaseDate.getUTCFullYear()).toBe(2025);
+      expect(releaseDate.getUTCHours()).toBe(21);
+      expect(releaseDate.toISOString()).toBe('2025-06-13T21:00:00.000Z');
       
-      console.log('POE1 3.26:', releaseDate.toString());
+      console.log('POE1 3.26:', releaseDate.toISOString());
     });
   });
 
   describe('Star Citizen: Squadron 42', () => {
-    it('should have correct date: Dec 1, 2025', () => {
-      const releaseDate = new Date(2025, 11, 1, 0, 0, 0);
+    it('should have correct date: Dec 1, 2025 UTC', () => {
+      const releaseDate = new Date("2025-12-01T00:00:00Z");
       
-      expect(releaseDate.getMonth()).toBe(11); // December
-      expect(releaseDate.getDate()).toBe(1);
-      expect(releaseDate.getFullYear()).toBe(2025);
-      expect(releaseDate.toDateString()).toContain('Dec');
+      expect(releaseDate.getUTCMonth()).toBe(11); // December
+      expect(releaseDate.getUTCDate()).toBe(1);
+      expect(releaseDate.getUTCFullYear()).toBe(2025);
+      expect(releaseDate.toISOString()).toBe('2025-12-01T00:00:00.000Z');
       
-      console.log('Squadron 42:', releaseDate.toString());
+      console.log('Squadron 42:', releaseDate.toISOString());
     });
   });
 
   describe('Marvel 1943: Rise of Hydra', () => {
-    it('should have correct date: March 1, 2025', () => {
-      const releaseDate = new Date(2025, 2, 1, 0, 0, 0);
+    it('should have correct date: March 1, 2025 midnight PST (8am UTC)', () => {
+      const releaseDate = new Date("2025-03-01T08:00:00Z");
       
-      expect(releaseDate.getMonth()).toBe(2); // March
-      expect(releaseDate.getDate()).toBe(1);
-      expect(releaseDate.getFullYear()).toBe(2025);
-      expect(releaseDate.toDateString()).toContain('Mar');
+      expect(releaseDate.getUTCMonth()).toBe(2); // March
+      expect(releaseDate.getUTCDate()).toBe(1);
+      expect(releaseDate.getUTCFullYear()).toBe(2025);
+      expect(releaseDate.getUTCHours()).toBe(8);
+      expect(releaseDate.toISOString()).toBe('2025-03-01T08:00:00.000Z');
       
-      console.log('Marvel 1943:', releaseDate.toString());
+      console.log('Marvel 1943:', releaseDate.toISOString());
     });
   });
 
 describe('ARC Raiders Date Tests', () => {
   describe('Server Slam (Beta)', () => {
-  it('should have correct start date: Oct 17, 2025 at 2pm BST (6am PDT / 9am EDT)', () => {
-    const startDate = new Date(2025, 9, 17, 14, 0, 0);
+  it('should have correct start date: Oct 17, 2025 at 2pm BST (1pm UTC)', () => {
+    const startDate = new Date("2025-10-17T13:00:00Z");
     
-    // Verify it's October (month 9 = October in 0-indexed)
-    expect(startDate.getMonth()).toBe(9);
-    expect(startDate.getDate()).toBe(17);
-    expect(startDate.getFullYear()).toBe(2025);
-    expect(startDate.getHours()).toBe(14);
-    expect(startDate.getMinutes()).toBe(0);
+    expect(startDate.getUTCMonth()).toBe(9); // October
+    expect(startDate.getUTCDate()).toBe(17);
+    expect(startDate.getUTCFullYear()).toBe(2025);
+    expect(startDate.getUTCHours()).toBe(13);
+    expect(startDate.toISOString()).toBe('2025-10-17T13:00:00.000Z');
     
-    // Verify the date string contains "Oct"
-    expect(startDate.toDateString()).toContain('Oct');
-    
-    // Log for verification
-    console.log('Start Date:', startDate.toString());
-    console.log('Start Date UTC:', startDate.toUTCString());
     console.log('Start Date ISO:', startDate.toISOString());
   });
 
-  it('should have correct end date: Oct 19, 2025 at 4pm BST (8am PDT / 11am EDT)', () => {
-    const endDate = new Date(2025, 9, 19, 16, 0, 0);
+  it('should have correct end date: Oct 19, 2025 at 4pm BST (3pm UTC)', () => {
+    const endDate = new Date("2025-10-19T15:00:00Z");
     
-    // Verify it's October (month 9 = October in 0-indexed)
-    expect(endDate.getMonth()).toBe(9);
-    expect(endDate.getDate()).toBe(19);
-    expect(endDate.getFullYear()).toBe(2025);
-    expect(endDate.getHours()).toBe(16);
-    expect(endDate.getMinutes()).toBe(0);
+    expect(endDate.getUTCMonth()).toBe(9); // October
+    expect(endDate.getUTCDate()).toBe(19);
+    expect(endDate.getUTCFullYear()).toBe(2025);
+    expect(endDate.getUTCHours()).toBe(15);
+    expect(endDate.toISOString()).toBe('2025-10-19T15:00:00.000Z');
     
-    // Verify the date string contains "Oct"
-    expect(endDate.toDateString()).toContain('Oct');
-    
-    // Log for verification
-    console.log('End Date:', endDate.toString());
-    console.log('End Date UTC:', endDate.toUTCString());
     console.log('End Date ISO:', endDate.toISOString());
   });
 
   it('should have 2 days and 2 hours between start and end', () => {
-    const startDate = new Date(2025, 9, 17, 14, 0, 0);
-    const endDate = new Date(2025, 9, 19, 16, 0, 0);
+    const startDate = new Date("2025-10-17T13:00:00Z");
+    const endDate = new Date("2025-10-19T15:00:00Z");
     
     const diffMs = endDate.getTime() - startDate.getTime();
     const diffHours = diffMs / (1000 * 60 * 60);
@@ -134,22 +121,15 @@ describe('ARC Raiders Date Tests', () => {
   });
 
   describe('Full Release', () => {
-    it('should have correct release date: Oct 30, 2025 at 4pm BST', () => {
-      const releaseDate = new Date(2025, 9, 30, 16, 0, 0);
+    it('should have correct release date: Oct 30, 2025 at 4pm UTC', () => {
+      const releaseDate = new Date("2025-10-30T16:00:00Z");
       
-      // Verify it's October (month 9 = October in 0-indexed)
-      expect(releaseDate.getMonth()).toBe(9);
-      expect(releaseDate.getDate()).toBe(30);
-      expect(releaseDate.getFullYear()).toBe(2025);
-      expect(releaseDate.getHours()).toBe(16);
-      expect(releaseDate.getMinutes()).toBe(0);
+      expect(releaseDate.getUTCMonth()).toBe(9); // October
+      expect(releaseDate.getUTCDate()).toBe(30);
+      expect(releaseDate.getUTCFullYear()).toBe(2025);
+      expect(releaseDate.getUTCHours()).toBe(16);
+      expect(releaseDate.toISOString()).toBe('2025-10-30T16:00:00.000Z');
       
-      // Verify the date string contains "Oct"
-      expect(releaseDate.toDateString()).toContain('Oct');
-      
-      // Log for verification
-      console.log('Release Date:', releaseDate.toString());
-      console.log('Release Date UTC:', releaseDate.toUTCString());
       console.log('Release Date ISO:', releaseDate.toISOString());
     });
 
@@ -177,15 +157,15 @@ describe('ARC Raiders Date Tests', () => {
       });
     });
 
-    it('should be 11 days after Server Slam start', () => {
-      const slamStart = new Date(2025, 9, 17, 14, 0, 0);
-      const fullRelease = new Date(2025, 9, 30, 16, 0, 0);
+    it('should be 13 days and 3 hours after Server Slam start', () => {
+      const slamStart = new Date("2025-10-17T13:00:00Z");
+      const fullRelease = new Date("2025-10-30T16:00:00Z");
       
       const diffMs = fullRelease.getTime() - slamStart.getTime();
       const diffDays = diffMs / (1000 * 60 * 60 * 24);
       
-      // Should be approximately 13 days and 2 hours
-      expect(diffDays).toBeCloseTo(13.083, 2);
+      // Should be approximately 13 days and 3 hours
+      expect(diffDays).toBeCloseTo(13.125, 2);
     });
   });
 });
