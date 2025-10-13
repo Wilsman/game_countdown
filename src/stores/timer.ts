@@ -519,7 +519,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "arc-raiders-open-beta-start",
       title: "ARC Raiders Open Beta",
       titleColor: "#ffffff",
-      targetDate: new Date(2025, 9, 17, 16, 0, 0 ), // 2025-10-17T15:00:00
+      targetDate: new Date(2025, 9, 17, 14, 0, 0), // Oct 17, 2025 6am PDT / 9am EDT / 2pm BST
       targetTimezone: "Europe/London",
       type: "game",
     },
@@ -527,7 +527,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "arc-raiders-open-beta-end",
       title: "ARC Raiders Open Beta End",
       titleColor: "#ffffff",
-      targetDate: new Date(2025, 9, 19, 16, 0, 0), // 2025-10-19T15:00:00
+      targetDate: new Date(2025, 9, 19, 16, 0, 0), // Oct 19, 2025 8am PDT / 11am EDT / 4pm BST
       targetTimezone: "Europe/London",
       type: "game",
     },
