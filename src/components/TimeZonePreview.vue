@@ -16,7 +16,15 @@ const timeZones = [
 
 const timeZonePreviews = computed(() => {
   return timeZones.map(zone => {
-    const targetDate = new Date(store.targetDate)
+    // Check if the active game has regional release times
+    const regionalRelease = store.activeGame.regionalReleaseTimes?.find(
+      r => r.timezone === zone.timezone
+    )
+    
+    // Use regional release time if available, otherwise use the default target date
+    const targetDate = regionalRelease 
+      ? new Date(regionalRelease.date)
+      : new Date(store.targetDate)
     
     const timeOptions: Intl.DateTimeFormatOptions = {
       timeZone: zone.timezone,

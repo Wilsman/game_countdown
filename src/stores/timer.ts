@@ -41,26 +41,26 @@ interface Game {
 export const useTimerStore = defineStore("timer", () => {
   // Get user's current timezone
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  
+
   // Function to handle URL parameters
   const handleUrlParams = () => {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const params = new URLSearchParams(window.location.search);
-    const gameId = params.get('game');
-    const dateStr = params.get('date');
-    const timezone = params.get('timezone');
-    const titleParam = params.get('title');
-    const color = params.get('color');
-    const bgEnabled = params.get('bg');
-    const obsMode = params.get('obs');
-    
+    const gameId = params.get("game");
+    const dateStr = params.get("date");
+    const timezone = params.get("timezone");
+    const titleParam = params.get("title");
+    const color = params.get("color");
+    const bgEnabled = params.get("bg");
+    const obsMode = params.get("obs");
+
     // Find the game by ID
     if (gameId) {
-      const gameIndex = games.value.findIndex(g => g.id === gameId);
+      const gameIndex = games.value.findIndex((g) => g.id === gameId);
       if (gameIndex !== -1) {
         setActiveGameIndex(gameIndex);
-        
+
         // Update the game's date and timezone if provided
         if (dateStr) {
           const date = new Date(dateStr);
@@ -68,7 +68,7 @@ export const useTimerStore = defineStore("timer", () => {
             setTargetDate(date, timezone || userTimezone);
           }
         }
-        
+
         // Update the game's color if provided
         if (color) {
           setGameTitleColor(`#${color}`);
@@ -77,24 +77,24 @@ export const useTimerStore = defineStore("timer", () => {
         // Game not found: reconstruct a manual timer from URL params
         const date = new Date(dateStr);
         if (!isNaN(date.getTime())) {
-          const newTitle = titleParam || 'Custom Timer';
+          const newTitle = titleParam || "Custom Timer";
           const tz = timezone || userTimezone;
-          const colorHex = color ? `#${color.replace(/^#/, '')}` : undefined;
+          const colorHex = color ? `#${color.replace(/^#/, "")}` : undefined;
           // Create with the provided id so subsequent shares are stable
-          addGame(newTitle, date, tz, 'game', gameId);
+          addGame(newTitle, date, tz, "game", gameId);
           // Apply color if provided
           if (colorHex) setGameTitleColor(colorHex);
         }
       }
     }
-    
+
     // Update background setting if provided
     if (bgEnabled !== null) {
-      updateSettings({ enableGameBackground: bgEnabled === '1' });
+      updateSettings({ enableGameBackground: bgEnabled === "1" });
     }
-    
+
     // Set OBS mode if parameter is present
-    if (obsMode === '1') {
+    if (obsMode === "1") {
       isObsMode.value = true;
     }
   };
@@ -175,9 +175,15 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "Europe/London",
       type: "game",
       regionalReleaseTimes: [
-        { timezone: "America/Los_Angeles", date: new Date("2025-10-30T09:30:00Z") }, // 02:30 PDT (UTC-7)
+        {
+          timezone: "America/Los_Angeles",
+          date: new Date("2025-10-30T09:30:00Z"),
+        }, // 02:30 PDT (UTC-7)
         { timezone: "America/Chicago", date: new Date("2025-10-30T09:30:00Z") }, // 04:30 CDT (UTC-5)
-        { timezone: "America/New_York", date: new Date("2025-10-30T09:30:00Z") }, // 05:30 EDT (UTC-4)
+        {
+          timezone: "America/New_York",
+          date: new Date("2025-10-30T09:30:00Z"),
+        }, // 05:30 EDT (UTC-4)
         { timezone: "Europe/London", date: new Date("2025-10-30T09:30:00Z") }, // 09:30 UTC
         { timezone: "Europe/Paris", date: new Date("2025-10-30T09:30:00Z") }, // 10:30 CET (UTC+1)
         { timezone: "Europe/Athens", date: new Date("2025-10-30T09:30:00Z") }, // 11:30 EET (UTC+2)
@@ -299,9 +305,13 @@ export const useTimerStore = defineStore("timer", () => {
       id: "arc-raiders-open-beta-start",
       title: "ARC Raiders Open Beta",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-10-17T13:00:00Z"), // Oct 17, 2025 6am PDT / 9am EDT / 2pm BST
+      targetDate: new Date("2025-10-17T13:00:00Z"), // Oct 17, 2025 2pm BST / 10pm KST
       targetTimezone: "Europe/London",
       type: "game",
+      regionalReleaseTimes: [
+        { timezone: "Asia/Seoul", date: new Date("2025-10-17T13:00:00Z") }, // Oct 17, 2025 10pm KST
+        { timezone: "Europe/London", date: new Date("2025-10-17T13:00:00Z") }, // Oct 17, 2025 2pm BST
+      ],
     },
     {
       id: "arc-raiders-open-beta-end",
@@ -338,7 +348,9 @@ export const useTimerStore = defineStore("timer", () => {
   const currentTime = ref(new Date());
 
   // Helper function to get the appropriate target date based on user's timezone
-  const getTargetDateForTimezone = (game: Game): { date: Date; timezone: string } => {
+  const getTargetDateForTimezone = (
+    game: Game
+  ): { date: Date; timezone: string } => {
     if (!game.regionalReleaseTimes || game.regionalReleaseTimes.length === 0) {
       return { date: game.targetDate, timezone: game.targetTimezone };
     }
@@ -397,8 +409,8 @@ export const useTimerStore = defineStore("timer", () => {
   // Find the next upcoming game and set it as active
   function findAndSetNextUpcomingGame() {
     // Only run on client side
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const now = new Date();
     let nextGameIndex = 0; // Default to first game if none found
     let minTimeDiff = Infinity;
@@ -406,7 +418,7 @@ export const useTimerStore = defineStore("timer", () => {
 
     games.value.forEach((game, index) => {
       // Only consider games, not utilities
-      if (game.type === 'game') {
+      if (game.type === "game") {
         const { date } = getTargetDateForTimezone(game);
         const diff = differenceInSeconds(date, now);
         // Find the game with the smallest positive time difference
@@ -538,22 +550,30 @@ export const useTimerStore = defineStore("timer", () => {
     const gameIndex = activeGameIndex.value;
     if (gameIndex !== -1 && games.value[gameIndex]) {
       games.value[gameIndex] = { ...games.value[gameIndex], titleColor: color };
-      
+
       // Update CSS variables if running in browser
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         const root = document.documentElement;
-        root.style.setProperty('--primary-color', color);
-        
+        root.style.setProperty("--primary-color", color);
+
         // Create a slightly darker shade for hover state
-        const hex = color.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
-          (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`);
+        const hex = color.replace(
+          /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
+          (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`
+        );
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        
+
         if (result) {
-          const r = Math.max(0, parseInt(result[1], 16) - 40).toString(16).padStart(2, '0');
-          const g = Math.max(0, parseInt(result[2], 16) - 40).toString(16).padStart(2, '0');
-          const b = Math.max(0, parseInt(result[3], 16) - 40).toString(16).padStart(2, '0');
-          root.style.setProperty('--primary-color-hover', `#${r}${g}${b}`);
+          const r = Math.max(0, parseInt(result[1], 16) - 40)
+            .toString(16)
+            .padStart(2, "0");
+          const g = Math.max(0, parseInt(result[2], 16) - 40)
+            .toString(16)
+            .padStart(2, "0");
+          const b = Math.max(0, parseInt(result[3], 16) - 40)
+            .toString(16)
+            .padStart(2, "0");
+          root.style.setProperty("--primary-color-hover", `#${r}${g}${b}`);
         }
       }
     }
@@ -613,19 +633,25 @@ export const useTimerStore = defineStore("timer", () => {
 
   const updateSettings = (newSettings: Partial<TimerSettings>): void => {
     settings.value = { ...settings.value, ...newSettings };
-    
+
     // Apply font family to document if running in browser
-    if (typeof window !== 'undefined' && newSettings.fontFamily) {
-      document.documentElement.style.setProperty('--font-family', newSettings.fontFamily);
+    if (typeof window !== "undefined" && newSettings.fontFamily) {
+      document.documentElement.style.setProperty(
+        "--font-family",
+        newSettings.fontFamily
+      );
     }
-    
+
     // Apply font size to timer display if running in browser
-    if (typeof window !== 'undefined' && newSettings.fontSize) {
-      document.documentElement.style.setProperty('--timer-font-size', `${newSettings.fontSize}px`);
+    if (typeof window !== "undefined" && newSettings.fontSize) {
+      document.documentElement.style.setProperty(
+        "--timer-font-size",
+        `${newSettings.fontSize}px`
+      );
     }
   };
 
-    function restartCountdown(id: string) {
+  function restartCountdown(id: string) {
     const gameIndex = games.value.findIndex((g) => g.id === id);
     if (gameIndex === -1) return;
 
@@ -646,27 +672,27 @@ export const useTimerStore = defineStore("timer", () => {
 
   function getShareableUrl() {
     const game = activeGame.value;
-    if (!game) return '';
-    
-    const url = new URL(window.location.href.split('?')[0]);
-    url.searchParams.set('game', game.id);
-    url.searchParams.set('date', game.targetDate.toISOString());
-    url.searchParams.set('timezone', game.targetTimezone);
-    url.searchParams.set('title', game.title);
-    
+    if (!game) return "";
+
+    const url = new URL(window.location.href.split("?")[0]);
+    url.searchParams.set("game", game.id);
+    url.searchParams.set("date", game.targetDate.toISOString());
+    url.searchParams.set("timezone", game.targetTimezone);
+    url.searchParams.set("title", game.title);
+
     // Add the current game title color to the URL
     if (game.titleColor) {
-      url.searchParams.set('color', game.titleColor.replace('#', ''));
+      url.searchParams.set("color", game.titleColor.replace("#", ""));
     }
-    
+
     // Add the game background setting to the URL
-    url.searchParams.set('bg', settings.value.enableGameBackground ? '1' : '0');
-    
+    url.searchParams.set("bg", settings.value.enableGameBackground ? "1" : "0");
+
     return url.toString();
   }
 
   // Set the initial active game to the soonest ending one
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     findAndSetNextUpcomingGame();
   }
 
