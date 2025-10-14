@@ -11,7 +11,7 @@ const timeZones = [
   { city: 'New York', timezone: 'America/New_York', region: 'US East', flag: '🇺🇸' },
   { city: 'Los Angeles', timezone: 'America/Los_Angeles', region: 'US West', flag: '🇺🇸' },
   { city: 'Moscow', timezone: 'Europe/Moscow', region: 'Russia', flag: '🇷🇺' },
-  { city: 'Tokyo', timezone: 'Asia/Tokyo', region: 'Japan', flag: '🇯🇵' },
+  // { city: 'Tokyo', timezone: 'Asia/Tokyo', region: 'Japan', flag: '🇯🇵' },
 ]
 
 const timeZonePreviews = computed(() => {
@@ -50,7 +50,7 @@ const timeZonePreviews = computed(() => {
 
 <template>
   <div
-    class="grid w-full gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
+    class="grid w-full gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
   >
     <div
       v-for="zone in timeZonePreviews"
