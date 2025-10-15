@@ -289,7 +289,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "escape-from-duckov",
       title: "Escape from Duckov",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-10-16T00:00:00Z"), // Demo placeholder
+      targetDate: new Date("2025-10-16T07:00:00Z"), // Demo placeholder
       targetTimezone: "UTC",
       type: "game",
     },
