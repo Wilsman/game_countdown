@@ -321,6 +321,26 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "Europe/London",
       type: "game",
     },
+    {
+      id: "battlefield-redsec-2025-10-28",
+      title: "Battlefield REDSEC",
+      titleColor: "#ff6b35",
+      targetDate: new Date("2025-10-28T15:00:00Z"), // Oct 28, 2025 10am CT (UTC-5)
+      targetTimezone: "America/Chicago",
+      type: "game",
+      regionalReleaseTimes: [
+        { timezone: "America/Los_Angeles", date: new Date("2025-10-28T15:00:00Z") }, // 8am PT (UTC-7)
+        { timezone: "America/New_York", date: new Date("2025-10-28T15:00:00Z") }, // 11am ET (UTC-4)
+        { timezone: "America/Sao_Paulo", date: new Date("2025-10-28T15:00:00Z") }, // 12pm BRT (UTC-3)
+        { timezone: "Europe/London", date: new Date("2025-10-28T15:00:00Z") }, // 3pm GMT (UTC+0)
+        { timezone: "Europe/Paris", date: new Date("2025-10-28T15:00:00Z") }, // 4pm CET (UTC+1)
+        { timezone: "Europe/Athens", date: new Date("2025-10-28T15:00:00Z") }, // 5pm EET (UTC+2)
+        { timezone: "Asia/Kolkata", date: new Date("2025-10-28T15:00:00Z") }, // 8:30pm IST (UTC+5:30)
+        { timezone: "Asia/Singapore", date: new Date("2025-10-28T15:00:00Z") }, // 11pm SGT (UTC+8)
+        { timezone: "Asia/Tokyo", date: new Date("2025-10-28T15:00:00Z") }, // Oct 29 12am JST (UTC+9)
+        { timezone: "Australia/Sydney", date: new Date("2025-10-28T15:00:00Z") }, // Oct 29 2am AEDT (UTC+11)
+      ],
+    },
   ];
 
   // Store state
