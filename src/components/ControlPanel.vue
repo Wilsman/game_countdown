@@ -1,6 +1,6 @@
 <!-- components/ControlPanel.vue (modernized settings panel) -->
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useToast } from "vue-toastification";
 import { useTimerStore } from "../stores/timer";
 import { storeToRefs } from "pinia";
@@ -76,6 +76,13 @@ const fontSizes = [
   { value: 64, label: "Large" },
   { value: 80, label: "Extra Large" },
 ];
+
+const hasGameBackground = computed(() => {
+  const gameId = store.activeGame?.id?.toLowerCase() ?? "";
+  return gameId.includes("bf6") || gameId.includes("battlefield") ||
+         gameId.includes("tarkov") || gameId.includes("0.16.8.0") ||
+         gameId.includes("arc") || gameId.includes("raiders");
+});
 
 function updateSetting(key: string, value: any) {
   store.updateSettings({ [key]: value });
@@ -313,7 +320,7 @@ function importSettings(event: Event) {
         <div class="settings-section">
           <h4>Features</h4>
 
-          <label class="toggle">
+          <label v-if="hasGameBackground" class="toggle">
             <input
               type="checkbox"
               :checked="settings.enableGameBackground"

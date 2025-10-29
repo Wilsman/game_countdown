@@ -34,13 +34,13 @@ const gameBackground = computed<GameBackgroundMeta | null>(() => {
     return {
       image:
         "url(https://www.dexerto.com/cdn-image/wp-content/uploads/2025/07/31/How-to-play-Battlefield-6-Open-Beta.jpg?width=1200&quality=100&format=auto)",
-      overlay: "bg-slate-950/55",
+      overlay: "bg-slate-950/40",
     };
   }
   if (gameId.includes("tarkov") || gameId.includes("0.16.8.0")) {
     return {
-      image: "url(/Hardcore%20Wipe.webp)",
-      overlay: "bg-slate-950/60",
+      image: "url(/Hardcore Wipe.webp)",
+      overlay: "bg-slate-950/45",
     };
   }
   if (gameId.includes("arc") || gameId.includes("raiders")) {
@@ -58,25 +58,10 @@ const hasGameBackground = computed(() =>
 
 const activeGameSummary = computed(() =>
   timerStore.activeGame?.type === "utility"
-    ? "Utility timer active"
-    : "Upcoming launch countdown"
+    ? "Quick timer active"
+    : "Game launch countdown active"
 );
 
-const updateBmcVisibility = () => {
-  if (!isClient) return;
-  const button = document.getElementById("bmc-wbtn");
-  if (button) {
-    button.style.display = showChrome.value ? "flex" : "none";
-  }
-};
-
-const syncExternalWidgets = () => {
-  if (!isClient) return;
-  const widget = document.querySelector(
-    ".bmc-widget-container"
-  ) as HTMLElement | null;
-  if (widget) widget.style.display = showChrome.value ? "block" : "none";
-};
 
 const handleEditTitle = () => {
   isEditingTitle.value = true;
@@ -98,77 +83,12 @@ const exitFocusMode = () => {
   isFocusMode.value = false;
 };
 
-let checkInterval: number | null = null;
-let cleanupTimeout: number | null = null;
-let bmcBootstrapped = false;
-
-const bootstrapBmcButton = () => {
-  if (!isClient || bmcBootstrapped) {
-    updateBmcVisibility();
-    syncExternalWidgets();
-    return;
-  }
-
-  bmcBootstrapped = true;
-
-  const script = document.createElement("script");
-  script.src = "https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js";
-  script.dataset.name = "bmc-button";
-  script.dataset.slug = "wilsman";
-  script.dataset.font = "Inter";
-  script.dataset.color = "#FFDD00";
-  script.dataset.emoji = "☕";
-  script.dataset.fontColor = "#000000";
-  script.dataset.boxShadow = "0px 1px 3px rgba(0, 0, 0, 0.1)";
-  script.async = true;
-  document.head.appendChild(script);
-
-  const hideBmcButton = () => {
-    const button = document.getElementById("bmc-wbtn");
-    if (!button) return;
-    button.style.position = "fixed";
-    button.style.bottom = "24px";
-    button.style.right = "24px";
-    button.style.zIndex = "1000";
-    updateBmcVisibility();
-  };
-
-  hideBmcButton();
-  checkInterval = window.setInterval(() => {
-    const button = document.getElementById("bmc-wbtn");
-    if (button) {
-      hideBmcButton();
-      if (checkInterval !== null) {
-        clearInterval(checkInterval);
-        checkInterval = null;
-      }
-    }
-  }, 120);
-
-  cleanupTimeout = window.setTimeout(() => {
-    if (checkInterval !== null) {
-      clearInterval(checkInterval);
-      checkInterval = null;
-    }
-  }, 5000);
-};
 
 onMounted(() => {
   if (!isClient) return;
   timerStore.handleUrlParams();
-  bootstrapBmcButton();
 });
 
-onUnmounted(() => {
-  if (checkInterval !== null) {
-    clearInterval(checkInterval);
-    checkInterval = null;
-  }
-  if (cleanupTimeout !== null) {
-    clearTimeout(cleanupTimeout);
-    cleanupTimeout = null;
-  }
-});
 
 watch(
   () => timerStore.settings.theme as Theme,
@@ -179,14 +99,6 @@ watch(
   { immediate: true }
 );
 
-watch(
-  () => showChrome.value,
-  () => {
-    updateBmcVisibility();
-    syncExternalWidgets();
-  },
-  { immediate: true }
-);
 </script>
 
 <template>
@@ -202,7 +114,7 @@ watch(
       class="pointer-events-none absolute inset-0 -z-10"
     >
       <div
-        class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
+        class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-90"
         :style="{ backgroundImage: gameBackground.image }"
       ></div>
       <div :class="['absolute inset-0', gameBackground.overlay]"></div>
@@ -236,7 +148,7 @@ watch(
                 <span
                   class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
                 >
-                  Countdown
+                  Current Countdown
                 </span>
                 <p class="text-base text-slate-300">
                   {{ activeGameSummary }}
