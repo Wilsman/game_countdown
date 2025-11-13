@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
 import { useTimerStore } from "./stores/timer";
-import { onMounted, onUnmounted, watch, ref, nextTick, computed } from "vue";
+import { onMounted, watch, ref, nextTick, computed } from "vue";
 import { storeToRefs } from "pinia";
 import TimerDisplay from "./components/TimerDisplay.vue";
 import GameSelector from "./components/GameSelector.vue";
@@ -454,6 +454,7 @@ watch(
   position: relative;
   border-radius: 28px;
   background:
+    radial-gradient(900px 520px at 50% 55%, rgba(0, 0, 0, 0.35), transparent 60%),
     radial-gradient(600px 380px at 20% 10%, rgba(6, 182, 212, 0.18), transparent 60%),
     radial-gradient(520px 320px at 82% 86%, rgba(124, 58, 237, 0.16), transparent 60%),
     linear-gradient(180deg, rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.4));
@@ -494,19 +495,24 @@ watch(
 }
 
 @keyframes obs-sweep {
-  0% { background-position: -200% 0, 0 0, 0 0; }
-  100% { background-position: 200% 0, 0 0, 0 0; }
+  0% { background-position: -220% 0, 220% 0, 0 0, 0 0; }
+  100% { background-position: 220% 0, -220% 0, 0 0, 0 0; }
 }
 
-/* Strong inner glow + moving sweep and scanlines */
+/* Strong inner glow + dual moving sweeps, specular highlight, and scanlines */
 .obs-frame::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
   background:
-    linear-gradient(110deg, rgba(34,211,238,0.08) 0%, rgba(34,211,238,0.18) 10%, rgba(124,58,237,0.16) 50%, rgba(34,211,238,0.08) 90%, transparent 100%),
+    /* Sweep A */
+    linear-gradient(110deg, rgba(34,211,238,0.06) 0%, rgba(34,211,238,0.22) 12%, rgba(124,58,237,0.18) 50%, rgba(34,211,238,0.06) 88%, transparent 100%),
+    /* Sweep B (counter) */
+    linear-gradient(-70deg, transparent 0%, rgba(255,255,255,0.10) 12%, rgba(34,211,238,0.18) 18%, transparent 28%),
+    /* Base inner glow */
     radial-gradient(900px 420px at 50% 120%, rgba(34,211,238,0.14), transparent 65%),
+    /* Scanlines */
     repeating-linear-gradient(
       to bottom,
       rgba(14, 165, 233, 0.08),
@@ -514,11 +520,12 @@ watch(
       transparent 1px,
       transparent 3px
     );
-  background-size: 300% 100%, 100% 100%, 100% 100%;
-  animation: obs-sweep 6s linear infinite;
+  background-size: 320% 100%, 280% 100%, 100% 100%, 100% 100%;
+  animation: obs-sweep 7s ease-in-out infinite alternate;
+  mix-blend-mode: screen;
   box-shadow:
-    inset 0 0 80px rgba(34, 211, 238, 0.18),
-    inset 0 0 160px rgba(124, 58, 237, 0.14);
+    inset 0 0 90px rgba(34, 211, 238, 0.20),
+    inset 0 0 180px rgba(124, 58, 237, 0.16);
   pointer-events: none;
 }
 
