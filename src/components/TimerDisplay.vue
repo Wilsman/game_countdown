@@ -402,9 +402,12 @@ onUnmounted(() => {
             class="font-black tabular-nums transition-all duration-300"
             :class="[
               store.isObsMode
-                ? 'text-6xl sm:text-8xl text-cyan-100 drop-shadow-[0_0_20px_rgba(34,211,238,0.9)]'
+                ? 'text-6xl sm:text-8xl text-cyan-100 drop-shadow-[0_0_20px_rgba(34,211,238,0.9)] obs-digit'
                 : 'text-4xl sm:text-7xl text-slate-100',
-              { 'tick-animation': animatingSegments[segment.key as keyof typeof animatingSegments] }
+              { 
+                'tick-animation': animatingSegments[segment.key as keyof typeof animatingSegments],
+                'urgent-pulse': store.timeRemaining.days === 0 && store.timeRemaining.hours === 0 && store.timeRemaining.minutes === 0 && store.timeRemaining.seconds <= 10 && store.timeRemaining.seconds > 0 && store.isObsMode
+              }
             ]"
           >
             {{ segment.value }}
@@ -413,7 +416,7 @@ onUnmounted(() => {
             class="font-black uppercase transition-all duration-300"
             :class="
               store.isObsMode
-                ? 'text-4xl sm:text-6xl text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.9)]'
+                ? 'text-4xl sm:text-6xl text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.9)] obs-label'
                 : 'text-2xl sm:text-4xl text-slate-400'
             "
           >

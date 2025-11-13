@@ -212,7 +212,7 @@ watch(
               />
               <p
                 v-else
-                class="rounded-2xl border border-transparent bg-slate-900/40 px-6 py-4 text-4xl font-black text-slate-100 sm:text-7xl"
+                class="rounded-2xl border border-transparent px-6 py-4 text-4xl font-black text-cyan-100 sm:text-7xl drop-shadow-[0_0_20px_rgba(34,211,238,0.85)]"
                 :style="{ color: gameTitleColor || undefined }"
               >
                 {{ gameTitle }}
@@ -409,6 +409,20 @@ watch(
 .background-mesh.obs-mode::before,
 .background-mesh.obs-mode::after {
   animation: none;
+  opacity: 0;
+  filter: none;
+}
+
+/* OBS overlay should be transparent and clean for compositing */
+.background-mesh.obs-mode {
+  background: transparent;
+}
+
+:deep(.obs-mode .glass-panel),
+:deep(.obs-mode .glass-section) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 :deep(.obs-mode .obs-frame::before) {
@@ -416,11 +430,11 @@ watch(
   inset: 0 !important;
   background: linear-gradient(
     115deg,
-    rgba(56, 189, 248, 0.32),
-    rgba(129, 140, 248, 0.28),
-    rgba(16, 185, 129, 0.26)
+    rgba(56, 189, 248, 0.22),
+    rgba(129, 140, 248, 0.18),
+    rgba(16, 185, 129, 0.16)
   ) !important;
-  opacity: 0.35 !important;
+  opacity: 0.25 !important;
   border-radius: inherit;
 }
 
@@ -434,102 +448,81 @@ watch(
   }
 }
 
-/* OBS Simple Animated Border */
+/* OBS Neon Glass Frame */
 .obs-frame {
-  padding: 1rem;
+  padding: 1.35rem;
   position: relative;
-  background: #0c0c0c;
-  border: 3px solid;
-  border-radius: 24px;
-  border-image: linear-gradient(
-      90deg,
-      #00baff,
-      transparent,
-      transparent,
-      transparent,
-      #00baff
-    )
-    1;
+  border-radius: 28px;
+  background:
+    radial-gradient(600px 380px at 20% 10%, rgba(6, 182, 212, 0.18), transparent 60%),
+    radial-gradient(520px 320px at 82% 86%, rgba(124, 58, 237, 0.16), transparent 60%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.4));
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  box-shadow:
+    inset 0 0 0 1px rgba(34, 211, 238, 0.32),
+    inset 0 0 120px rgba(6, 182, 212, 0.18),
+    inset 0 0 180px rgba(124, 58, 237, 0.12),
+    0 10px 28px rgba(0, 0, 0, 0.65),
+    0 0 48px rgba(34, 211, 238, 0.28);
 }
 
-@keyframes border-rotate {
-  0% {
-    border-image: linear-gradient(
-        0deg,
-        #00baff,
-        transparent,
-        transparent,
-        transparent,
-        #00baff
-      )
-      1;
-  }
-  25% {
-    border-image: linear-gradient(
-        90deg,
-        #00baff,
-        transparent,
-        transparent,
-        transparent,
-        #00baff
-      )
-      1;
-  }
-  50% {
-    border-image: linear-gradient(
-        180deg,
-        #00baff,
-        transparent,
-        transparent,
-        transparent,
-        #00baff
-      )
-      1;
-  }
-  75% {
-    border-image: linear-gradient(
-        270deg,
-        #00baff,
-        transparent,
-        transparent,
-        transparent,
-        #00baff
-      )
-      1;
-  }
-  100% {
-    border-image: linear-gradient(
-        360deg,
-        #00baff,
-        transparent,
-        transparent,
-        transparent,
-        #00baff
-      )
-      1;
-  }
+/* Animated gradient border using conic-gradient mask */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
 
-@keyframes blue-shimmer {
-  0% {
-    background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%;
-    opacity: 0.4;
-  }
-  25% {
-    background-position: 100% 0%, 0% 0%, 50% 50%, 50% 50%;
-    opacity: 0.7;
-  }
-  50% {
-    background-position: 100% 100%, 0% 100%, 100% 0%, 0% 100%;
-    opacity: 0.9;
-  }
-  75% {
-    background-position: 0% 100%, 100% 0%, 50% 50%, 50% 50%;
-    opacity: 0.7;
-  }
-  100% {
-    background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%;
-    opacity: 0.4;
-  }
+@keyframes spin-angle {
+  to { --angle: 360deg; }
 }
+
+.obs-frame::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--angle), #06b6d4, #7c3aed, #22c55e, #06b6d4);
+  padding: 3px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-angle 5s linear infinite;
+  opacity: 0.98;
+  pointer-events: none;
+}
+
+@keyframes obs-sweep {
+  0% { background-position: -200% 0, 0 0, 0 0; }
+  100% { background-position: 200% 0, 0 0, 0 0; }
+}
+
+/* Strong inner glow + moving sweep and scanlines */
+.obs-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(110deg, rgba(34,211,238,0.08) 0%, rgba(34,211,238,0.18) 10%, rgba(124,58,237,0.16) 50%, rgba(34,211,238,0.08) 90%, transparent 100%),
+    radial-gradient(900px 420px at 50% 120%, rgba(34,211,238,0.14), transparent 65%),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(14, 165, 233, 0.08),
+      rgba(14, 165, 233, 0.08) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  background-size: 300% 100%, 100% 100%, 100% 100%;
+  animation: obs-sweep 6s linear infinite;
+  box-shadow:
+    inset 0 0 80px rgba(34, 211, 238, 0.18),
+    inset 0 0 160px rgba(124, 58, 237, 0.14);
+  pointer-events: none;
+}
+
+/* Slightly increase spacing for OBS overlay */
+:deep(.obs-mode .obs-frame .text-4xl) { letter-spacing: 0.02em; }
+:deep(.obs-mode .obs-frame .text-6xl) { letter-spacing: 0.015em; }
 </style>
