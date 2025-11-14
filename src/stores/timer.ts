@@ -141,23 +141,28 @@ export const useTimerStore = defineStore("timer", () => {
       type: "utility",
     },
     {
-      id: "call-of-duty-black-ops-7-2025-11-14",
-      title: "Call of Duty: Black Ops 7",
+      id: "tarkov-servers-going-offline",
+      title: "EFT going offline",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-11-14T00:00:00Z"), // Nov 14, 2025 (midnight UTC)
-      targetTimezone: "UTC",
+      targetDate: new Date(1763118000 * 1000),
+      targetTimezone: "Europe/London",
       type: "game",
     },
     {
-      id: "tarkov-1-0-release",
-      title: "Escape from Tarkov 1.0 Release",
+      id: "tarkov-special-tarkovtv",
+      title: "Special TarkovTV",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-11-15T08:00:00Z"), // Nov 15, 2025 8am BST (UTC+1)
+      targetDate: new Date(1763193600 * 1000),
       targetTimezone: "Europe/London",
       type: "game",
-      regionalReleaseTimes: [
-        { timezone: "Europe/London", date: new Date("2025-11-15T08:00:00Z") }, // 08:00 BST (UTC+1)
-      ],
+    },
+    {
+      id: "tarkov-1-0-servers-up",
+      title: "EFT 1.0 servers up",
+      titleColor: "#ffffff",
+      targetDate: new Date(1763204400 * 1000),
+      targetTimezone: "Europe/London",
+      type: "game",
     },
     {
       id: "high-on-life-2-13-february-2026",
@@ -168,81 +173,11 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "arc-raiders",
-      title: "ARC Raiders",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-10-30T09:30:00Z"), // October 30, 2025 9:30 AM UTC
-      targetTimezone: "Europe/London",
-      type: "game",
-      regionalReleaseTimes: [
-        {
-          timezone: "America/Los_Angeles",
-          date: new Date("2025-10-30T09:30:00Z"),
-        }, // 02:30 PDT (UTC-7)
-        { timezone: "America/Chicago", date: new Date("2025-10-30T09:30:00Z") }, // 04:30 CDT (UTC-5)
-        {
-          timezone: "America/New_York",
-          date: new Date("2025-10-30T09:30:00Z"),
-        }, // 05:30 EDT (UTC-4)
-        { timezone: "Europe/London", date: new Date("2025-10-30T09:30:00Z") }, // 09:30 UTC
-        { timezone: "Europe/Paris", date: new Date("2025-10-30T09:30:00Z") }, // 10:30 CET (UTC+1)
-        { timezone: "Europe/Athens", date: new Date("2025-10-30T09:30:00Z") }, // 11:30 EET (UTC+2)
-      ],
-    },
-    {
-      id: "outer-worlds-2-2025-10-29",
-      title: "The Outer Worlds 2",
-      titleColor: "#14b8a6",
-      targetDate: new Date("2025-10-29T00:00:00Z"), // Oct 29, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
       id: "starcitizen-42",
       title: "Star Citizen: Squadron 42",
       titleColor: "#ffffff",
       targetDate: new Date("2025-12-01T00:00:00Z"), // December 1, 2025 (estimated)
       targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "misery",
-      title: "MISERY",
-      titleColor: "#8b0000",
-      targetDate: new Date("2025-10-23T17:00:00Z"), // Oct 23, 2025 17:00 UTC
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "painkiller-2025-10-21",
-      title: "Painkiller",
-      titleColor: "#e11d48",
-      targetDate: new Date("2025-10-21T00:00:00Z"), // Oct 21, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "vampire-bloodlines-2-2025-10-21",
-      title: "Vampire: The Masquerade - Bloodlines 2",
-      titleColor: "#a855f7",
-      targetDate: new Date("2025-10-21T00:00:00Z"), // Oct 21, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "ninja-gaiden-4-2025-10-21",
-      title: "Ninja Gaiden 4",
-      titleColor: "#ef4444",
-      targetDate: new Date("2025-10-21T00:00:00Z"), // Oct 21, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "halloween-tarkov-event",
-      title: "Halloween Tarkov Event (Maybe)",
-      titleColor: "#ff8c00",
-      targetDate: new Date("2025-10-31T08:00:00Z"), // Oct 31, 2025
-      targetTimezone: "Europe/London",
       type: "game",
     },
     {
@@ -268,78 +203,6 @@ export const useTimerStore = defineStore("timer", () => {
       targetDate: new Date("2026-01-01T00:00:00Z"), // 2026 placeholder
       targetTimezone: "UTC",
       type: "game",
-    },
-    {
-      id: "road-to-vostok",
-      title: "Road to Vostok (Demo Oct 2025)",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-10-15T00:00:00Z"), // Demo placeholder
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "fellowship-2025-10-16",
-      title: "Fellowship",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-10-16T00:00:00Z"), // Oct 16, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "escape-from-duckov",
-      title: "Escape from Duckov",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-10-16T07:00:00Z"), // Demo placeholder
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "keeper-2025-10-17",
-      title: "Keeper",
-      titleColor: "#22c55e",
-      targetDate: new Date("2025-10-17T00:00:00Z"), // Oct 17, 2025
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "arc-raiders-open-beta-start",
-      title: "ARC Raiders Open Beta",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-10-17T13:00:00Z"), // Oct 17, 2025 2pm BST / 10pm KST
-      targetTimezone: "Europe/London",
-      type: "game",
-      regionalReleaseTimes: [
-        { timezone: "Asia/Seoul", date: new Date("2025-10-17T13:00:00Z") }, // Oct 17, 2025 10pm KST
-        { timezone: "Europe/London", date: new Date("2025-10-17T13:00:00Z") }, // Oct 17, 2025 2pm BST
-      ],
-    },
-    {
-      id: "arc-raiders-open-beta-end",
-      title: "ARC Raiders Open Beta End",
-      titleColor: "#ffffff",
-      targetDate: new Date("2025-10-19T15:00:00Z"), // Oct 19, 2025 8am PDT / 11am EDT / 4pm BST
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "battlefield-redsec-2025-10-28",
-      title: "Battlefield REDSEC",
-      titleColor: "#ff6b35",
-      targetDate: new Date("2025-10-28T15:00:00Z"), // Oct 28, 2025 10am CT (UTC-5)
-      targetTimezone: "America/Chicago",
-      type: "game",
-      regionalReleaseTimes: [
-        { timezone: "America/Los_Angeles", date: new Date("2025-10-28T15:00:00Z") }, // 8am PT (UTC-7)
-        { timezone: "America/New_York", date: new Date("2025-10-28T15:00:00Z") }, // 11am ET (UTC-4)
-        { timezone: "America/Sao_Paulo", date: new Date("2025-10-28T15:00:00Z") }, // 12pm BRT (UTC-3)
-        { timezone: "Europe/London", date: new Date("2025-10-28T15:00:00Z") }, // 3pm GMT (UTC+0)
-        { timezone: "Europe/Paris", date: new Date("2025-10-28T15:00:00Z") }, // 4pm CET (UTC+1)
-        { timezone: "Europe/Athens", date: new Date("2025-10-28T15:00:00Z") }, // 5pm EET (UTC+2)
-        { timezone: "Asia/Kolkata", date: new Date("2025-10-28T15:00:00Z") }, // 8:30pm IST (UTC+5:30)
-        { timezone: "Asia/Singapore", date: new Date("2025-10-28T15:00:00Z") }, // 11pm SGT (UTC+8)
-        { timezone: "Asia/Tokyo", date: new Date("2025-10-28T15:00:00Z") }, // Oct 29 12am JST (UTC+9)
-        { timezone: "Australia/Sydney", date: new Date("2025-10-28T15:00:00Z") }, // Oct 29 2am AEDT (UTC+11)
-      ],
     },
   ];
 
