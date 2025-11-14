@@ -149,6 +149,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkov-website-back-online",
+      title: "EFT website back online",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-11-14T16:00:00Z"), // 4pm GMT on Nov 14, 2025
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "tarkov-special-tarkovtv",
       title: "Special TarkovTV",
       titleColor: "#ffffff",
