@@ -109,10 +109,26 @@ export const useTimerStore = defineStore("timer", () => {
   // Default games
   const defaultGames: Game[] = [
     {
+      id: "break-60",
+      title: "eepy time 😴 (60min)",
+      titleColor: "#ffffff",
+      targetDate: createDateMinutesFromNow(60), // 60 minutes
+      targetTimezone: userTimezone,
+      type: "utility",
+    },
+    {
+      id: "break-45 ",
+      title: "Be Right Back (45min)",
+      titleColor: "#ffffff",
+      targetDate: createDateMinutesFromNow(45), // 45 minutes
+      targetTimezone: userTimezone,
+      type: "utility",
+    },
+    {
       id: "break-30",
       title: "Be Right Back (30min)",
       titleColor: "#ffffff",
-      targetDate: createDateMinutesFromNow(30),
+      targetDate: createDateMinutesFromNow(30), // 30 minutes
       targetTimezone: userTimezone,
       type: "utility",
     },
