@@ -200,7 +200,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "starcitizen-42",
       title: "Star Citizen: Squadron 42",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-12-01T00:00:00Z"), // December 1, 2025 (estimated)
+      targetDate: new Date("2026-12-01T00:00:00Z"), // December 1, 2026 (estimated)
       targetTimezone: "UTC",
       type: "game",
     },
