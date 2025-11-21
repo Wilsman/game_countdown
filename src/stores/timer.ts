@@ -208,7 +208,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "midnight-walkers",
       title: "The Midnight Walkers (Early Access)",
       titleColor: "#ffffff",
-      targetDate: new Date("2025-12-01T00:00:00Z"), // Q4 2025 placeholder
+      targetDate: new Date("2026-01-29T00:00:00Z"), // January 29, 2026
       targetTimezone: "UTC",
       type: "game",
     },
