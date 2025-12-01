@@ -181,14 +181,6 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "tarkov-1-0-servers-up",
-      title: "EFT 1.0 servers up",
-      titleColor: "#ffffff",
-      targetDate: new Date(1763204400 * 1000),
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
       id: "high-on-life-2-13-february-2026",
       title: "High on Life 2 (Q4 placeholder)",
       titleColor: "#ffffff",
@@ -228,8 +220,24 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "UTC",
       type: "game",
     },
+    {
+      id: "tarkov-1-0-servers-down",
+      title: "EFT 1.0 servers down",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-12-01T05:00:00Z"), // December 1, 2025 - 12:00 AM GMT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-1-0-servers-up",
+      title: "EFT 1.0 servers up",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-12-01T11:00:00Z"), // December 1, 2025 - 11:00 AM GMT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
   ];
-
+  
   // Store state
   const games = ref<Game[]>(defaultGames);
   // Will be set to the soonest ending game by findAndSetNextUpcomingGame
