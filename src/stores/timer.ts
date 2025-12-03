@@ -236,6 +236,22 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "Europe/London",
       type: "game",
     },
+    {
+      id: "pubg-black-budget-alpha-week-1",
+      title: "PUBG: Black Budget — Alpha Week 1",
+      titleColor: "#ff6b35",
+      targetDate: new Date("2025-12-14T23:59:00-08:00"), // December 14, 2025 - 11:59 PM PST
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "pubg-black-budget-alpha-week-2",
+      title: "PUBG: Black Budget — Alpha Week 2",
+      titleColor: "#ff6b35",
+      targetDate: new Date("2025-12-21T23:59:00-08:00"), // December 21, 2025 - 11:59 PM PST
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
   ];
   
   // Store state
