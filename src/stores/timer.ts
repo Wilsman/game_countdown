@@ -237,6 +237,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "path-of-exile-2-the-last-of-the-druids",
+      title: "PoE2: The Last of the Druids",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-12-12T19:00:00Z"), // December 12, 2025 - 11:00 AM PST
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
       id: "pubg-black-budget-alpha-week-1",
       title: "PUBG: Black Budget — Alpha Week 1",
       titleColor: "#ff6b35",
@@ -253,7 +261,7 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
   ];
-  
+
   // Store state
   const games = ref<Game[]>(defaultGames);
   // Will be set to the soonest ending game by findAndSetNextUpcomingGame
