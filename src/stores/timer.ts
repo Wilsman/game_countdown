@@ -260,6 +260,14 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "America/Los_Angeles",
       type: "game",
     },
+    {
+      id: "game-awards-2025",
+      title: "The Game Awards 2025",
+      titleColor: "#ffd700",
+      targetDate: new Date("2025-12-11T16:30:00-08:00"), // December 11, 2025 - 4:30 PM PST
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
   ];
 
   // Store state
