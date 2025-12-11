@@ -7,14 +7,17 @@ import { differenceInSeconds } from "date-fns";
 
 const store = useTimerStore();
 const isOpen = ref(false);
-const props = withDefaults(defineProps<{
-  variant?: 'default' | 'hero'
-}>(), {
-  variant: 'default'
-});
+withDefaults(
+  defineProps<{
+    variant?: "default" | "hero";
+  }>(),
+  {
+    variant: "default",
+  }
+);
 
 defineEmits<{
-  (e: 'edit'): void
+  (e: "edit"): void;
 }>();
 
 const dropdownRef = ref<HTMLDivElement | null>(null);
@@ -24,7 +27,7 @@ const updateDropdownPosition = () => {
   if (dropdownRef.value && isOpen.value) {
     const rect = dropdownRef.value.getBoundingClientRect();
     dropdownStyle.value = {
-      position: 'fixed',
+      position: "fixed",
       top: `${rect.bottom + 8}px`,
       left: `${rect.left}px`,
       width: `${rect.width}px`,
@@ -33,20 +36,22 @@ const updateDropdownPosition = () => {
   }
 };
 
-function toggleDropdown() { 
-  isOpen.value = !isOpen.value; 
+function toggleDropdown() {
+  isOpen.value = !isOpen.value;
   if (isOpen.value) {
     setTimeout(updateDropdownPosition, 0);
   }
 }
-function closeDropdown() { isOpen.value = false; }
+function closeDropdown() {
+  isOpen.value = false;
+}
 
 function selectGame(gameId: string) {
   const index = store.games.findIndex((g) => g.id === gameId);
   if (index !== -1) {
     store.setActiveGameIndex(index);
-    if (gameId.startsWith('break-')) {
-      const minutes = parseInt(gameId.replace('break-', ''));
+    if (gameId.startsWith("break-")) {
+      const minutes = parseInt(gameId.replace("break-", ""));
       const newDate = new Date();
       newDate.setMinutes(newDate.getMinutes() + minutes);
       const game = store.games[index];
@@ -62,22 +67,26 @@ function resetGames() {
 }
 
 function handleClickOutside(event: MouseEvent) {
-  const dropdownElement = document.querySelector('.dropdown-menu-teleport');
-  if (dropdownElement && !dropdownElement.contains(event.target as Node) && 
-      dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+  const dropdownElement = document.querySelector(".dropdown-menu-teleport");
+  if (
+    dropdownElement &&
+    !dropdownElement.contains(event.target as Node) &&
+    dropdownRef.value &&
+    !dropdownRef.value.contains(event.target as Node)
+  ) {
     closeDropdown();
   }
 }
 
 watch(isOpen, (newValue) => {
   if (newValue) {
-    document.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('resize', updateDropdownPosition);
-    window.addEventListener('scroll', updateDropdownPosition);
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("resize", updateDropdownPosition);
+    window.addEventListener("scroll", updateDropdownPosition);
   } else {
-    document.removeEventListener('mousedown', handleClickOutside);
-    window.removeEventListener('resize', updateDropdownPosition);
-    window.removeEventListener('scroll', updateDropdownPosition);
+    document.removeEventListener("mousedown", handleClickOutside);
+    window.removeEventListener("resize", updateDropdownPosition);
+    window.removeEventListener("scroll", updateDropdownPosition);
   }
 });
 
@@ -87,17 +96,21 @@ const isGameInPast = (game: any) => {
 
 const sortedGameOptions = computed(() => {
   return [...store.gameOptions]
-    .filter(game => !isGameInPast(game))
+    .filter((game) => !isGameInPast(game))
     .sort((a, b) => {
-      return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+      return (
+        new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime()
+      );
     });
 });
 
 const sortedUtilityOptions = computed(() => {
   return [...store.utilityOptions]
-    .filter(game => !isGameInPast(game))
+    .filter((game) => !isGameInPast(game))
     .sort((a, b) => {
-      return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+      return (
+        new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime()
+      );
     });
 });
 </script>
@@ -108,16 +121,22 @@ const sortedUtilityOptions = computed(() => {
       type="button"
       class="group relative flex w-full flex-col gap-1 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sky-500/40"
       :class="[
-        variant === 'hero' 
-          ? 'items-center rounded-3xl border border-transparent bg-slate-900/40 px-6 py-4 hover:border-sky-500/60 hover:bg-slate-900/60 sm:min-w-[400px]' 
+        variant === 'hero'
+          ? 'items-center rounded-3xl border border-transparent bg-slate-900/40 px-6 py-4 hover:border-sky-500/60 hover:bg-slate-900/60 sm:min-w-[400px]'
           : 'items-start rounded-2xl border border-slate-800/60 bg-slate-900/40 px-5 py-4 hover:border-slate-700/60 hover:bg-slate-800/40 hover:shadow-lg hover:shadow-sky-900/10 sm:min-w-[320px]',
-        isOpen ? (variant === 'hero' ? 'bg-slate-900/60' : 'ring-2 ring-sky-500/40 bg-slate-800/60') : ''
+        isOpen
+          ? variant === 'hero'
+            ? 'bg-slate-900/60'
+            : 'ring-2 ring-sky-500/40 bg-slate-800/60'
+          : '',
       ]"
       @click="toggleDropdown"
     >
       <!-- Hero Variant Content -->
       <template v-if="variant === 'hero'">
-        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+        <div
+          class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
+        >
           <span>Active Event</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -129,12 +148,12 @@ const sortedUtilityOptions = computed(() => {
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <path d="m6 9 6 6 6-6"/>
+            <path d="m6 9 6 6 6-6" />
           </svg>
         </div>
-        
+
         <div class="flex items-center gap-3">
-          <span 
+          <span
             class="text-4xl font-black transition duration-200 sm:text-5xl"
             :style="{ color: store.activeGame.titleColor || '#f1f5f9' }"
           >
@@ -156,21 +175,29 @@ const sortedUtilityOptions = computed(() => {
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+              <path
+                d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"
+              />
             </svg>
           </button>
         </div>
-        
-        <p class="text-sm font-medium text-slate-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+
+        <p
+          class="text-sm font-medium text-slate-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        >
           Click to switch event
         </p>
       </template>
 
       <!-- Default Variant Content -->
       <template v-else>
-        <div class="flex w-full items-center justify-between text-xs font-bold uppercase tracking-[0.2em] text-slate-500 transition-colors group-hover:text-emerald-400">
+        <div
+          class="flex w-full items-center justify-between text-xs font-bold uppercase tracking-[0.2em] text-slate-500 transition-colors group-hover:text-emerald-400"
+        >
           <span>Active Event</span>
-          <span class="flex items-center gap-1 text-[10px] tracking-normal opacity-0 transition-all duration-300 group-hover:opacity-100">
+          <span
+            class="flex items-center gap-1 text-[10px] tracking-normal opacity-0 transition-all duration-300 group-hover:opacity-100"
+          >
             Change
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -182,13 +209,15 @@ const sortedUtilityOptions = computed(() => {
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="m19 9-7 7-7-7"/>
+              <path d="m19 9-7 7-7-7" />
             </svg>
           </span>
         </div>
-        
+
         <div class="flex w-full items-center justify-between gap-4">
-          <span class="truncate text-lg font-bold text-slate-200 transition-colors group-hover:text-white sm:text-xl">
+          <span
+            class="truncate text-lg font-bold text-slate-200 transition-colors group-hover:text-white sm:text-xl"
+          >
             {{ store.activeGame.title }}
           </span>
           <svg
@@ -209,19 +238,19 @@ const sortedUtilityOptions = computed(() => {
     </button>
 
     <teleport to="body">
-      <div
-        v-if="isOpen"
-        class="dropdown-menu-teleport"
-        :style="dropdownStyle"
-      >
+      <div v-if="isOpen" class="dropdown-menu-teleport" :style="dropdownStyle">
         <div
           class="glass-section w-full overflow-hidden border-slate-800/70 bg-slate-950/95 shadow-2xl shadow-slate-950/60"
         >
           <div class="border-b border-slate-800/80 bg-slate-900/80 px-4 py-3">
-            <h3 class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+            <h3
+              class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
+            >
               Quick Timers
             </h3>
-            <p class="text-xs text-slate-600 mt-1">For breaks and short activities</p>
+            <p class="text-xs text-slate-600 mt-1">
+              For breaks and short activities
+            </p>
           </div>
           <div class="max-h-56 overflow-y-auto px-2 py-2">
             <button
@@ -229,15 +258,21 @@ const sortedUtilityOptions = computed(() => {
               :key="game.id"
               type="button"
               class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-200 transition duration-150 hover:bg-slate-800/60"
-              :class="{ 'bg-sky-600/30 text-sky-100': game.id === store.activeGame.id }"
+              :class="{
+                'bg-sky-600/30 text-sky-100': game.id === store.activeGame.id,
+              }"
               @click="selectGame(game.id)"
             >
               <span class="truncate">{{ game.title }}</span>
             </button>
           </div>
 
-          <div class="border-b border-t border-slate-800/80 bg-slate-900/80 px-4 py-3">
-            <h3 class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+          <div
+            class="border-b border-t border-slate-800/80 bg-slate-900/80 px-4 py-3"
+          >
+            <h3
+              class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
+            >
               Upcoming Games
             </h3>
             <p class="text-xs text-slate-600 mt-1">Game releases and events</p>
@@ -248,22 +283,30 @@ const sortedUtilityOptions = computed(() => {
               :key="game.id"
               type="button"
               class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-200 transition duration-150 hover:bg-slate-800/60"
-              :class="{ 'bg-sky-600/30 text-sky-100': game.id === store.activeGame.id }"
+              :class="{
+                'bg-sky-600/30 text-sky-100': game.id === store.activeGame.id,
+              }"
               @click="selectGame(game.id)"
             >
               <span class="truncate">{{ game.title }}</span>
               <span class="text-xs font-medium text-slate-400">
-                {{ new Date(game.targetDate).toLocaleDateString(undefined, {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                }) }}
+                {{
+                  new Date(game.targetDate).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                }}
               </span>
             </button>
           </div>
 
           <div class="border-t border-slate-800/80 bg-slate-900/80 px-4 py-3">
-            <button type="button" class="btn-muted w-full justify-center" @click="resetGames">
+            <button
+              type="button"
+              class="btn-muted w-full justify-center"
+              @click="resetGames"
+            >
               Reset to Default Games
             </button>
           </div>
