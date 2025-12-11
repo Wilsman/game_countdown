@@ -1,7 +1,7 @@
 <!-- components/ControlPanel.vue (modernized settings panel) -->
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
-import { useToast } from "vue-toastification";
+import { toast } from "vue-sonner";
 import { useTimerStore } from "../stores/timer";
 import { storeToRefs } from "pinia";
 
@@ -10,7 +10,6 @@ const { settings, gameTitleColor } = storeToRefs(store);
 
 const isOpen = ref(false);
 const panelRef = ref<HTMLElement | null>(null);
-const toast = useToast();
 
 const copyShareableUrl = async () => {
   try {
@@ -79,9 +78,14 @@ const fontSizes = [
 
 const hasGameBackground = computed(() => {
   const gameId = store.activeGame?.id?.toLowerCase() ?? "";
-  return gameId.includes("bf6") || gameId.includes("battlefield") ||
-         gameId.includes("tarkov") || gameId.includes("0.16.8.0") ||
-         gameId.includes("arc") || gameId.includes("raiders");
+  return (
+    gameId.includes("bf6") ||
+    gameId.includes("battlefield") ||
+    gameId.includes("tarkov") ||
+    gameId.includes("0.16.8.0") ||
+    gameId.includes("arc") ||
+    gameId.includes("raiders")
+  );
 });
 
 function updateSetting(key: string, value: any) {
@@ -152,7 +156,7 @@ function importSettings(event: Event) {
 
 <template>
   <div class="control-panel" ref="panelRef">
-    <!-- Settings Button -->
+    <!-- Settings Button (Icon) -->
     <button
       @click="togglePanel"
       class="settings-button soft-btn"
@@ -160,642 +164,546 @@ function importSettings(event: Event) {
       title="Open Settings"
       aria-label="Open Settings"
     >
-      <!-- Minimal, modern gear (stroke, rounded, 24x24 viewBox) -->
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="18"
-        height="18"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
-        aria-hidden="true"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
       >
         <path
-          d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
         />
-        <path
-          d="M19.4 13.2c.04-.39.06-.79.06-1.2s-.02-.81-.06-1.2l1.77-1.28a.9.9 0 0 0 .2-1.22l-1.5-2.6a.9.9 0 0 0-1.12-.37l-2.1.85a7.9 7.9 0 0 0-2.08-1.2l-.32-2.25A.92.92 0 0 0 12.27 2h-3.03a.92.92 0 0 0-.89.73l-.32 2.25c-.73.27-1.42.65-2.08 1.2l-2.1-.85a.9.9 0 0 0-1.12.37L1.23 8.3a.9.9 0 0 0 .2 1.22L3.2 10.8c-.04.39-.06.79-.06 1.2s.02.81.06 1.2L1.43 14.48a.9.9 0 0 0-.2 1.22l1.5 2.6c.24.42.75.6 1.2.43l2.1-.85c.66.54 1.35.93 2.08 1.2l.32 2.25c.07.44.45.77.89.77h3.03c.44 0 .82-.33.89-.77l.32-2.25c.73-.27 1.42-.66 2.08-1.2l2.1.85c.45.17.97 0 1.2-.43l1.5-2.6a.9.9 0 0 0-.2-1.22L19.4 13.2Z"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
+        <circle cx="12" cy="12" r="3" />
       </svg>
     </button>
 
-    <!-- Settings Panel -->
-    <div v-if="isOpen" class="settings-panel surface-3d strong">
-      <div class="panel-header">
-        <div class="panel-title">
-          <span class="brand-dot small"></span>
-          <h3>Timer Settings</h3>
-        </div>
-        <button
-          @click="closePanel"
-          class="close-button"
-          aria-label="Close settings"
+    <!-- Modal Backdrop -->
+    <Transition name="fade">
+      <div
+        v-if="isOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+        @click="closePanel"
+      >
+        <!-- Modal Panel -->
+        <div
+          class="glass-panel w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 shadow-2xl"
+          @click.stop
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
+          <!-- Header -->
+          <div
+            class="flex items-center justify-between border-b border-white/5 bg-white/5 px-6 py-4"
           >
-            <line
-              x1="18"
-              y1="6"
-              x2="6"
-              y2="18"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-            <line
-              x1="6"
-              y1="6"
-              x2="18"
-              y2="18"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-        </button>
-      </div>
-
-      <div class="panel-content">
-        <!-- Appearance -->
-        <div class="settings-section">
-          <h4>Appearance</h4>
-
-          <div class="setting-item">
-            <label>Theme</label>
-            <select
-              :value="settings.theme"
-              @change="
-                updateSetting(
-                  'theme',
-                  ($event.target as HTMLSelectElement).value
-                )
-              "
-              class="setting-select"
+            <h3
+              class="flex items-center gap-3 text-lg font-bold text-slate-100"
             >
-              <option
-                v-for="theme in themes"
-                :key="theme.value"
-                :value="theme.value"
+              <span
+                class="flex h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]"
+              ></span>
+              Configuration
+            </h3>
+            <button
+              @click="closePanel"
+              class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
               >
-                {{ theme.label }}
-              </option>
-            </select>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
 
-          <div class="setting-item">
-            <label>Title Color</label>
-            <div class="color-input-wrapper">
-              <input
-                type="color"
-                :value="gameTitleColor"
-                @input="
-                  updateTitleColor(($event.target as HTMLInputElement).value)
-                "
-                class="color-input"
-              />
-              <span class="color-value">{{ gameTitleColor }}</span>
-            </div>
-          </div>
-
-          <div class="setting-item two-col">
-            <div>
-              <label>Font Family</label>
-              <select
-                :value="settings.fontFamily"
-                @change="
-                  updateSetting(
-                    'fontFamily',
-                    ($event.target as HTMLSelectElement).value
-                  )
-                "
-                class="setting-select"
+          <!-- Content -->
+          <div
+            class="p-6 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar"
+          >
+            <!-- Appearance Section -->
+            <section class="space-y-4">
+              <h4
+                class="text-xs font-bold uppercase tracking-widest text-slate-500"
               >
-                <option
-                  v-for="font in fontFamilies"
-                  :key="font.value"
-                  :value="font.value"
+                Appearance
+              </h4>
+
+              <div class="grid gap-4 sm:grid-cols-2">
+                <!-- Theme Select -->
+                <div class="space-y-2">
+                  <label class="text-xs font-semibold text-slate-300"
+                    >Theme</label
+                  >
+                  <div class="relative">
+                    <select
+                      :value="settings.theme"
+                      @change="
+                        updateSetting(
+                          'theme',
+                          ($event.target as HTMLSelectElement).value
+                        )
+                      "
+                      class="w-full appearance-none rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-slate-200 focus:border-cyan-500/50 focus:outline-none focus:ring-4 focus:ring-cyan-500/10"
+                    >
+                      <option
+                        v-for="theme in themes"
+                        :key="theme.value"
+                        :value="theme.value"
+                      >
+                        {{ theme.label }}
+                      </option>
+                    </select>
+                    <div
+                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Font Family -->
+                <div class="space-y-2">
+                  <label class="text-xs font-semibold text-slate-300"
+                    >Font Family</label
+                  >
+                  <div class="relative">
+                    <select
+                      :value="settings.fontFamily"
+                      @change="
+                        updateSetting(
+                          'fontFamily',
+                          ($event.target as HTMLSelectElement).value
+                        )
+                      "
+                      class="w-full appearance-none rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-slate-200 focus:border-cyan-500/50 focus:outline-none focus:ring-4 focus:ring-cyan-500/10"
+                    >
+                      <option
+                        v-for="font in fontFamilies"
+                        :key="font.value"
+                        :value="font.value"
+                      >
+                        {{ font.label }}
+                      </option>
+                    </select>
+                    <div
+                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Font Size -->
+                <div class="space-y-2">
+                  <label class="text-xs font-semibold text-slate-300"
+                    >Display Size</label
+                  >
+                  <div class="relative">
+                    <select
+                      :value="settings.fontSize"
+                      @change="
+                        updateSetting(
+                          'fontSize',
+                          parseInt(($event.target as HTMLSelectElement).value)
+                        )
+                      "
+                      class="w-full appearance-none rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-slate-200 focus:border-cyan-500/50 focus:outline-none focus:ring-4 focus:ring-cyan-500/10"
+                    >
+                      <option
+                        v-for="size in fontSizes"
+                        :key="size.value"
+                        :value="size.value"
+                      >
+                        {{ size.label }}
+                      </option>
+                    </select>
+                    <div
+                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Accent Color -->
+                <div class="space-y-2">
+                  <label class="text-xs font-semibold text-slate-300"
+                    >Accent Color</label
+                  >
+                  <div
+                    class="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 px-3 py-1.5"
+                  >
+                    <input
+                      type="color"
+                      :value="gameTitleColor"
+                      @input="
+                        updateTitleColor(
+                          ($event.target as HTMLInputElement).value
+                        )
+                      "
+                      class="h-6 w-8 cursor-pointer bg-transparent"
+                    />
+                    <span class="text-xs font-mono text-slate-400">{{
+                      gameTitleColor
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Toggles Section -->
+            <section class="space-y-4">
+              <h4
+                class="text-xs font-bold uppercase tracking-widest text-slate-500"
+              >
+                Experience
+              </h4>
+
+              <div class="grid gap-3 sm:grid-cols-2">
+                <!-- Game Background Toggle -->
+                <label
+                  v-if="hasGameBackground"
+                  class="group flex cursor-pointer items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3 transition-colors hover:border-white/10 hover:bg-white/10"
                 >
-                  {{ font.label }}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label>Font Size</label>
-              <select
-                :value="settings.fontSize"
-                @change="
-                  updateSetting(
-                    'fontSize',
-                    parseInt(($event.target as HTMLSelectElement).value)
-                  )
-                "
-                class="setting-select"
-              >
-                <option
-                  v-for="size in fontSizes"
-                  :key="size.value"
-                  :value="size.value"
+                  <span class="text-sm font-medium text-slate-300"
+                    >Game Background</span
+                  >
+                  <div
+                    class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200"
+                    :class="
+                      settings.enableGameBackground
+                        ? 'bg-cyan-500'
+                        : 'bg-slate-700'
+                    "
+                  >
+                    <span
+                      class="inline-block h-3 w-3 transform rounded-full bg-white transition duration-200"
+                      :class="
+                        settings.enableGameBackground
+                          ? 'translate-x-5'
+                          : 'translate-x-1'
+                      "
+                    ></span>
+                    <input
+                      type="checkbox"
+                      class="sr-only"
+                      :checked="settings.enableGameBackground"
+                      @change="
+                        updateSetting(
+                          'enableGameBackground',
+                          ($event.target as HTMLInputElement).checked
+                        )
+                      "
+                    />
+                  </div>
+                </label>
+                <!-- Animation Toggle -->
+                <label
+                  class="group flex cursor-pointer items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3 transition-colors hover:border-white/10 hover:bg-white/10"
                 >
-                  {{ size.label }}
-                </option>
-              </select>
-            </div>
-          </div>
-        </div>
+                  <span class="text-sm font-medium text-slate-300"
+                    >Animations</span
+                  >
+                  <div
+                    class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200"
+                    :class="
+                      settings.enableAnimation ? 'bg-cyan-500' : 'bg-slate-700'
+                    "
+                  >
+                    <span
+                      class="inline-block h-3 w-3 transform rounded-full bg-white transition duration-200"
+                      :class="
+                        settings.enableAnimation
+                          ? 'translate-x-5'
+                          : 'translate-x-1'
+                      "
+                    ></span>
+                    <input
+                      type="checkbox"
+                      class="sr-only"
+                      :checked="settings.enableAnimation"
+                      @change="
+                        updateSetting(
+                          'enableAnimation',
+                          ($event.target as HTMLInputElement).checked
+                        )
+                      "
+                    />
+                  </div>
+                </label>
+                <!-- Sound Toggle -->
+                <label
+                  class="group flex cursor-pointer items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3 transition-colors hover:border-white/10 hover:bg-white/10"
+                >
+                  <span class="text-sm font-medium text-slate-300"
+                    >Sound Effects</span
+                  >
+                  <div
+                    class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200"
+                    :class="
+                      settings.enableSound ? 'bg-cyan-500' : 'bg-slate-700'
+                    "
+                  >
+                    <span
+                      class="inline-block h-3 w-3 transform rounded-full bg-white transition duration-200"
+                      :class="
+                        settings.enableSound ? 'translate-x-5' : 'translate-x-1'
+                      "
+                    ></span>
+                    <input
+                      type="checkbox"
+                      class="sr-only"
+                      :checked="settings.enableSound"
+                      @change="
+                        updateSetting(
+                          'enableSound',
+                          ($event.target as HTMLInputElement).checked
+                        )
+                      "
+                    />
+                  </div>
+                </label>
+              </div>
+            </section>
 
-        <!-- Features -->
-        <div class="settings-section">
-          <h4>Features</h4>
-
-          <label v-if="hasGameBackground" class="toggle">
-            <input
-              type="checkbox"
-              :checked="settings.enableGameBackground"
-              @change="
-                updateSetting(
-                  'enableGameBackground',
-                  ($event.target as HTMLInputElement).checked
-                )
-              "
-            />
-            <span class="slider"></span>
-            <span class="toggle-text">Game Background</span>
-          </label>
-
-          <label class="toggle">
-            <input
-              type="checkbox"
-              :checked="settings.enableAnimation"
-              @change="
-                updateSetting(
-                  'enableAnimation',
-                  ($event.target as HTMLInputElement).checked
-                )
-              "
-            />
-            <span class="slider"></span>
-            <span class="toggle-text">Animations</span>
-          </label>
-
-          <label class="toggle">
-            <input
-              type="checkbox"
-              :checked="settings.enableSound"
-              @change="
-                updateSetting(
-                  'enableSound',
-                  ($event.target as HTMLInputElement).checked
-                )
-              "
-            />
-            <span class="slider"></span>
-            <span class="toggle-text">Sound Effects</span>
-          </label>
-        </div>
-
-        <!-- Actions -->
-        <div class="settings-section">
-          <h4>Actions</h4>
-
-          <div class="action-grid">
-            <button
-              @click="copyShareableUrl"
-              class="action-button soft-btn-strong"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
+            <!-- Share Section -->
+            <section class="space-y-4">
+              <h4
+                class="text-xs font-bold uppercase tracking-widest text-slate-500"
               >
-                <path
-                  d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-                <polyline
-                  points="16,6 12,2 8,6"
+                Share
+              </h4>
+              <button
+                @click="copyShareableUrl"
+                class="flex w-full items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/5 p-3 text-sm font-bold text-slate-300 transition-all hover:bg-white/10 hover:text-cyan-400"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
                   stroke="currentColor"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                />
-                <line
-                  x1="12"
-                  y1="2"
-                  x2="12"
-                  y2="15"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-              Copy Share URL
-            </button>
+                >
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                  <polyline points="16 6 12 2 8 6" />
+                  <line x1="12" y1="2" x2="12" y2="15" />
+                </svg>
+                Copy Link
+              </button>
+            </section>
 
-            <button
-              @click="exportSettings"
-              class="action-button soft-btn-strong"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
+            <!-- Data Actions -->
+            <section class="space-y-4">
+              <h4
+                class="text-xs font-bold uppercase tracking-widest text-slate-500"
               >
-                <path
-                  d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-                <polyline
-                  points="7,10 12,15 17,10"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <line
-                  x1="12"
-                  y1="15"
-                  x2="12"
-                  y2="3"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-              Export Settings
-            </button>
+                Data & Reset
+              </h4>
 
-            <label class="action-button soft-btn-strong file-input-label">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <path
-                  d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-                <polyline
-                  points="17,8 12,3 7,8"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <line
-                  x1="12"
-                  y1="3"
-                  x2="12"
-                  y2="15"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-              Import Settings
-              <input
-                type="file"
-                accept=".json"
-                @change="importSettings"
-                class="file-input"
-              />
-            </label>
-
-            <button
-              @click="store.resetGames"
-              class="action-button soft-btn-strong subtle"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <polyline
-                  points="23,4 23,10 17,10"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <polyline
-                  points="1,20 1,14 7,14"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-              Reset Games
-            </button>
-
-            <button
-              @click="resetToDefaults"
-              class="action-button danger-strong"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <path
-                  d="M3 6h18l-1.5 14H4.5L3 6z"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-                <path
-                  d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-              Reset All Settings
-            </button>
+              <div class="grid grid-cols-2 gap-3">
+                <button
+                  @click="exportSettings"
+                  class="flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/5 p-3 text-xs font-bold text-slate-300 transition-all hover:bg-white/10 hover:text-cyan-400"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Export Config
+                </button>
+                <label
+                  class="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/5 p-3 text-xs font-bold text-slate-300 transition-all hover:bg-white/10 hover:text-cyan-400"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  Import Config
+                  <input
+                    type="file"
+                    accept=".json"
+                    @change="importSettings"
+                    class="hidden"
+                  />
+                </label>
+              </div>
+              <div class="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  @click="store.resetGames"
+                  class="flex items-center justify-center gap-2 rounded-xl border border-red-500/10 bg-red-500/5 p-3 text-xs font-bold text-red-400 transition-all hover:bg-red-500/10 hover:border-red-500/20"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="23 4 23 10 17 10" />
+                    <polyline points="1 20 1 14 7 14" />
+                    <path
+                      d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"
+                    />
+                  </svg>
+                  Reset Games
+                </button>
+                <button
+                  @click="resetToDefaults"
+                  class="flex items-center justify-center gap-2 rounded-xl border border-red-500/10 bg-red-500/5 p-3 text-xs font-bold text-red-400 transition-all hover:bg-red-500/10 hover:border-red-500/20"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M3 6h18l-1.5 14H4.5L3 6z" />
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                  Reset All
+                </button>
+              </div>
+            </section>
           </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
 <style scoped>
-/* Surfaces and soft buttons — match the app look */
-.surface-3d {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.04),
-    rgba(255, 255, 255, 0.02)
-  ); /* slightly denser */
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12)); /* a bit stronger */
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
-  border-radius: 16px;
+.glass-panel {
+  background: rgba(15, 23, 42, 0.6); /* Slate-900 with opacity */
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05); /* inner stroke */
 }
 
-.strong {
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+/* Custom scrollbar for the modal content */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
 }
-
-.soft-btn,
-.soft-btn-strong {
-  background: linear-gradient(
-    180deg,
-    rgba(34, 211, 238, 0.16),
-    rgba(6, 182, 212, 0.12)
-  );
-  color: var(--text-primary, rgba(255, 255, 255, 0.92));
-  border: 1px solid rgba(34, 211, 238, 0.28);
-  border-radius: 12px;
-  padding: 8px 10px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.25px;
-  cursor: pointer;
-  transition: transform 0.15s ease, background 0.3s ease, border-color 0.3s ease,
-    box-shadow 0.3s ease;
-  box-shadow: 0 8px 26px rgba(6, 182, 212, 0.18);
-}
-.soft-btn:hover,
-.soft-btn-strong:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(
-    180deg,
-    rgba(34, 211, 238, 0.24),
-    rgba(6, 182, 212, 0.16)
-  );
-  border-color: rgba(34, 211, 238, 0.45);
-  box-shadow: 0 14px 34px rgba(6, 182, 212, 0.25);
-}
-.soft-btn:active,
-.soft-btn-strong:active {
-  transform: translateY(0);
-}
-.soft-btn-strong {
-  padding: 10px 12px;
-  border-radius: 14px;
-}
-
-.control-panel {
-  position: relative;
-}
-
-.settings-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  padding: 0;
-}
-.settings-button.is-active {
-  outline: 2px solid rgba(34, 211, 238, 0.25);
-}
-
-/* Panel */
-.settings-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: min(380px, 92vw);
-  max-height: 78vh;
-  z-index: 1000;
-  overflow: hidden;
-  animation: panel-appear 0.18s ease;
-  background: rgba(12, 12, 12, 0.9); /* add: solid dark base */
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)); /* slightly stronger border */
-  backdrop-filter: blur(8px);
-}
-
-@keyframes panel-appear {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
-  background: rgba(12, 12, 12, 0.85);
-}
-
-.panel-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.panel-title h3 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--text-primary, rgba(255, 255, 255, 0.92));
-  letter-spacing: 0.2px;
-}
-
-.brand-dot.small {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: conic-gradient(
-    from 0deg at 50% 50%,
-    #22d3ee,
-    #06b6d4,
-    #0891b2,
-    #22d3ee
-  );
-  box-shadow: 0 0 10px rgba(34, 211, 238, 0.5), 0 0 4px rgba(6, 182, 212, 0.45);
-}
-
-.close-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
+.custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
-  color: var(--text-primary, rgba(255, 255, 255, 0.92));
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.15s ease;
 }
-.close-button:hover {
-  background: rgba(255, 255, 255, 0.04);
-  transform: translateY(-1px);
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
 }
-
-.panel-content {
-  max-height: calc(78vh - 54px);
-  overflow-y: auto;
-  padding: 12px 14px 14px;
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Sections */
-.settings-section {
-  margin-bottom: 18px;
-  padding: 10px;
-  border: 1px dashed rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.05),
-    rgba(255, 255, 255, 0.025)
-  );
-}
-.settings-section h4 {
-  margin: 0 0 10px 0;
-  font-size: 12px;
-  font-weight: 900;
-  color: var(--accent-300, #06b6d4);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-/* Items */
-.setting-item {
-  margin-bottom: 12px;
-}
-.setting-item:last-child {
-  margin-bottom: 0;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.setting-item label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-primary, rgba(255, 255, 255, 0.92));
-}
-
-.setting-select {
-  width: 100%;
-  padding: 9px 10px;
-  background-color: #111;
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
-  border-radius: 10px;
-  color: var(--text-primary, rgba(255, 255, 255, 0.92));
-  font-size: 13px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  outline: none;
-}
-.setting-select:focus {
-  border-color: rgba(34, 211, 238, 0.45);
-  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15);
-}
-
-/* Color input */
-.color-input-wrapper {
-  display: flex;
+.soft-btn {
+  /* Inherit shared button styles or define simplified version here if global css isn't enough */
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  color: theme("colors.slate.400");
+  transition: all 0.2s;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
 }
-.color-input {
-  width: 44px;
-  height: 34px;
-  padding: 0;
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
-  border-radius: 10px;
-  cursor: pointer;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.03),
-    rgba(255, 255, 255, 0.01)
-  );
+.soft-btn:hover {
+  color: theme("colors.white");
+  background: rgba(255, 255, 255, 0.05);
 }
-.color-value {
-  font-size: 12px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: var(--text-primary, rgba(255, 255, 255, 0.92));
-  opacity: 0.7;
+.soft-btn.is-active {
+  color: theme("colors.cyan.400");
+  background: rgba(6, 182, 212, 0.1);
 }
 
 /* Toggles */

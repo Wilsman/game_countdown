@@ -28,11 +28,14 @@
 }
 
 @keyframes tron-glow {
-  0%, 100% {
-    filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.8)) drop-shadow(0 0 16px rgba(34, 211, 238, 0.4));
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.8))
+      drop-shadow(0 0 16px rgba(34, 211, 238, 0.4));
   }
   50% {
-    filter: drop-shadow(0 0 12px rgba(34, 211, 238, 1)) drop-shadow(0 0 24px rgba(34, 211, 238, 0.6));
+    filter: drop-shadow(0 0 12px rgba(34, 211, 238, 1))
+      drop-shadow(0 0 24px rgba(34, 211, 238, 0.6));
   }
 }
 
@@ -97,7 +100,7 @@ body {
   }
 
   .tron-card::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: -2px;
     border-radius: 1rem;
@@ -113,7 +116,8 @@ body {
     );
     background-size: 200% 100%;
     animation: tron-sweep 3s linear infinite;
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: exclude;
@@ -122,7 +126,7 @@ body {
   }
 
   .tron-card::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     border-radius: 1rem;
@@ -173,40 +177,145 @@ body {
   animation: tick-pulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* OBS-specific attention animations */
-@keyframes neon-breathe {
-  0%, 100% { text-shadow: 0 0 10px rgba(34,211,238,0.65), 0 0 26px rgba(34,211,238,0.35); filter: saturate(100%); }
-  50% { text-shadow: 0 0 18px rgba(34,211,238,0.95), 0 0 40px rgba(124,58,237,0.55); filter: saturate(125%); }
+/* OBS Neon Glass Frame - Refined */
+.obs-frame {
+  padding: 1.5rem;
+  position: relative;
+  border-radius: 24px;
+  /* Much more transparent background for stream visibility */
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow:
+    /* Inner rim light */ inset 0 0 0 1px rgba(34, 211, 238, 0.2),
+    /* Soft colored glow centers */ inset 0 0 60px rgba(6, 182, 212, 0.1),
+    /* Drop shadow to separate from stream content */ 0 4px 12px
+      rgba(0, 0, 0, 0.8);
 }
 
-@keyframes label-shimmer {
-  0% { opacity: 0.85; text-shadow: 0 0 6px rgba(34,211,238,0.6); }
-  50% { opacity: 1; text-shadow: 0 0 12px rgba(34,211,238,0.9); }
-  100% { opacity: 0.9; text-shadow: 0 0 6px rgba(34,211,238,0.6); }
+/* Animated gradient border - Thinner and sharper */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes spin-angle {
+  to {
+    --angle: 360deg;
+  }
+}
+
+.obs-frame::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  /* Cleaner gradient with distinct neon colors */
+  background: conic-gradient(
+    from var(--angle),
+    transparent 20%,
+    #06b6d4 40%,
+    #7c3aed 50%,
+    #22c55e 60%,
+    transparent 80%
+  );
+  padding: 2px; /* Thinner border */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-angle 4s linear infinite;
+  opacity: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.5));
+}
+
+/* Subtle scanline and specular sweep */
+.obs-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    /* Specular highlight sweep */ linear-gradient(
+      110deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.03) 45%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0.03) 55%,
+      transparent 100%
+    ),
+    /* Horizontal scanlines */
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.3) 3px
+      );
+  background-size: 200% 100%, 100% 4px;
+  animation: obs-sweep 8s ease-in-out infinite;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+@keyframes obs-sweep {
+  0% {
+    background-position: 200% 0, 0 0;
+  }
+  100% {
+    background-position: -200% 0, 0 0;
+  }
+}
+
+/* Text Animations and Glows */
+@keyframes neon-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 4px rgba(34, 211, 238, 0.8),
+      0 0 12px rgba(34, 211, 238, 0.4);
+    filter: brightness(1);
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(34, 211, 238, 1), 0 0 24px rgba(34, 211, 238, 0.6);
+    filter: brightness(1.1);
+  }
 }
 
 @keyframes urgent-flash {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(239,68,68,0.85)); color: #e5e7eb; }
-  50% { transform: scale(1.08); filter: drop-shadow(0 0 22px rgba(239,68,68,1)); color: #ffffff; }
+  0%,
+  100% {
+    color: #fca5a5;
+    text-shadow: 0 0 4px rgba(239, 68, 68, 0.8);
+  }
+  50% {
+    color: #fff;
+    text-shadow: 0 0 12px rgba(239, 68, 68, 1), 0 0 24px rgba(239, 68, 68, 0.8);
+    transform: scale(1.02);
+  }
 }
 
-@keyframes frame-breathe {
-  0%, 100% { box-shadow: inset 0 0 0 1px rgba(34,211,238,0.28), 0 10px 25px rgba(0,0,0,0.6), 0 0 32px rgba(34,211,238,0.22); }
-  50% { box-shadow: inset 0 0 0 1px rgba(34,211,238,0.4), 0 12px 30px rgba(0,0,0,0.65), 0 0 60px rgba(124,58,237,0.28); }
+.obs-digit {
+  /* High contrast white with cyan glow */
+  color: #ffffff;
+  animation: neon-pulse 3s ease-in-out infinite;
 }
 
-.obs-digit { 
-  animation: neon-breathe 2.8s ease-in-out infinite; 
-  text-shadow: 0 0 1px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.8), 0 0 16px rgba(34,211,238,0.9);
-}
-.obs-label { 
-  animation: label-shimmer 3.2s ease-in-out infinite; 
-  text-shadow: 0 0 1px rgba(0,0,0,0.85), 0 0 12px rgba(34,211,238,0.7);
-}
-.urgent-pulse { 
-  animation: urgent-flash 0.8s ease-in-out infinite; 
-  text-shadow: 0 0 2px rgba(0,0,0,0.9), 0 0 16px rgba(239,68,68,0.8);
+.obs-label {
+  /* Distinct cyan label */
+  color: #22d3ee;
+  text-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
+  font-weight: 800;
+  letter-spacing: 0.1em;
 }
 
-/* Make the frame subtly breathe in OBS mode */
-.obs-mode .obs-frame { animation: frame-breathe 4.5s ease-in-out infinite; }
+.urgent-pulse {
+  animation: urgent-flash 0.5s ease-in-out infinite !important;
+}
+
+/* Adjust layout in App.vue for OBS mode to be compact */
+:deep(.obs-mode .glass-panel),
+:deep(.obs-mode .glass-section) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}

@@ -4,6 +4,7 @@
 import { useTimerStore } from "./stores/timer";
 import { onMounted, watch, ref, nextTick, computed } from "vue";
 import { storeToRefs } from "pinia";
+import { Toaster, toast } from "vue-sonner";
 import TimerDisplay from "./components/TimerDisplay.vue";
 import GameSelector from "./components/GameSelector.vue";
 import ControlPanel from "./components/ControlPanel.vue";
@@ -56,13 +57,6 @@ const hasGameBackground = computed(() =>
   Boolean(gameBackground.value && settings.value.enableGameBackground)
 );
 
-const activeGameSummary = computed(() =>
-  timerStore.activeGame?.type === "utility"
-    ? "Quick timer active"
-    : "Game launch countdown active"
-);
-
-
 const handleEditTitle = () => {
   isEditingTitle.value = true;
   nextTick(() => {
@@ -77,18 +71,21 @@ const handleStopEditTitle = () => {
 
 const toggleFocusMode = () => {
   isFocusMode.value = !isFocusMode.value;
+  if (isFocusMode.value) {
+    toast.info("Focus Mode Enabled", {
+      description: "Press 'Exit Focus Mode' to return",
+    });
+  }
 };
 
 const exitFocusMode = () => {
   isFocusMode.value = false;
 };
 
-
 onMounted(() => {
   if (!isClient) return;
   timerStore.handleUrlParams();
 });
-
 
 watch(
   () => timerStore.settings.theme as Theme,
@@ -98,7 +95,6 @@ watch(
   },
   { immediate: true }
 );
-
 </script>
 
 <template>
@@ -134,29 +130,11 @@ watch(
             </div>
             <div class="flex items-center gap-3">
               <ControlPanel />
-              <button type="button" class="btn-muted" @click="toggleFocusMode">
-                Focus Mode
-              </button>
+              <!-- Focus Mode moved to toolbar -->
             </div>
           </div>
 
-          <div class="glass-panel px-4 py-5 sm:px-6">
-            <div
-              class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div class="flex flex-col gap-2">
-                <span
-                  class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
-                >
-                  Current Countdown
-                </span>
-                <p class="text-base text-slate-300">
-                  {{ activeGameSummary }}
-                </p>
-              </div>
-              <GameSelector />
-            </div>
-          </div>
+          <!-- Header Selector Removed -->
         </header>
 
         <section class="flex flex-1 flex-col">
@@ -168,64 +146,34 @@ watch(
               class="absolute inset-x-0 top-0 h-1 rounded-full bg-gradient-to-r from-sky-500/60 via-purple-500/50 to-emerald-400/60"
             ></div>
 
-            <div class="flex flex-col items-center gap-2 text-center">
-              <p
-                v-if="!isObsMode"
-                class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
-              >
-                Active Event
-              </p>
-              <button
-                v-if="!isObsMode && !isEditingTitle"
-                type="button"
-                class="group flex items-center gap-3 rounded-2xl border border-transparent bg-slate-900/40 px-6 py-4 text-4xl font-black text-slate-100 transition duration-200 ease-out hover:border-sky-500/60 hover:bg-slate-900/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500/60 sm:text-5xl"
-                :style="{ color: gameTitleColor || undefined }"
-                title="Click to rename the event"
-                @click="handleEditTitle"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="h-6 w-6 text-slate-400 transition-colors duration-200 group-hover:text-sky-300"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M16.862 4.487a2.1 2.1 0 0 1 2.967 2.967l-9.49 9.49-3.955.988.988-3.955 9.49-9.49Z"
-                  />
-                  <path d="m15 6 3 3" />
-                </svg>
-                {{ gameTitle }}
-              </button>
-              <input
-                v-else-if="!isObsMode"
-                ref="titleInput"
-                v-model="gameTitle"
-                type="text"
-                class="w-full max-w-3xl rounded-2xl border border-slate-800/70 bg-slate-900/70 px-5 py-3 text-center text-4xl font-bold text-slate-50 shadow-inner focus:border-sky-500/60 focus:outline-none focus:ring-2 focus:ring-sky-500/40 sm:text-5xl"
-                :style="{ color: gameTitleColor || undefined }"
-                @blur="handleStopEditTitle"
-                @keyup.enter="handleStopEditTitle"
-              />
-              <p
-                v-else
-                class="rounded-2xl border border-transparent px-6 py-4 text-4xl font-black text-cyan-100 sm:text-7xl drop-shadow-[0_0_20px_rgba(34,211,238,0.85)]"
-                :style="{ color: gameTitleColor || undefined }"
-              >
-                {{ gameTitle }}
-              </p>
-              <p
-                v-if="!isEditingTitle && !isObsMode"
-                class="text-sm font-medium text-slate-500"
-              >
-                Click the event name to edit it
-              </p>
-            </div>
+            <GameSelector
+              v-if="!isObsMode && !isEditingTitle"
+              variant="hero"
+              @edit="handleEditTitle"
+            />
 
-            <TimerDisplay :is-focus-mode="isFocusMode" />
+            <input
+              v-else-if="!isObsMode && isEditingTitle"
+              ref="titleInput"
+              v-model="gameTitle"
+              type="text"
+              class="w-full max-w-3xl rounded-2xl border border-slate-800/70 bg-slate-900/70 px-5 py-3 text-center text-4xl font-bold text-slate-50 shadow-inner focus:border-sky-500/60 focus:outline-none focus:ring-2 focus:ring-sky-500/40 sm:text-5xl"
+              :style="{ color: gameTitleColor || undefined }"
+              @blur="handleStopEditTitle"
+              @keyup.enter="handleStopEditTitle"
+            />
+            <p
+              v-else
+              class="rounded-2xl border border-transparent px-6 py-4 text-4xl font-black text-cyan-100 sm:text-7xl drop-shadow-[0_0_20px_rgba(34,211,238,0.85)]"
+              :style="{ color: gameTitleColor || undefined }"
+            >
+              {{ gameTitle }}
+            </p>
+
+            <TimerDisplay
+              :is-focus-mode="isFocusMode"
+              @toggle-focus="toggleFocusMode"
+            />
           </div>
         </section>
 
@@ -268,6 +216,7 @@ watch(
       </button>
     </div>
   </div>
+  <Toaster position="bottom-center" />
 </template>
 
 <style scoped>
@@ -453,38 +402,55 @@ watch(
   padding: 1.35rem;
   position: relative;
   border-radius: 28px;
-  background:
-    radial-gradient(900px 520px at 50% 55%, rgba(0, 0, 0, 0.35), transparent 60%),
-    radial-gradient(600px 380px at 20% 10%, rgba(6, 182, 212, 0.18), transparent 60%),
-    radial-gradient(520px 320px at 82% 86%, rgba(124, 58, 237, 0.16), transparent 60%),
+  background: radial-gradient(
+      900px 520px at 50% 55%,
+      rgba(0, 0, 0, 0.35),
+      transparent 60%
+    ),
+    radial-gradient(
+      600px 380px at 20% 10%,
+      rgba(6, 182, 212, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      520px 320px at 82% 86%,
+      rgba(124, 58, 237, 0.16),
+      transparent 60%
+    ),
     linear-gradient(180deg, rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.4));
   backdrop-filter: blur(12px) saturate(160%);
   -webkit-backdrop-filter: blur(12px) saturate(160%);
-  box-shadow:
-    inset 0 0 0 1px rgba(34, 211, 238, 0.32),
+  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.32),
     inset 0 0 120px rgba(6, 182, 212, 0.18),
-    inset 0 0 180px rgba(124, 58, 237, 0.12),
-    0 10px 28px rgba(0, 0, 0, 0.65),
+    inset 0 0 180px rgba(124, 58, 237, 0.12), 0 10px 28px rgba(0, 0, 0, 0.65),
     0 0 48px rgba(34, 211, 238, 0.28);
 }
 
 /* Animated gradient border using conic-gradient mask */
 @property --angle {
-  syntax: '<angle>';
+  syntax: "<angle>";
   initial-value: 0deg;
   inherits: false;
 }
 
 @keyframes spin-angle {
-  to { --angle: 360deg; }
+  to {
+    --angle: 360deg;
+  }
 }
 
 .obs-frame::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: -3px;
   border-radius: inherit;
-  background: conic-gradient(from var(--angle), #06b6d4, #7c3aed, #22c55e, #06b6d4);
+  background: conic-gradient(
+    from var(--angle),
+    #06b6d4,
+    #7c3aed,
+    #22c55e,
+    #06b6d4
+  );
   padding: 3px;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
@@ -495,41 +461,64 @@ watch(
 }
 
 @keyframes obs-sweep {
-  0% { background-position: -220% 0, 220% 0, 0 0, 0 0; }
-  100% { background-position: 220% 0, -220% 0, 0 0, 0 0; }
+  0% {
+    background-position: -220% 0, 220% 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 220% 0, -220% 0, 0 0, 0 0;
+  }
 }
 
 /* Strong inner glow + dual moving sweeps, specular highlight, and scanlines */
 .obs-frame::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   background:
-    /* Sweep A */
-    linear-gradient(110deg, rgba(34,211,238,0.06) 0%, rgba(34,211,238,0.22) 12%, rgba(124,58,237,0.18) 50%, rgba(34,211,238,0.06) 88%, transparent 100%),
+    /* Sweep A */ linear-gradient(
+      110deg,
+      rgba(34, 211, 238, 0.06) 0%,
+      rgba(34, 211, 238, 0.22) 12%,
+      rgba(124, 58, 237, 0.18) 50%,
+      rgba(34, 211, 238, 0.06) 88%,
+      transparent 100%
+    ),
     /* Sweep B (counter) */
-    linear-gradient(-70deg, transparent 0%, rgba(255,255,255,0.10) 12%, rgba(34,211,238,0.18) 18%, transparent 28%),
+      linear-gradient(
+        -70deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 12%,
+        rgba(34, 211, 238, 0.18) 18%,
+        transparent 28%
+      ),
     /* Base inner glow */
-    radial-gradient(900px 420px at 50% 120%, rgba(34,211,238,0.14), transparent 65%),
+      radial-gradient(
+        900px 420px at 50% 120%,
+        rgba(34, 211, 238, 0.14),
+        transparent 65%
+      ),
     /* Scanlines */
-    repeating-linear-gradient(
-      to bottom,
-      rgba(14, 165, 233, 0.08),
-      rgba(14, 165, 233, 0.08) 1px,
-      transparent 1px,
-      transparent 3px
-    );
+      repeating-linear-gradient(
+        to bottom,
+        rgba(14, 165, 233, 0.08),
+        rgba(14, 165, 233, 0.08) 1px,
+        transparent 1px,
+        transparent 3px
+      );
   background-size: 320% 100%, 280% 100%, 100% 100%, 100% 100%;
   animation: obs-sweep 7s ease-in-out infinite alternate;
   mix-blend-mode: screen;
-  box-shadow:
-    inset 0 0 90px rgba(34, 211, 238, 0.20),
+  box-shadow: inset 0 0 90px rgba(34, 211, 238, 0.2),
     inset 0 0 180px rgba(124, 58, 237, 0.16);
   pointer-events: none;
 }
 
 /* Slightly increase spacing for OBS overlay */
-:deep(.obs-mode .obs-frame .text-4xl) { letter-spacing: 0.02em; }
-:deep(.obs-mode .obs-frame .text-6xl) { letter-spacing: 0.015em; }
+:deep(.obs-mode .obs-frame .text-4xl) {
+  letter-spacing: 0.02em;
+}
+:deep(.obs-mode .obs-frame .text-6xl) {
+  letter-spacing: 0.015em;
+}
 </style>

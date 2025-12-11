@@ -2,11 +2,16 @@
 
 <script setup lang="ts">
 import { useTimerStore } from "../stores/timer";
+import { toast } from "vue-sonner";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import TimeZonePreview from "./TimeZonePreview.vue";
 
 defineProps<{
   isFocusMode: boolean;
+}>();
+
+defineEmits<{
+  (e: "toggle-focus"): void;
 }>();
 
 const store = useTimerStore();
@@ -252,40 +257,71 @@ const formattedTime = computed(() => {
 
 const timeSegments = computed(() => {
   const segments = [
-    { label: "d", value: formattedTime.value.days, rawValue: store.timeRemaining.days, key: 'days' },
-    { label: "h", value: formattedTime.value.hours, rawValue: store.timeRemaining.hours, key: 'hours' },
-    { label: "m", value: formattedTime.value.minutes, rawValue: store.timeRemaining.minutes, key: 'minutes' },
-    { label: "s", value: formattedTime.value.seconds, rawValue: store.timeRemaining.seconds, key: 'seconds' },
+    {
+      label: "d",
+      value: formattedTime.value.days,
+      rawValue: store.timeRemaining.days,
+      key: "days",
+    },
+    {
+      label: "h",
+      value: formattedTime.value.hours,
+      rawValue: store.timeRemaining.hours,
+      key: "hours",
+    },
+    {
+      label: "m",
+      value: formattedTime.value.minutes,
+      rawValue: store.timeRemaining.minutes,
+      key: "minutes",
+    },
+    {
+      label: "s",
+      value: formattedTime.value.seconds,
+      rawValue: store.timeRemaining.seconds,
+      key: "seconds",
+    },
   ];
-  
+
   // Find the first non-zero segment
-  const firstNonZeroIndex = segments.findIndex(seg => seg.rawValue > 0);
-  
+  const firstNonZeroIndex = segments.findIndex((seg) => seg.rawValue > 0);
+
   // If all are zero, show minutes and seconds
   if (firstNonZeroIndex === -1) {
     return segments.slice(2);
   }
-  
+
   // Return from first non-zero segment onwards
   return segments.slice(firstNonZeroIndex);
 });
 
 // Watch for changes in time values and trigger animations
-watch(() => store.timeRemaining, (newVal) => {
-  const keys: Array<'days' | 'hours' | 'minutes' | 'seconds'> = ['days', 'hours', 'minutes', 'seconds'];
-  
-  keys.forEach(key => {
-    if (newVal[key] !== prevValues.value[key]) {
-      animatingSegments.value[key] = true;
-      prevValues.value[key] = newVal[key];
-      
-      // Reset animation after it completes
-      setTimeout(() => {
-        animatingSegments.value[key] = false;
-      }, 400);
-    }
-  });
-}, { deep: true });
+watch(
+  () => store.timeRemaining,
+  (newVal) => {
+    if (!store.settings.enableAnimation) return;
+
+    const keys: Array<"days" | "hours" | "minutes" | "seconds"> = [
+      "days",
+      "hours",
+      "minutes",
+      "seconds",
+    ];
+
+    keys.forEach((key) => {
+      if (newVal[key] !== prevValues.value[key]) {
+        animatingSegments.value[key] = true;
+        prevValues.value[key] = newVal[key];
+
+        // Reset animation after it completes
+        setTimeout(() => {
+          animatingSegments.value[key] = false;
+        }, 400);
+      }
+    });
+  },
+  { deep: true }
+);
 
 function openDatePicker() {
   const tz =
@@ -316,10 +352,12 @@ function saveManualTimer() {
   const utcDate = localToUTCDate(manualDateTime.value, currentTz);
   store.addGame(manualTitle.value, utcDate);
   showManualDialog.value = false;
+  toast.success("Manual timer created successfully");
 }
 
 function copyShareableUrl() {
   navigator.clipboard.writeText(store.getShareableUrl());
+  toast.success("Link copied to clipboard");
 }
 
 const copyObsUrl = () => {
@@ -329,6 +367,7 @@ const copyObsUrl = () => {
     obsUrl = obsUrl.replace("bg=1", "bg=0");
   }
   navigator.clipboard.writeText(obsUrl);
+  toast.success("OBS link copied to clipboard");
 };
 
 const originalTitle = document.title;
@@ -398,17 +437,24 @@ onUnmounted(() => {
           :key="segment.label"
           class="flex items-baseline gap-1 transition-all duration-300"
         >
-          <span 
+          <span
             class="font-black tabular-nums transition-all duration-300"
             :class="[
               store.isObsMode
                 ? 'text-6xl sm:text-8xl text-cyan-100 drop-shadow-[0_0_20px_rgba(34,211,238,0.9)] obs-digit'
-                : 'text-4xl sm:text-7xl text-slate-100',
+                : 'text-slate-100',
               { 
-                'tick-animation': animatingSegments[segment.key as keyof typeof animatingSegments],
+                'tick-animation': animatingSegments.days || animatingSegments.hours || animatingSegments.minutes || animatingSegments.seconds ? animatingSegments[segment.key as keyof typeof animatingSegments] : false,
                 'urgent-pulse': store.timeRemaining.days === 0 && store.timeRemaining.hours === 0 && store.timeRemaining.minutes === 0 && store.timeRemaining.seconds <= 10 && store.timeRemaining.seconds > 0 && store.isObsMode
               }
             ]"
+            :style="{
+              fontSize: store.isObsMode
+                ? undefined
+                : 'var(--timer-font-size, 4.5rem)',
+              fontFamily: 'var(--font-family, inherit)',
+              lineHeight: '1',
+            }"
           >
             {{ segment.value }}
           </span>
@@ -430,31 +476,118 @@ onUnmounted(() => {
       v-if="!isFocusMode && !store.isObsMode"
       class="glass-section w-full px-5 py-6 sm:px-8"
     >
-      <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-8">
         <TimeZonePreview />
 
-        <div class="flex flex-wrap justify-center gap-3">
-          <button
-            type="button"
-            class="btn-accent"
-            @click.stop="copyShareableUrl"
+        <!-- New Action Toolbar -->
+        <div class="flex justify-center">
+          <div
+            class="inline-flex items-center gap-2 rounded-2xl border border-slate-800/60 bg-slate-950/40 p-1.5 shadow-xl shadow-black/20 backdrop-blur-md"
           >
-            Copy Shareable URL
-          </button>
-          <button
-            type="button"
-            class="btn-muted min-w-[180px]"
-            @click.stop="copyObsUrl"
-          >
-            Copy OBS Link
-          </button>
-          <button
-            type="button"
-            class="btn-muted"
-            @click.stop="openManualDialog"
-          >
-            Manual Timer
-          </button>
+            <!-- Focus Mode -->
+            <button
+              type="button"
+              class="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-300 transition-all hover:bg-slate-800/60 hover:text-sky-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+              @click="$emit('toggle-focus')"
+              title="Enter focus mode"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 text-slate-500 transition-colors group-hover:text-sky-400"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+                />
+              </svg>
+              <span>Focus</span>
+            </button>
+
+            <div class="h-5 w-px bg-slate-800/80"></div>
+
+            <!-- Share URL -->
+            <button
+              type="button"
+              class="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-300 transition-all hover:bg-slate-800/60 hover:text-sky-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+              @click.stop="copyShareableUrl"
+              title="Copy link to clipboard"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 text-slate-500 transition-colors group-hover:text-sky-400"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                />
+                <path
+                  d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                />
+              </svg>
+              <span>Share</span>
+            </button>
+
+            <div class="h-5 w-px bg-slate-800/80"></div>
+
+            <!-- OBS Link -->
+            <button
+              type="button"
+              class="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-300 transition-all hover:bg-slate-800/60 hover:text-emerald-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              @click.stop="copyObsUrl"
+              title="Copy OBS browser source URL"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 text-slate-500 transition-colors group-hover:text-emerald-400"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M23 7l-7 5 7 5V7z" />
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+              </svg>
+              <span>OBS Link</span>
+            </button>
+
+            <div class="h-5 w-px bg-slate-800/80"></div>
+
+            <!-- Manual Timer -->
+            <button
+              type="button"
+              class="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-300 transition-all hover:bg-slate-800/60 hover:text-purple-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500/30"
+              @click.stop="openManualDialog"
+              title="Create custom timer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 text-slate-500 transition-colors group-hover:text-purple-400"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="12" x2="16" y2="16" />
+              </svg>
+              <span>Manual</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
