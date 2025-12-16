@@ -14,6 +14,7 @@ interface TimerSettings {
   enableSoundToggle: boolean;
   theme: "light" | "dark";
   enableGameBackground: boolean;
+  enableChristmasTheme: boolean;
 }
 
 interface TimeRemaining {
@@ -318,6 +319,7 @@ export const useTimerStore = defineStore("timer", () => {
     enableSoundToggle: true,
     theme: "dark",
     enableGameBackground: true,
+    enableChristmasTheme: true,
   });
 
   const hasReachedZero = ref(false);

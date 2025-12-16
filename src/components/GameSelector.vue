@@ -137,7 +137,7 @@ const sortedUtilityOptions = computed(() => {
         <div
           class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
         >
-          <span>Active Event</span>
+          <span>{{ store.settings.enableChristmasTheme ? '🎄' : '' }} Active Event</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="h-3 w-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -246,7 +246,7 @@ const sortedUtilityOptions = computed(() => {
             <h3
               class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
             >
-              Quick Timers
+              {{ store.settings.enableChristmasTheme ? '🎅' : '' }} Quick Timers
             </h3>
             <p class="text-xs text-slate-600 mt-1">
               For breaks and short activities
@@ -273,7 +273,7 @@ const sortedUtilityOptions = computed(() => {
             <h3
               class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500"
             >
-              Upcoming Games
+              {{ store.settings.enableChristmasTheme ? '🎮' : '' }} Upcoming Games
             </h3>
             <p class="text-xs text-slate-600 mt-1">Game releases and events</p>
           </div>

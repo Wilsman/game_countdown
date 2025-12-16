@@ -442,7 +442,9 @@ onUnmounted(() => {
             :class="[
               store.isObsMode
                 ? 'text-6xl sm:text-8xl text-cyan-100 drop-shadow-[0_0_20px_rgba(34,211,238,0.9)] obs-digit'
-                : 'text-slate-100',
+                : store.settings.enableChristmasTheme
+                  ? 'text-red-400 christmas-lights'
+                  : 'text-slate-100',
               { 
                 'tick-animation': animatingSegments.days || animatingSegments.hours || animatingSegments.minutes || animatingSegments.seconds ? animatingSegments[segment.key as keyof typeof animatingSegments] : false,
                 'urgent-pulse': store.timeRemaining.days === 0 && store.timeRemaining.hours === 0 && store.timeRemaining.minutes === 0 && store.timeRemaining.seconds <= 10 && store.timeRemaining.seconds > 0 && store.isObsMode
@@ -454,6 +456,9 @@ onUnmounted(() => {
                 : 'var(--timer-font-size, 4.5rem)',
               fontFamily: 'var(--font-family, inherit)',
               lineHeight: '1',
+              textShadow: store.settings.enableChristmasTheme 
+                ? '0 0 20px rgba(220, 38, 38, 0.8), 0 0 40px rgba(251, 191, 36, 0.6)' 
+                : undefined,
             }"
           >
             {{ segment.value }}
@@ -463,8 +468,15 @@ onUnmounted(() => {
             :class="
               store.isObsMode
                 ? 'text-4xl sm:text-6xl text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.9)] obs-label'
-                : 'text-2xl sm:text-4xl text-slate-400'
+                : store.settings.enableChristmasTheme
+                  ? 'text-2xl sm:text-4xl text-green-400'
+                  : 'text-2xl sm:text-4xl text-slate-400'
             "
+            :style="{
+              textShadow: store.settings.enableChristmasTheme 
+                ? '0 0 15px rgba(22, 163, 74, 0.8)' 
+                : undefined,
+            }"
           >
             {{ segment.label }}
           </span>

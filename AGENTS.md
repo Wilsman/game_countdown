@@ -19,19 +19,26 @@
 
 ## Coding Style & Naming Conventions
 
-- TypeScript strict mode is enabled; fix all type errors before PR.
+- TypeScript strict mode enabled; fix all type errors before PR.
 - Indentation: 2 spaces; keep lines focused and readable.
 - Vue 3 + `<script setup>` and Composition API preferred.
 - Components: PascalCase filenames (e.g., `TimerDisplay.vue`); props/events camelCase in code, kebab-case in templates.
 - Composables in `hooks/`: `useThing.ts` naming; Pinia stores: `useThingStore` in `stores/`.
 - Styling: Tailwind CSS; shared styles in `src/style.css`.
+- Imports: Group external libs first, then internal modules; use type-only imports when possible.
 
 ## Testing Guidelines
 
-- No test framework is configured yet.
-- If adding tests, prefer Vitest + Vue Test Utils.
-  - Location: `src/**/__tests__/*.spec.ts` or co-located `*.spec.ts`.
-  - Example (after setup): `npx vitest run --coverage`.
+- Tests use Bun test framework (`bun:test`).
+- Run single test: `bun test src/stores/__tests__/timer.spec.ts`
+- Run all tests: `bun test`
+- Location: `src/**/__tests__/*.spec.ts` or co-located `*.spec.ts`.
+
+## Error Handling & Validation
+
+- Always handle Date objects with UTC methods for timezone consistency
+- Validate game release dates using ISO 8601 format (`YYYY-MM-DDTHH:mm:ssZ`)
+- Use type guards for runtime type checking in stores and components
 
 ## Commit & Pull Request Guidelines
 
