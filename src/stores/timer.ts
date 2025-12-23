@@ -217,7 +217,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "enter-the-gungeon-2",
       title: "Enter the Gungeon 2",
       titleColor: "#ff4500",
-      targetDate: new Date("2026-01-01T00:00:00Z"), // 2026 placeholder
+      targetDate: new Date("2026-07-01T00:00:00Z"), // 2026 placeholder
       targetTimezone: "UTC",
       type: "game",
     },
@@ -299,6 +299,142 @@ export const useTimerStore = defineStore("timer", () => {
       titleColor: "#ff1493",
       targetDate: new Date("2025-12-16T09:30:00Z"), // December 16, 2025 - 9:30 AM GMT
       targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "quarantine-zone",
+      title: "Quarantine Zone: The Last Check",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-01-15T00:00:00Z"), // Approx Jan 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "marathon",
+      title: "Marathon",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-03-01T00:00:00Z"), // Approx March 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "mistfall-hunter",
+      title: "Mistfall Hunter",
+      titleColor: "#800080",
+      targetDate: new Date("2026-03-15T00:00:00Z"), // Approx March 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "decadent",
+      title: "Decadent",
+      titleColor: "#8b0000",
+      targetDate: new Date("2026-05-01T00:00:00Z"), // Est 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "nakwon",
+      title: "Nakwon: Last Paradise",
+      titleColor: "#ff4500",
+      targetDate: new Date("2026-06-01T00:00:00Z"), // Est mid 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "road-to-vostok",
+      title: "Road to Vostok (Update/Release)",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-07-01T00:00:00Z"), // Est 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "gray-zone-warfare-1",
+      title: "Gray Zone Warfare 1.0",
+      titleColor: "#a9a9a9",
+      targetDate: new Date("2026-08-01T00:00:00Z"), // Est 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "judas",
+      title: "Judas",
+      titleColor: "#daa520",
+      targetDate: new Date("2026-09-01T00:00:00Z"), // Est 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "project-lll",
+      title: "Project LLL (Cinder City)",
+      titleColor: "#ff6347",
+      targetDate: new Date("2026-10-01T00:00:00Z"), // Est Late 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "forever-winter-1",
+      title: "The Forever Winter 1.0",
+      titleColor: "#add8e6",
+      targetDate: new Date("2026-11-01T00:00:00Z"), // Est Late 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "beautiful-light",
+      title: "Beautiful Light",
+      titleColor: "#ff00ff",
+      targetDate: new Date("2026-12-01T00:00:00Z"), // Dec 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "state-of-decay-3",
+      title: "State of Decay 3",
+      titleColor: "#228b22",
+      targetDate: new Date("2027-01-01T00:00:00Z"), // Est 2027
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "perfect-dark",
+      title: "Perfect Dark",
+      titleColor: "#00008b",
+      targetDate: new Date("2027-04-01T00:00:00Z"), // Est 2027
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "division-3",
+      title: "The Division 3",
+      titleColor: "#ff8c00",
+      targetDate: new Date("2027-09-01T00:00:00Z"), // Est 2027
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "rainbow-six-mobile",
+      title: "Rainbow Six Mobile",
+      titleColor: "#00bfff",
+      targetDate: new Date("2026-02-23T00:00:00Z"), // Confirmed Feb 23, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "toxic-commando",
+      title: "John Carpenter's Toxic Commando",
+      titleColor: "#32cd32",
+      targetDate: new Date("2026-03-12T00:00:00Z"), // Confirmed March 12, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "rules-of-engagement",
+      title: "Rules of Engagement: The Grey State",
+      titleColor: "#708090",
+      targetDate: new Date("2026-06-01T00:00:00Z"), // Est 2026
+      targetTimezone: "UTC",
       type: "game",
     },
   ];
