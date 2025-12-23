@@ -238,6 +238,22 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkov-1-0-1-0-servers-down",
+      title: "EFT 1.0.1.0 servers down",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-12-24T06:00:00Z"),
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-1-0-1-0-servers-up",
+      title: "EFT 1.0.1.0 servers up",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-12-24T12:00:00Z"),
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "path-of-exile-2-the-last-of-the-druids",
       title: "PoE2: The Last of the Druids",
       titleColor: "#ffffff",
