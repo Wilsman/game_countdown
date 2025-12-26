@@ -254,6 +254,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkovtv-new-years-special-2025",
+      title: "TarkovTV LIVE New Year's Special",
+      titleColor: "#ffffff",
+      targetDate: new Date("2025-12-27T16:00:00Z"),
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "path-of-exile-2-the-last-of-the-druids",
       title: "PoE2: The Last of the Druids",
       titleColor: "#ffffff",
