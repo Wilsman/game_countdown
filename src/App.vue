@@ -97,14 +97,14 @@ const removeSnowEffect = () => {
 
 const createSnowEffect = () => {
   if (typeof window === "undefined") return;
-  
+
   // Remove existing snow container if any
   removeSnowEffect();
-  
+
   const snowContainer = document.createElement("div");
   snowContainer.className = "snow-container";
   snowContainer.id = "christmas-snow";
-  
+
   // Create snowflakes
   for (let i = 0; i < 50; i++) {
     const snowflake = document.createElement("div");
@@ -117,7 +117,7 @@ const createSnowEffect = () => {
     snowflake.style.opacity = String(Math.random() * 0.6 + 0.4);
     snowContainer.appendChild(snowflake);
   }
-  
+
   document.body.appendChild(snowContainer);
 };
 
@@ -135,7 +135,7 @@ watch(
   (enabled) => {
     if (!isClient) return;
     document.documentElement.classList.toggle("christmas-theme", enabled);
-    
+
     // Add or remove snow effect
     if (enabled) {
       createSnowEffect();
@@ -149,10 +149,11 @@ watch(
 
 <template>
   <div
-    class="background-mesh relative min-h-screen overflow-hidden"
+    class="background-mesh relative min-h-screen"
     :class="{
       'with-game-background': hasGameBackground,
       'obs-mode': isObsMode,
+      'overflow-hidden': !isObsMode,
     }"
   >
     <div

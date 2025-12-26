@@ -402,7 +402,8 @@ onUnmounted(() => {
 <template>
   <div class="flex w-full flex-col items-center gap-6">
     <div
-      class="glass-section relative w-full overflow-hidden px-6 py-8 sm:px-10"
+      class="glass-section relative w-full px-6 py-8 sm:px-10"
+      :class="{ 'overflow-hidden': !store.isObsMode }"
       @click="!store.isObsMode ? openDatePicker() : null"
     >
       <div
@@ -431,7 +432,10 @@ onUnmounted(() => {
         </svg>
       </button>
 
-      <div class="flex w-full items-center justify-center gap-3 sm:gap-6">
+      <div
+        class="flex w-full items-center justify-center"
+        :class="store.isObsMode ? 'gap-2 sm:gap-4' : 'gap-3 sm:gap-6'"
+      >
         <div
           v-for="segment in timeSegments"
           :key="segment.label"
@@ -441,7 +445,7 @@ onUnmounted(() => {
             class="font-black tabular-nums transition-all duration-300"
             :class="[
               store.isObsMode
-                ? 'text-6xl sm:text-8xl text-cyan-100 drop-shadow-[0_0_20px_rgba(34,211,238,0.9)] obs-digit'
+                ? 'text-5xl sm:text-6xl text-cyan-100 drop-shadow-[0_0_20px_rgba(34,211,238,0.9)] obs-digit'
                 : store.settings.enableChristmasTheme
                   ? 'text-red-400 christmas-lights'
                   : 'text-slate-100',
@@ -456,8 +460,8 @@ onUnmounted(() => {
                 : 'var(--timer-font-size, 4.5rem)',
               fontFamily: 'var(--font-family, inherit)',
               lineHeight: '1',
-              textShadow: store.settings.enableChristmasTheme 
-                ? '0 0 20px rgba(220, 38, 38, 0.8), 0 0 40px rgba(251, 191, 36, 0.6)' 
+              textShadow: store.settings.enableChristmasTheme
+                ? '0 0 20px rgba(220, 38, 38, 0.8), 0 0 40px rgba(251, 191, 36, 0.6)'
                 : undefined,
             }"
           >
@@ -467,14 +471,14 @@ onUnmounted(() => {
             class="font-black uppercase transition-all duration-300"
             :class="
               store.isObsMode
-                ? 'text-4xl sm:text-6xl text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.9)] obs-label'
+                ? 'text-2xl sm:text-4xl text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.9)] obs-label'
                 : store.settings.enableChristmasTheme
-                  ? 'text-2xl sm:text-4xl text-green-400'
-                  : 'text-2xl sm:text-4xl text-slate-400'
+                ? 'text-2xl sm:text-4xl text-green-400'
+                : 'text-2xl sm:text-4xl text-slate-400'
             "
             :style="{
-              textShadow: store.settings.enableChristmasTheme 
-                ? '0 0 15px rgba(22, 163, 74, 0.8)' 
+              textShadow: store.settings.enableChristmasTheme
+                ? '0 0 15px rgba(22, 163, 74, 0.8)'
                 : undefined,
             }"
           >
