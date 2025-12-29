@@ -90,10 +90,6 @@ body {
     @apply w-full rounded-2xl border border-neutral-800/80 bg-neutral-900/80 px-4 py-3 text-sm font-medium text-neutral-100 shadow-inner shadow-black/50 transition duration-150 ease-out focus:border-sky-500/60 focus:outline-none focus:ring-2 focus:ring-sky-500/30;
   }
 
-  .obs-frame {
-    @apply relative border border-sky-500/50 shadow-[0_0_32px_rgba(56,189,248,0.45)];
-  }
-
   .tron-card {
     position: relative;
     overflow: hidden;
@@ -177,23 +173,52 @@ body {
   animation: tick-pulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* OBS Neon Glass Frame - Refined */
-.obs-frame {
-  padding: 1.5rem 2rem;
-  position: relative;
-  border-radius: 24px;
-  /* Much more transparent background for stream visibility */
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  box-shadow:
-    /* Inner rim light */ inset 0 0 0 1px rgba(34, 211, 238, 0.2),
-    /* Soft colored glow centers */ inset 0 0 60px rgba(6, 182, 212, 0.1),
-    /* Drop shadow to separate from stream content */ 0 4px 12px
-      rgba(0, 0, 0, 0.8);
+@keyframes obs-sweep {
+  0% {
+    background-position: -220% 0, 220% 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 220% 0, -220% 0, 0 0, 0 0;
+  }
 }
 
-/* Animated gradient border - Thinner and sharper */
+/* OBS Neon Glass Frame */
+.obs-frame {
+  padding: 1.35rem;
+  position: relative;
+  border-radius: 28px;
+  background: var(
+    --obs-bg,
+    radial-gradient(
+      900px 520px at 50% 55%,
+      rgba(0, 0, 0, 0.35),
+      transparent 60%
+    ),
+    radial-gradient(
+      600px 380px at 20% 10%,
+      rgba(6, 182, 212, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      520px 320px at 82% 86%,
+      rgba(124, 58, 237, 0.16),
+      transparent 60%
+    ),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.4))
+  );
+  backdrop-filter: blur(var(--obs-blur, 12px)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--obs-blur, 12px)) saturate(160%);
+  box-shadow: inset 0 0 0 1px
+      rgba(34, 211, 238, calc(var(--obs-shine-opacity, 0.22) * 0.5)),
+    inset 0 0 120px
+      rgba(6, 182, 212, calc(var(--obs-shine-opacity, 0.22) * 0.8)),
+    inset 0 0 180px
+      rgba(124, 58, 237, calc(var(--obs-shine-opacity, 0.22) * 0.5)),
+    0 10px 28px rgba(0, 0, 0, calc(var(--obs-bg-opacity, 1) * 0.65)),
+    0 0 48px rgba(34, 211, 238, calc(var(--obs-shine-opacity, 0.22) * 1.2));
+}
+
+/* Animated gradient border using conic-gradient mask */
 @property --angle {
   syntax: "<angle>";
   initial-value: 0deg;
@@ -209,63 +234,68 @@ body {
 .obs-frame::before {
   content: "";
   position: absolute;
-  inset: -2px;
+  inset: calc(var(--obs-border-width, 3px) * -1);
   border-radius: inherit;
-  /* Cleaner gradient with distinct neon colors */
-  background: conic-gradient(
-    from var(--angle),
-    transparent 20%,
-    #06b6d4 40%,
-    #7c3aed 50%,
-    #22c55e 60%,
-    transparent 80%
+  background: var(
+    --obs-border-color,
+    conic-gradient(from var(--angle), #06b6d4, #7c3aed, #22c55e, #06b6d4)
   );
-  padding: 2px; /* Thinner border */
+  padding: var(--obs-border-width, 3px);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
-  animation: spin-angle 4s linear infinite;
-  opacity: 1;
+  animation: spin-angle var(--obs-speed, 5s) linear infinite;
+  opacity: 0.98;
   pointer-events: none;
-  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.5));
 }
 
-/* Subtle scanline and specular sweep */
+/* Strong inner glow + dual moving sweeps, specular highlight, and scanlines */
 .obs-frame::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   background:
-    /* Specular highlight sweep */ linear-gradient(
+    /* Sweep A */ linear-gradient(
       110deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.03) 45%,
-      rgba(255, 255, 255, 0.1) 50%,
-      rgba(255, 255, 255, 0.03) 55%,
+      rgba(34, 211, 238, calc(var(--obs-shine-opacity, 0.22) * 0.3)) 0%,
+      rgba(34, 211, 238, var(--obs-shine-opacity, 0.22)) 12%,
+      rgba(124, 58, 237, calc(var(--obs-shine-opacity, 0.22) * 0.8)) 50%,
+      rgba(34, 211, 238, calc(var(--obs-shine-opacity, 0.22) * 0.3)) 88%,
       transparent 100%
     ),
-    /* Horizontal scanlines */
+    /* Sweep B (counter) */
+      linear-gradient(
+        -70deg,
+        transparent 0%,
+        rgba(255, 255, 255, calc(var(--obs-shine-opacity, 0.22) * 0.4)) 12%,
+        rgba(34, 211, 238, calc(var(--obs-shine-opacity, 0.22) * 0.8)) 18%,
+        transparent 28%
+      ),
+    /* Base inner glow */
+      radial-gradient(
+        900px 420px at 50% 120%,
+        rgba(34, 211, 238, 0.14),
+        transparent 65%
+      ),
+    /* Scanlines */
       repeating-linear-gradient(
         to bottom,
-        transparent 0px,
-        transparent 2px,
-        rgba(0, 0, 0, 0.3) 3px
+        rgba(14, 165, 233, var(--obs-scanline-opacity, 0.08)),
+        rgba(14, 165, 233, var(--obs-scanline-opacity, 0.08)) 1px,
+        transparent 1px,
+        transparent 3px
       );
-  background-size: 200% 100%, 100% 4px;
-  animation: obs-sweep 8s ease-in-out infinite;
+  background-size: 320% 100%, 280% 100%, 100% 100%, 100% 100%;
+  animation: obs-sweep 7s ease-in-out infinite alternate;
+  animation-play-state: var(--obs-shine-state, running);
+  mix-blend-mode: screen;
+  box-shadow: inset 0 0 90px
+      rgba(34, 211, 238, calc(var(--obs-shine-opacity, 0.22) * 0.9)),
+    inset 0 0 180px
+      rgba(124, 58, 237, calc(var(--obs-shine-opacity, 0.22) * 0.7));
   pointer-events: none;
-  mix-blend-mode: overlay;
-}
-
-@keyframes obs-sweep {
-  0% {
-    background-position: 200% 0, 0 0;
-  }
-  100% {
-    background-position: -200% 0, 0 0;
-  }
 }
 
 /* Text Animations and Glows */

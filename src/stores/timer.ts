@@ -14,7 +14,26 @@ interface TimerSettings {
   enableSoundToggle: boolean;
   theme: "light" | "dark";
   enableGameBackground: boolean;
-
+  enableChristmasTheme: boolean;
+  // OBS Overlay specific
+  digitColor: string | null;
+  labelColor: string | null;
+  digitSize: number | null;
+  labelSize: number | null;
+  titleSize: number | null;
+  glowColor: string | null;
+  glowIntensity: number | null;
+  glowSpread: number | null;
+  showScanlines: boolean;
+  backgroundOpacity: number | null;
+  bgBlur: number | null;
+  obsFontFamily: string | null;
+  borderWidth: number | null;
+  borderColor: string | null;
+  animationSpeed: number | null;
+  scanlineOpacity: number | null;
+  showShine: boolean;
+  shineOpacity: number | null;
 }
 
 interface TimeRemaining {
@@ -55,6 +74,26 @@ export const useTimerStore = defineStore("timer", () => {
     const color = params.get("color");
     const bgEnabled = params.get("bg");
     const obsMode = params.get("obs");
+
+    // Customization params
+    const dColor = params.get("dcolor");
+    const lColor = params.get("lcolor");
+    const dSize = params.get("dsize");
+    const lSize = params.get("lsize");
+    const tSize = params.get("tsize");
+    const gColor = params.get("gcolor");
+    const gIntensity = params.get("gintensity");
+    const gSpread = params.get("gspread");
+    const scan = params.get("scan");
+    const bOpacity = params.get("bopacity");
+    const bBlur = params.get("bblur");
+    const font = params.get("font");
+    const bWidth = params.get("bwidth");
+    const bColor = params.get("bcolor");
+    const speed = params.get("speed");
+    const sopacity = params.get("sopacity");
+    const shine = params.get("shine");
+    const shineOpactiy = params.get("shopacity");
 
     // Find the game by ID
     if (gameId) {
@@ -97,6 +136,31 @@ export const useTimerStore = defineStore("timer", () => {
     // Set OBS mode if parameter is present
     if (obsMode === "1") {
       isObsMode.value = true;
+    }
+
+    // Apply customizations
+    const customizations: Partial<TimerSettings> = {};
+    if (dColor) customizations.digitColor = `#${dColor}`;
+    if (lColor) customizations.labelColor = `#${lColor}`;
+    if (dSize) customizations.digitSize = parseInt(dSize);
+    if (lSize) customizations.labelSize = parseInt(lSize);
+    if (tSize) customizations.titleSize = parseInt(tSize);
+    if (gColor) customizations.glowColor = `#${gColor}`;
+    if (gIntensity) customizations.glowIntensity = parseFloat(gIntensity);
+    if (gSpread) customizations.glowSpread = parseFloat(gSpread);
+    if (scan) customizations.showScanlines = scan === "1";
+    if (bOpacity) customizations.backgroundOpacity = parseFloat(bOpacity);
+    if (bBlur) customizations.bgBlur = parseFloat(bBlur);
+    if (font) customizations.obsFontFamily = font;
+    if (bWidth) customizations.borderWidth = parseInt(bWidth);
+    if (bColor) customizations.borderColor = `#${bColor}`;
+    if (speed) customizations.animationSpeed = parseFloat(speed);
+    if (sopacity) customizations.scanlineOpacity = parseFloat(sopacity);
+    if (shine) customizations.showShine = shine === "1";
+    if (shineOpactiy) customizations.shineOpacity = parseFloat(shineOpactiy);
+
+    if (Object.keys(customizations).length > 0) {
+      updateSettings(customizations);
     }
   };
 
@@ -464,7 +528,25 @@ export const useTimerStore = defineStore("timer", () => {
     enableSoundToggle: true,
     theme: "dark",
     enableGameBackground: true,
-
+    enableChristmasTheme: false,
+    digitColor: null,
+    labelColor: null,
+    digitSize: null,
+    labelSize: null,
+    titleSize: null,
+    glowColor: null,
+    glowIntensity: null,
+    glowSpread: null,
+    showScanlines: true,
+    backgroundOpacity: null,
+    bgBlur: null,
+    obsFontFamily: null,
+    borderWidth: null,
+    borderColor: null,
+    animationSpeed: null,
+    scanlineOpacity: null,
+    showShine: true,
+    shineOpacity: null,
   });
 
   const hasReachedZero = ref(false);
@@ -813,6 +895,26 @@ export const useTimerStore = defineStore("timer", () => {
 
     // Add the game background setting to the URL
     url.searchParams.set("bg", settings.value.enableGameBackground ? "1" : "0");
+
+    // Add customizations
+    if (settings.value.digitColor) url.searchParams.set("dcolor", settings.value.digitColor.replace("#", ""));
+    if (settings.value.labelColor) url.searchParams.set("lcolor", settings.value.labelColor.replace("#", ""));
+    if (settings.value.digitSize) url.searchParams.set("dsize", settings.value.digitSize.toString());
+    if (settings.value.labelSize) url.searchParams.set("lsize", settings.value.labelSize.toString());
+    if (settings.value.titleSize) url.searchParams.set("tsize", settings.value.titleSize.toString());
+    if (settings.value.glowColor) url.searchParams.set("gcolor", settings.value.glowColor.replace("#", ""));
+    if (settings.value.glowIntensity !== null) url.searchParams.set("gintensity", settings.value.glowIntensity.toString());
+    if (settings.value.glowSpread !== null) url.searchParams.set("gspread", settings.value.glowSpread.toString());
+    url.searchParams.set("scan", settings.value.showScanlines ? "1" : "0");
+    if (settings.value.backgroundOpacity !== null) url.searchParams.set("bopacity", settings.value.backgroundOpacity.toString());
+    if (settings.value.bgBlur !== null) url.searchParams.set("bblur", settings.value.bgBlur.toString());
+    if (settings.value.obsFontFamily) url.searchParams.set("font", settings.value.obsFontFamily);
+    if (settings.value.borderWidth !== null) url.searchParams.set("bwidth", settings.value.borderWidth.toString());
+    if (settings.value.borderColor) url.searchParams.set("bcolor", settings.value.borderColor.replace("#", ""));
+    if (settings.value.animationSpeed !== null) url.searchParams.set("speed", settings.value.animationSpeed.toString());
+    if (settings.value.scanlineOpacity !== null) url.searchParams.set("sopacity", settings.value.scanlineOpacity.toString());
+    url.searchParams.set("shine", settings.value.showShine ? "1" : "0");
+    if (settings.value.shineOpacity !== null) url.searchParams.set("shopacity", settings.value.shineOpacity.toString());
 
     return url.toString();
   }

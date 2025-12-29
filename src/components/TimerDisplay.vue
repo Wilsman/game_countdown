@@ -6,15 +6,24 @@ import { toast } from "vue-sonner";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import TimeZonePreview from "./TimeZonePreview.vue";
 
-defineProps<{
+import { storeToRefs } from "pinia";
+
+const props = defineProps<{
   isFocusMode: boolean;
+  isObsOverride?: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (e: "toggle-focus"): void;
+  (e: "customize"): void;
 }>();
 
 const store = useTimerStore();
+const { isObsMode: storeObsMode } = storeToRefs(store);
+
+const isObs = computed(() =>
+  props.isObsOverride !== undefined ? props.isObsOverride : storeObsMode.value
+);
 const showDatePicker = ref(false);
 const localDateTime = ref("");
 const currentTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -361,13 +370,7 @@ function copyShareableUrl() {
 }
 
 const copyObsUrl = () => {
-  let obsUrl = store.getShareableUrl() + "&obs=1";
-  // if "bg=1" in url replace bg=1 with "bg=0"
-  if (obsUrl.includes("bg=1")) {
-    obsUrl = obsUrl.replace("bg=1", "bg=0");
-  }
-  navigator.clipboard.writeText(obsUrl);
-  toast.success("OBS link copied to clipboard");
+  emit("customize");
 };
 
 const originalTitle = document.title;
@@ -387,6 +390,38 @@ const updateTitle = () => {
   animationFrameId = requestAnimationFrame(updateTitle);
 };
 
+const obsDigitShadow = computed(() => {
+  if (!isObs.value || !store.settings.glowColor) {
+    return store.settings.enableChristmasTheme
+      ? "0 0 20px rgba(220, 38, 38, 0.8), 0 0 40px rgba(251, 191, 36, 0.6)"
+      : undefined;
+  }
+  const intensity = store.settings.glowIntensity || 20;
+  let shadow = `0 0 ${intensity}px ${store.settings.glowColor}`;
+  if (store.settings.glowSpread) {
+    shadow += `, 0 0 ${store.settings.glowSpread + intensity}px ${
+      store.settings.glowColor
+    }`;
+  }
+  return shadow;
+});
+
+const obsLabelShadow = computed(() => {
+  if (!isObs.value || !store.settings.glowColor) {
+    return store.settings.enableChristmasTheme
+      ? "0 0 15px rgba(22, 163, 74, 0.8)"
+      : undefined;
+  }
+  const intensity = (store.settings.glowIntensity || 20) / 2;
+  let shadow = `0 0 ${intensity}px ${store.settings.glowColor}`;
+  if (store.settings.glowSpread) {
+    shadow += `, 0 0 ${
+      (store.settings.glowSpread + (store.settings.glowIntensity || 20)) / 2
+    }px ${store.settings.glowColor}`;
+  }
+  return shadow;
+});
+
 onMounted(() => {
   store.startTimer();
   animationFrameId = requestAnimationFrame(updateTitle);
@@ -400,18 +435,18 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex w-full flex-col items-center gap-6">
+  <div class="flex w-fit mx-auto flex-col items-center gap-6">
     <div
-      class="glass-section relative w-full px-6 py-8 sm:px-10"
-      :class="{ 'overflow-hidden': !store.isObsMode }"
-      @click="!store.isObsMode ? openDatePicker() : null"
+      class="glass-section relative w-fit mx-auto px-6 py-8 sm:px-12"
+      :class="{ 'overflow-hidden': !isObs }"
+      @click="!isObs ? openDatePicker() : null"
     >
       <div
         class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-sky-500/50 via-purple-500/30 to-emerald-400/40"
       ></div>
 
       <button
-        v-if="store.activeGame.type === 'utility' && !store.isObsMode"
+        v-if="store.activeGame.type === 'utility' && !isObs"
         type="button"
         class="btn-ghost absolute right-4 top-4"
         title="Restart countdown"
@@ -433,8 +468,8 @@ onUnmounted(() => {
       </button>
 
       <div
-        class="flex w-full items-center justify-center"
-        :class="store.isObsMode ? 'gap-2 sm:gap-4' : 'gap-3 sm:gap-6'"
+        class="flex items-center justify-center flex-wrap gap-y-4"
+        :class="isObs ? 'gap-x-2 sm:gap-x-4' : 'gap-x-3 sm:gap-x-6'"
       >
         <div
           v-for="segment in timeSegments"
@@ -444,25 +479,32 @@ onUnmounted(() => {
           <span
             class="font-black tabular-nums transition-all duration-300"
             :class="[
-              store.isObsMode
+              isObs
                 ? 'text-5xl sm:text-6xl text-cyan-100 drop-shadow-[0_0_20px_rgba(34,211,238,0.9)] obs-digit'
                 : store.settings.enableChristmasTheme
                   ? 'text-red-400 christmas-lights'
                   : 'text-slate-100',
               { 
                 'tick-animation': animatingSegments.days || animatingSegments.hours || animatingSegments.minutes || animatingSegments.seconds ? animatingSegments[segment.key as keyof typeof animatingSegments] : false,
-                'urgent-pulse': store.timeRemaining.days === 0 && store.timeRemaining.hours === 0 && store.timeRemaining.minutes === 0 && store.timeRemaining.seconds <= 10 && store.timeRemaining.seconds > 0 && store.isObsMode
+                'urgent-pulse': store.timeRemaining.days === 0 && store.timeRemaining.hours === 0 && store.timeRemaining.minutes === 0 && store.timeRemaining.seconds <= 10 && store.timeRemaining.seconds > 0 && isObs
               }
             ]"
             :style="{
-              fontSize: store.isObsMode
-                ? undefined
+              fontSize: isObs
+                ? store.settings.digitSize
+                  ? store.settings.digitSize + 'px'
+                  : undefined
                 : 'var(--timer-font-size, 4.5rem)',
-              fontFamily: 'var(--font-family, inherit)',
+              color:
+                isObs && store.settings.digitColor
+                  ? store.settings.digitColor
+                  : undefined,
+              fontFamily:
+                isObs && store.settings.obsFontFamily
+                  ? store.settings.obsFontFamily
+                  : 'var(--font-family, inherit)',
               lineHeight: '1',
-              textShadow: store.settings.enableChristmasTheme
-                ? '0 0 20px rgba(220, 38, 38, 0.8), 0 0 40px rgba(251, 191, 36, 0.6)'
-                : undefined,
+              textShadow: obsDigitShadow,
             }"
           >
             {{ segment.value }}
@@ -470,16 +512,22 @@ onUnmounted(() => {
           <span
             class="font-black uppercase transition-all duration-300"
             :class="
-              store.isObsMode
+              isObs
                 ? 'text-2xl sm:text-4xl text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.9)] obs-label'
                 : store.settings.enableChristmasTheme
                 ? 'text-2xl sm:text-4xl text-green-400'
                 : 'text-2xl sm:text-4xl text-slate-400'
             "
             :style="{
-              textShadow: store.settings.enableChristmasTheme
-                ? '0 0 15px rgba(22, 163, 74, 0.8)'
-                : undefined,
+              fontSize:
+                isObs && store.settings.labelSize
+                  ? store.settings.labelSize + 'px'
+                  : undefined,
+              color:
+                isObs && store.settings.labelColor
+                  ? store.settings.labelColor
+                  : undefined,
+              textShadow: obsLabelShadow,
             }"
           >
             {{ segment.label }}
@@ -489,7 +537,7 @@ onUnmounted(() => {
     </div>
 
     <div
-      v-if="!isFocusMode && !store.isObsMode"
+      v-if="!isFocusMode && !isObs"
       class="glass-section w-full px-5 py-6 sm:px-8"
     >
       <div class="flex flex-col gap-8">
@@ -609,7 +657,7 @@ onUnmounted(() => {
     </div>
 
     <div
-      v-if="showDatePicker && !store.isObsMode"
+      v-if="showDatePicker && !isObs"
       class="dialog-overlay"
       @click="closeDatePicker"
     >
@@ -658,7 +706,7 @@ onUnmounted(() => {
     </div>
 
     <div
-      v-if="showManualDialog && !store.isObsMode"
+      v-if="showManualDialog && !isObs"
       class="dialog-overlay"
       @click="closeManualDialog"
     >

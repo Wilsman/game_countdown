@@ -8,6 +8,7 @@ import { Toaster, toast } from "vue-sonner";
 import TimerDisplay from "./components/TimerDisplay.vue";
 import GameSelector from "./components/GameSelector.vue";
 import ControlPanel from "./components/ControlPanel.vue";
+import OverlayCustomizer from "./components/OverlayCustomizer.vue";
 import type { Ref } from "vue";
 
 interface GameBackgroundMeta {
@@ -26,8 +27,15 @@ const { gameTitle, gameTitleColor, settings, isObsMode } =
 const isEditingTitle = ref(false);
 const titleInput: Ref<HTMLInputElement | null> = ref(null);
 const isFocusMode = ref(false);
+const isCustomizing = ref(false);
 
-const showChrome = computed(() => !isFocusMode.value && !isObsMode.value);
+const showChrome = computed(
+  () => !isFocusMode.value && !isObsMode.value && !isCustomizing.value
+);
+
+const toggleCustomizing = () => {
+  isCustomizing.value = !isCustomizing.value;
+};
 
 const gameBackground = computed<GameBackgroundMeta | null>(() => {
   const gameId = timerStore.activeGame?.id?.toLowerCase() ?? "";
@@ -87,6 +95,18 @@ onMounted(() => {
   timerStore.handleUrlParams();
 });
 
+const titleTextShadow = computed(() => {
+  if (!settings.value.glowColor) return undefined;
+  const intensity = settings.value.glowIntensity || 20;
+  let shadow = `0 0 ${intensity}px ${settings.value.glowColor}`;
+  if (settings.value.glowSpread) {
+    shadow += `, 0 0 ${settings.value.glowSpread + intensity}px ${
+      settings.value.glowColor
+    }`;
+  }
+  return shadow;
+});
+
 watch(
   () => timerStore.settings.theme as Theme,
   (theme) => {
@@ -102,7 +122,7 @@ watch(
     class="background-mesh relative min-h-screen"
     :class="{
       'with-game-background': hasGameBackground,
-      'obs-mode': isObsMode,
+      'obs-mode': isObsMode && !isCustomizing,
       'overflow-hidden': !isObsMode,
     }"
   >
@@ -139,9 +159,48 @@ watch(
         </header>
 
         <section class="flex flex-1 flex-col">
+          <OverlayCustomizer v-if="isCustomizing" @close="toggleCustomizing" />
+
           <div
+            v-else
             class="glass-panel relative flex flex-col items-center gap-8 px-5 py-10 sm:px-10"
-            :class="{ 'obs-frame': isObsMode }"
+            :class="{ 'obs-frame': isObsMode, 'w-fit mx-auto': isObsMode }"
+            :style="{
+              '--obs-bg':
+                isObsMode && settings.backgroundOpacity !== null
+                  ? `rgba(0,0,0,${settings.backgroundOpacity})`
+                  : undefined,
+              '--obs-bg-opacity':
+                isObsMode && settings.backgroundOpacity !== null
+                  ? settings.backgroundOpacity
+                  : undefined,
+              '--obs-blur':
+                isObsMode && settings.bgBlur !== null
+                  ? `${settings.bgBlur}px`
+                  : undefined,
+              '--obs-border-width':
+                isObsMode && settings.borderWidth !== null
+                  ? `${settings.borderWidth}px`
+                  : undefined,
+              '--obs-border-color':
+                isObsMode && settings.borderColor
+                  ? settings.borderColor
+                  : undefined,
+              '--obs-speed':
+                isObsMode && settings.animationSpeed !== null
+                  ? `${settings.animationSpeed}s`
+                  : undefined,
+              '--obs-scanline-opacity':
+                isObsMode && settings.scanlineOpacity !== null
+                  ? settings.scanlineOpacity
+                  : undefined,
+              '--obs-shine-opacity':
+                isObsMode && settings.showShine
+                  ? settings.shineOpacity ?? 0.22
+                  : 0,
+              '--obs-shine-state':
+                isObsMode && settings.showShine ? 'running' : 'paused',
+            }"
           >
             <div
               class="absolute inset-x-0 top-0 h-1 rounded-full bg-gradient-to-r from-sky-500/60 via-purple-500/50 to-emerald-400/60"
@@ -159,21 +218,34 @@ watch(
               v-model="gameTitle"
               type="text"
               class="w-full max-w-3xl rounded-2xl border border-slate-800/70 bg-slate-900/70 px-5 py-3 text-center text-4xl font-bold text-slate-50 shadow-inner focus:border-sky-500/60 focus:outline-none focus:ring-2 focus:ring-sky-500/40 sm:text-5xl"
-              :style="{ color: gameTitleColor || undefined }"
+              :style="{
+                color: gameTitleColor || undefined,
+                fontSize: settings.titleSize
+                  ? settings.titleSize + 'px'
+                  : undefined,
+              }"
               @blur="handleStopEditTitle"
               @keyup.enter="handleStopEditTitle"
             />
             <p
               v-else
               class="rounded-2xl border border-transparent px-6 py-4 text-4xl font-black text-cyan-100 sm:text-7xl drop-shadow-[0_0_20px_rgba(34,211,238,0.85)]"
-              :style="{ color: gameTitleColor || undefined }"
+              :style="{
+                color: gameTitleColor || undefined,
+                fontSize: settings.titleSize
+                  ? settings.titleSize + 'px'
+                  : undefined,
+                textShadow: titleTextShadow,
+              }"
             >
               {{ gameTitle }}
             </p>
 
             <TimerDisplay
               :is-focus-mode="isFocusMode"
+              :is-obs-override="isObsMode"
               @toggle-focus="toggleFocusMode"
+              @customize="toggleCustomizing"
             />
           </div>
         </section>
@@ -368,26 +440,6 @@ watch(
   background: transparent;
 }
 
-:deep(.obs-mode .glass-panel),
-:deep(.obs-mode .glass-section) {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-}
-
-:deep(.obs-mode .obs-frame::before) {
-  animation: none !important;
-  inset: 0 !important;
-  background: linear-gradient(
-    115deg,
-    rgba(56, 189, 248, 0.22),
-    rgba(129, 140, 248, 0.18),
-    rgba(16, 185, 129, 0.16)
-  ) !important;
-  opacity: 0.25 !important;
-  border-radius: inherit;
-}
-
 @keyframes gridFlow {
   0% {
     background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
@@ -396,124 +448,6 @@ watch(
     background-position: -80px 80px, 120px -120px, -320px 300px, 320px 360px,
       0 -360px;
   }
-}
-
-/* OBS Neon Glass Frame */
-.obs-frame {
-  padding: 1.35rem;
-  position: relative;
-  border-radius: 28px;
-  background: radial-gradient(
-      900px 520px at 50% 55%,
-      rgba(0, 0, 0, 0.35),
-      transparent 60%
-    ),
-    radial-gradient(
-      600px 380px at 20% 10%,
-      rgba(6, 182, 212, 0.18),
-      transparent 60%
-    ),
-    radial-gradient(
-      520px 320px at 82% 86%,
-      rgba(124, 58, 237, 0.16),
-      transparent 60%
-    ),
-    linear-gradient(180deg, rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.4));
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.32),
-    inset 0 0 120px rgba(6, 182, 212, 0.18),
-    inset 0 0 180px rgba(124, 58, 237, 0.12), 0 10px 28px rgba(0, 0, 0, 0.65),
-    0 0 48px rgba(34, 211, 238, 0.28);
-}
-
-/* Animated gradient border using conic-gradient mask */
-@property --angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes spin-angle {
-  to {
-    --angle: 360deg;
-  }
-}
-
-.obs-frame::before {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: inherit;
-  background: conic-gradient(
-    from var(--angle),
-    #06b6d4,
-    #7c3aed,
-    #22c55e,
-    #06b6d4
-  );
-  padding: 3px;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  animation: spin-angle 5s linear infinite;
-  opacity: 0.98;
-  pointer-events: none;
-}
-
-@keyframes obs-sweep {
-  0% {
-    background-position: -220% 0, 220% 0, 0 0, 0 0;
-  }
-  100% {
-    background-position: 220% 0, -220% 0, 0 0, 0 0;
-  }
-}
-
-/* Strong inner glow + dual moving sweeps, specular highlight, and scanlines */
-.obs-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    /* Sweep A */ linear-gradient(
-      110deg,
-      rgba(34, 211, 238, 0.06) 0%,
-      rgba(34, 211, 238, 0.22) 12%,
-      rgba(124, 58, 237, 0.18) 50%,
-      rgba(34, 211, 238, 0.06) 88%,
-      transparent 100%
-    ),
-    /* Sweep B (counter) */
-      linear-gradient(
-        -70deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.1) 12%,
-        rgba(34, 211, 238, 0.18) 18%,
-        transparent 28%
-      ),
-    /* Base inner glow */
-      radial-gradient(
-        900px 420px at 50% 120%,
-        rgba(34, 211, 238, 0.14),
-        transparent 65%
-      ),
-    /* Scanlines */
-      repeating-linear-gradient(
-        to bottom,
-        rgba(14, 165, 233, 0.08),
-        rgba(14, 165, 233, 0.08) 1px,
-        transparent 1px,
-        transparent 3px
-      );
-  background-size: 320% 100%, 280% 100%, 100% 100%, 100% 100%;
-  animation: obs-sweep 7s ease-in-out infinite alternate;
-  mix-blend-mode: screen;
-  box-shadow: inset 0 0 90px rgba(34, 211, 238, 0.2),
-    inset 0 0 180px rgba(124, 58, 237, 0.16);
-  pointer-events: none;
 }
 
 /* Slightly increase spacing for OBS overlay */
