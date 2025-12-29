@@ -478,70 +478,38 @@ function importSettings(event: Event) {
                     />
                   </div>
                 </label>
-                 <!-- Sound Toggle -->
-                 <label
-                   class="group flex cursor-pointer items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3 transition-colors hover:border-white/10 hover:bg-white/10"
-                 >
-                   <span class="text-sm font-medium text-slate-300"
-                     >Sound Effects</span
-                   >
-                   <div
-                     class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200"
-                     :class="
-                       settings.enableSound ? 'bg-cyan-500' : 'bg-slate-700'
-                     "
-                   >
-                     <span
-                       class="inline-block h-3 w-3 transform rounded-full bg-white transition duration-200"
-                       :class="
-                         settings.enableSound ? 'translate-x-5' : 'translate-x-1'
-                       "
-                     ></span>
-                     <input
-                       type="checkbox"
-                       class="sr-only"
-                       :checked="settings.enableSound"
-                       @change="
-                         updateSetting(
-                           'enableSound',
-                           ($event.target as HTMLInputElement).checked
-                         )
-                       "
-                     />
-                   </div>
-                 </label>
-                 <!-- Christmas Theme Toggle -->
-                 <label
-                   class="group flex cursor-pointer items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3 transition-colors hover:border-white/10 hover:bg-white/10"
-                 >
-                   <span class="text-sm font-medium text-slate-300"
-                     >🎄 Christmas Theme</span
-                   >
-                   <div
-                     class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200"
-                     :class="
-                       settings.enableChristmasTheme ? 'bg-red-500' : 'bg-slate-700'
-                     "
-                   >
-                     <span
-                       class="inline-block h-3 w-3 transform rounded-full bg-white transition duration-200"
-                       :class="
-                         settings.enableChristmasTheme ? 'translate-x-5' : 'translate-x-1'
-                       "
-                     ></span>
-                     <input
-                       type="checkbox"
-                       class="sr-only"
-                       :checked="settings.enableChristmasTheme"
-                       @change="
-                         updateSetting(
-                           'enableChristmasTheme',
-                           ($event.target as HTMLInputElement).checked
-                         )
-                       "
-                     />
-                   </div>
-                 </label>
+                <!-- Sound Toggle -->
+                <label
+                  class="group flex cursor-pointer items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3 transition-colors hover:border-white/10 hover:bg-white/10"
+                >
+                  <span class="text-sm font-medium text-slate-300"
+                    >Sound Effects</span
+                  >
+                  <div
+                    class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200"
+                    :class="
+                      settings.enableSound ? 'bg-cyan-500' : 'bg-slate-700'
+                    "
+                  >
+                    <span
+                      class="inline-block h-3 w-3 transform rounded-full bg-white transition duration-200"
+                      :class="
+                        settings.enableSound ? 'translate-x-5' : 'translate-x-1'
+                      "
+                    ></span>
+                    <input
+                      type="checkbox"
+                      class="sr-only"
+                      :checked="settings.enableSound"
+                      @change="
+                        updateSetting(
+                          'enableSound',
+                          ($event.target as HTMLInputElement).checked
+                        )
+                      "
+                    />
+                  </div>
+                </label>
               </div>
             </section>
 

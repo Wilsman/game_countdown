@@ -223,6 +223,7 @@ body {
   padding: 2px; /* Thinner border */
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
   animation: spin-angle 4s linear infinite;
   opacity: 1;
@@ -311,102 +312,6 @@ body {
 
 .urgent-pulse {
   animation: urgent-flash 0.5s ease-in-out infinite !important;
-}
-
-/* Christmas Theme Styles */
-.christmas-theme {
-  --christmas-red: #dc2626;
-  --christmas-green: #16a34a;
-  --christmas-gold: #fbbf24;
-  --christmas-snow: #f0f9ff;
-}
-
-.christmas-theme body {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-}
-
-.christmas-theme .glass-panel {
-  border-color: rgba(220, 38, 38, 0.3);
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.9) 0%,
-    rgba(30, 41, 59, 0.8) 50%,
-    rgba(15, 23, 42, 0.9) 100%
-  );
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(220, 38, 38, 0.1),
-    0 0 20px rgba(220, 38, 38, 0.1);
-}
-
-.christmas-theme .btn-accent {
-  background: linear-gradient(
-    135deg,
-    rgba(220, 38, 38, 0.8) 0%,
-    rgba(185, 28, 28, 0.7) 100%
-  );
-  border-color: rgba(220, 38, 38, 0.6);
-  box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
-}
-
-.christmas-theme .btn-accent:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.9) 0%,
-    rgba(220, 38, 38, 0.8) 100%
-  );
-  box-shadow: 0 0 30px rgba(220, 38, 38, 0.5);
-}
-
-/* Snow animation */
-@keyframes snowfall {
-  0% {
-    transform: translateY(-100vh) translateX(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) translateX(100px);
-    opacity: 0;
-  }
-}
-
-.snow-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.snowflake {
-  position: absolute;
-  top: -10px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1em;
-  animation: snowfall linear infinite;
-}
-
-/* Christmas lights animation */
-@keyframes christmas-lights {
-  0%,
-  100% {
-    filter: brightness(1) drop-shadow(0 0 4px rgba(251, 191, 36, 0.8));
-  }
-  50% {
-    filter: brightness(1.3) drop-shadow(0 0 8px rgba(251, 191, 36, 1));
-  }
-}
-
-.christmas-lights {
-  animation: christmas-lights 2s ease-in-out infinite;
 }
 
 /* Adjust layout in App.vue for OBS mode to be compact */

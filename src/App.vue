@@ -87,61 +87,11 @@ onMounted(() => {
   timerStore.handleUrlParams();
 });
 
-const removeSnowEffect = () => {
-  if (typeof window === "undefined") return;
-  const existingSnow = document.getElementById("christmas-snow");
-  if (existingSnow) {
-    existingSnow.remove();
-  }
-};
-
-const createSnowEffect = () => {
-  if (typeof window === "undefined") return;
-
-  // Remove existing snow container if any
-  removeSnowEffect();
-
-  const snowContainer = document.createElement("div");
-  snowContainer.className = "snow-container";
-  snowContainer.id = "christmas-snow";
-
-  // Create snowflakes
-  for (let i = 0; i < 50; i++) {
-    const snowflake = document.createElement("div");
-    snowflake.className = "snowflake";
-    snowflake.innerHTML = "❄";
-    snowflake.style.left = Math.random() * 100 + "%";
-    snowflake.style.animationDuration = Math.random() * 3 + 5 + "s";
-    snowflake.style.animationDelay = Math.random() * 5 + "s";
-    snowflake.style.fontSize = Math.random() * 10 + 10 + "px";
-    snowflake.style.opacity = String(Math.random() * 0.6 + 0.4);
-    snowContainer.appendChild(snowflake);
-  }
-
-  document.body.appendChild(snowContainer);
-};
-
 watch(
   () => timerStore.settings.theme as Theme,
   (theme) => {
     if (!isClient) return;
     document.documentElement.classList.toggle("dark", theme === "dark");
-  },
-  { immediate: true }
-);
-
-watch(
-  () => timerStore.settings.enableChristmasTheme,
-  (enabled) => {
-    if (!isClient) return;
-    document.documentElement.classList.toggle("christmas-theme", enabled);
-
-    // Add or remove snow effect
-    if (enabled) {
-      createSnowEffect();
-    } else {
-      removeSnowEffect();
-    }
   },
   { immediate: true }
 );
@@ -505,6 +455,7 @@ watch(
   padding: 3px;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
   animation: spin-angle 5s linear infinite;
   opacity: 0.98;

@@ -14,7 +14,7 @@ interface TimerSettings {
   enableSoundToggle: boolean;
   theme: "light" | "dark";
   enableGameBackground: boolean;
-  enableChristmasTheme: boolean;
+
 }
 
 interface TimeRemaining {
@@ -309,22 +309,7 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "America/Los_Angeles",
       type: "game",
     },
-    {
-      id: "tarkov-snow",
-      title: "Tarkov Snow Event",
-      titleColor: "#00bfff",
-      targetDate: new Date("2025-12-11T08:00:00Z"), // December 11, 2025 - 8:00 AM GMT
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "arc-raiders-snow",
-      title: "Arc Raiders Snow Event",
-      titleColor: "#ff1493",
-      targetDate: new Date("2025-12-16T09:30:00Z"), // December 16, 2025 - 9:30 AM GMT
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
+
     {
       id: "quarantine-zone",
       title: "Quarantine Zone: The Last Check",
@@ -479,7 +464,7 @@ export const useTimerStore = defineStore("timer", () => {
     enableSoundToggle: true,
     theme: "dark",
     enableGameBackground: true,
-    enableChristmasTheme: true,
+
   });
 
   const hasReachedZero = ref(false);
