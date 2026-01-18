@@ -431,6 +431,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "cor3-teaser-video",
+      title: "COR3 teaser video",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-02-01T15:00:00Z"), // Sunday, 1 February 2026 at 15:00:00 GMT
+      targetTimezone: "GMT",
+      type: "game",
+    },
+    {
       id: "judas",
       title: "Judas",
       titleColor: "#daa520",
@@ -557,7 +565,7 @@ export const useTimerStore = defineStore("timer", () => {
 
   // Helper function to get the appropriate target date based on user's timezone
   const getTargetDateForTimezone = (
-    game: Game
+    game: Game,
   ): { date: Date; timezone: string } => {
     if (!game.regionalReleaseTimes || game.regionalReleaseTimes.length === 0) {
       return { date: game.targetDate, timezone: game.targetTimezone };
@@ -565,7 +573,7 @@ export const useTimerStore = defineStore("timer", () => {
 
     // Find a matching regional release time for the user's timezone
     const regionalMatch = game.regionalReleaseTimes.find(
-      (regional) => regional.timezone === userTimezone
+      (regional) => regional.timezone === userTimezone,
     );
 
     if (regionalMatch) {
@@ -739,12 +747,12 @@ export const useTimerStore = defineStore("timer", () => {
   const gameOptions = computed(() =>
     games.value
       .filter((game) => game.type === "game")
-      .sort((a, b) => a.targetDate.getTime() - b.targetDate.getTime())
+      .sort((a, b) => a.targetDate.getTime() - b.targetDate.getTime()),
   );
   const utilityOptions = computed(() =>
     games.value
       .filter((game) => game.type === "utility")
-      .sort((a, b) => a.targetDate.getTime() - b.targetDate.getTime())
+      .sort((a, b) => a.targetDate.getTime() - b.targetDate.getTime()),
   );
 
   const setTargetDate = (date: Date, timezone: string = userTimezone): void => {
@@ -767,7 +775,7 @@ export const useTimerStore = defineStore("timer", () => {
         // Create a slightly darker shade for hover state
         const hex = color.replace(
           /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
-          (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`
+          (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`,
         );
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 
@@ -804,7 +812,7 @@ export const useTimerStore = defineStore("timer", () => {
     date: Date,
     timezone: string = userTimezone,
     type: "game" | "utility" = "game",
-    idOverride?: string
+    idOverride?: string,
   ): void => {
     const id = idOverride || `game-${Date.now()}`;
     games.value.push({
@@ -846,7 +854,7 @@ export const useTimerStore = defineStore("timer", () => {
     if (typeof window !== "undefined" && newSettings.fontFamily) {
       document.documentElement.style.setProperty(
         "--font-family",
-        newSettings.fontFamily
+        newSettings.fontFamily,
       );
     }
 
@@ -854,7 +862,7 @@ export const useTimerStore = defineStore("timer", () => {
     if (typeof window !== "undefined" && newSettings.fontSize) {
       document.documentElement.style.setProperty(
         "--timer-font-size",
-        `${newSettings.fontSize}px`
+        `${newSettings.fontSize}px`,
       );
     }
   };
@@ -897,24 +905,58 @@ export const useTimerStore = defineStore("timer", () => {
     url.searchParams.set("bg", settings.value.enableGameBackground ? "1" : "0");
 
     // Add customizations
-    if (settings.value.digitColor) url.searchParams.set("dcolor", settings.value.digitColor.replace("#", ""));
-    if (settings.value.labelColor) url.searchParams.set("lcolor", settings.value.labelColor.replace("#", ""));
-    if (settings.value.digitSize) url.searchParams.set("dsize", settings.value.digitSize.toString());
-    if (settings.value.labelSize) url.searchParams.set("lsize", settings.value.labelSize.toString());
-    if (settings.value.titleSize) url.searchParams.set("tsize", settings.value.titleSize.toString());
-    if (settings.value.glowColor) url.searchParams.set("gcolor", settings.value.glowColor.replace("#", ""));
-    if (settings.value.glowIntensity !== null) url.searchParams.set("gintensity", settings.value.glowIntensity.toString());
-    if (settings.value.glowSpread !== null) url.searchParams.set("gspread", settings.value.glowSpread.toString());
+    if (settings.value.digitColor)
+      url.searchParams.set(
+        "dcolor",
+        settings.value.digitColor.replace("#", ""),
+      );
+    if (settings.value.labelColor)
+      url.searchParams.set(
+        "lcolor",
+        settings.value.labelColor.replace("#", ""),
+      );
+    if (settings.value.digitSize)
+      url.searchParams.set("dsize", settings.value.digitSize.toString());
+    if (settings.value.labelSize)
+      url.searchParams.set("lsize", settings.value.labelSize.toString());
+    if (settings.value.titleSize)
+      url.searchParams.set("tsize", settings.value.titleSize.toString());
+    if (settings.value.glowColor)
+      url.searchParams.set("gcolor", settings.value.glowColor.replace("#", ""));
+    if (settings.value.glowIntensity !== null)
+      url.searchParams.set(
+        "gintensity",
+        settings.value.glowIntensity.toString(),
+      );
+    if (settings.value.glowSpread !== null)
+      url.searchParams.set("gspread", settings.value.glowSpread.toString());
     url.searchParams.set("scan", settings.value.showScanlines ? "1" : "0");
-    if (settings.value.backgroundOpacity !== null) url.searchParams.set("bopacity", settings.value.backgroundOpacity.toString());
-    if (settings.value.bgBlur !== null) url.searchParams.set("bblur", settings.value.bgBlur.toString());
-    if (settings.value.obsFontFamily) url.searchParams.set("font", settings.value.obsFontFamily);
-    if (settings.value.borderWidth !== null) url.searchParams.set("bwidth", settings.value.borderWidth.toString());
-    if (settings.value.borderColor) url.searchParams.set("bcolor", settings.value.borderColor.replace("#", ""));
-    if (settings.value.animationSpeed !== null) url.searchParams.set("speed", settings.value.animationSpeed.toString());
-    if (settings.value.scanlineOpacity !== null) url.searchParams.set("sopacity", settings.value.scanlineOpacity.toString());
+    if (settings.value.backgroundOpacity !== null)
+      url.searchParams.set(
+        "bopacity",
+        settings.value.backgroundOpacity.toString(),
+      );
+    if (settings.value.bgBlur !== null)
+      url.searchParams.set("bblur", settings.value.bgBlur.toString());
+    if (settings.value.obsFontFamily)
+      url.searchParams.set("font", settings.value.obsFontFamily);
+    if (settings.value.borderWidth !== null)
+      url.searchParams.set("bwidth", settings.value.borderWidth.toString());
+    if (settings.value.borderColor)
+      url.searchParams.set(
+        "bcolor",
+        settings.value.borderColor.replace("#", ""),
+      );
+    if (settings.value.animationSpeed !== null)
+      url.searchParams.set("speed", settings.value.animationSpeed.toString());
+    if (settings.value.scanlineOpacity !== null)
+      url.searchParams.set(
+        "sopacity",
+        settings.value.scanlineOpacity.toString(),
+      );
     url.searchParams.set("shine", settings.value.showShine ? "1" : "0");
-    if (settings.value.shineOpacity !== null) url.searchParams.set("shopacity", settings.value.shineOpacity.toString());
+    if (settings.value.shineOpacity !== null)
+      url.searchParams.set("shopacity", settings.value.shineOpacity.toString());
 
     return url.toString();
   }
