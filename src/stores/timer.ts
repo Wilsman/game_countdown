@@ -386,7 +386,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "marathon",
       title: "Marathon",
       titleColor: "#00ff00",
-      targetDate: new Date("2026-03-01T00:00:00Z"), // Approx March 2026
+      targetDate: new Date("2026-03-05T00:00:00Z"), // March 5, 2026
       targetTimezone: "UTC",
       type: "game",
     },
