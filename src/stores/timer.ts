@@ -271,9 +271,9 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "slay-the-spire-2",
-      title: "Slay the Spire 2 (Early Access)",
+      title: "Slay the Spire 2 (Early Access - TBD Thursday)",
       titleColor: "#ff69b4",
-      targetDate: new Date("2025-11-01T00:00:00Z"), // Late 2025 placeholder
+      targetDate: new Date("2026-03-12T00:00:00Z"), // March 2026 Thursday placeholder
       targetTimezone: "UTC",
       type: "game",
     },
@@ -384,9 +384,33 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon",
-      title: "Marathon",
+      title: "Marathon (Global Launch)",
       titleColor: "#00ff00",
       targetDate: new Date("2026-03-05T00:00:00Z"), // March 5, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "marathon-server-slam-open-beta",
+      title: "Marathon - Server Slam (Open Beta, Feb 26-Mar 2)",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-02-26T00:00:00Z"), // Open preview playtest starts; rewards carry into launch
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "crimson-desert",
+      title: "Crimson Desert (Full Launch)",
+      titleColor: "#dc143c",
+      targetDate: new Date("2026-03-19T00:00:00Z"), // March 19, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "pon-early-access",
+      title: "P.O.N (Early Access - Q1 2026 Window)",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-03-31T00:00:00Z"), // Q1 2026 placeholder
       targetTimezone: "UTC",
       type: "game",
     },
@@ -416,9 +440,9 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "road-to-vostok",
-      title: "Road to Vostok (Update/Release)",
+      title: "Road to Vostok (Early Access)",
       titleColor: "#ffffff",
-      targetDate: new Date("2026-07-01T00:00:00Z"), // Est 2026
+      targetDate: new Date("2026-04-07T00:00:00Z"), // April 7, 2026
       targetTimezone: "UTC",
       type: "game",
     },
