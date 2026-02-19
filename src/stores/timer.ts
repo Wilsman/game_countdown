@@ -608,10 +608,18 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "the-cube-save-us-beta",
-      title: "The Cube, Save Us (Beta)",
+      title: "THE CUBE (Beta Starts)",
       titleColor: "#ff6347",
-      targetDate: new Date("2026-02-19T00:00:00Z"),
-      targetTimezone: "UTC",
+      targetDate: new Date("2026-02-20T02:00:00Z"), // Feb 19, 2026 6:00 PM Los Angeles (PST, UTC-8)
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "the-cube-save-us-beta-ends",
+      title: "THE CUBE (Beta Ends)",
+      titleColor: "#ff6347",
+      targetDate: new Date("2026-02-23T02:00:00Z"), // Feb 22, 2026 6:00 PM Los Angeles (PST, UTC-8)
+      targetTimezone: "America/Los_Angeles",
       type: "game",
     },
     {
