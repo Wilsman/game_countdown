@@ -394,7 +394,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "marathon-server-slam-open-beta",
       title: "Marathon - Server Slam (Open Beta, Feb 26-Mar 2)",
       titleColor: "#00ff00",
-      targetDate: new Date("2026-02-26T00:00:00Z"), // Open preview playtest starts; rewards carry into launch
+      targetDate: new Date("2026-02-26T18:00:00Z"), // Starts 10:00 AM PST / 12:00 PM CST / 1:00 PM EST / 6:00 PM GMT
       targetTimezone: "UTC",
       type: "game",
     },
