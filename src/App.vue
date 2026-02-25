@@ -37,6 +37,15 @@ const toggleCustomizing = () => {
   isCustomizing.value = !isCustomizing.value;
 };
 
+const MARATHON_DUO_THEME_IDS = new Set([
+  "marathon",
+  "marathon-server-slam-open-beta",
+]);
+
+const isMarathonDuoTheme = computed(() =>
+  MARATHON_DUO_THEME_IDS.has((timerStore.activeGame?.id ?? "").toLowerCase())
+);
+
 const gameBackground = computed<GameBackgroundMeta | null>(() => {
   const gameId = timerStore.activeGame?.id?.toLowerCase() ?? "";
   if (gameId.includes("bf6") || gameId.includes("battlefield")) {
@@ -123,6 +132,7 @@ watch(
     :class="{
       'with-game-background': hasGameBackground,
       'obs-mode': isObsMode && !isCustomizing,
+      'marathon-duo-theme': isMarathonDuoTheme,
       'overflow-hidden': !isObsMode,
     }"
   >
@@ -164,7 +174,11 @@ watch(
           <div
             v-else
             class="glass-panel relative flex flex-col items-center gap-8 px-5 py-10 sm:px-10"
-            :class="{ 'obs-frame': isObsMode, 'w-fit mx-auto': isObsMode }"
+            :class="{
+              'obs-frame': isObsMode,
+              'w-fit mx-auto': isObsMode,
+              'marathon-panel': isMarathonDuoTheme,
+            }"
             :style="{
               '--obs-bg':
                 isObsMode && settings.backgroundOpacity !== null
@@ -203,10 +217,22 @@ watch(
             }"
           >
             <div
-              class="absolute inset-x-0 top-0 h-1 rounded-full bg-gradient-to-r from-sky-500/60 via-purple-500/50 to-emerald-400/60"
+              class="top-panel-bar absolute inset-x-0 top-0 h-1 rounded-full bg-gradient-to-r from-sky-500/60 via-purple-500/50 to-emerald-400/60"
             ></div>
 
+            <div
+              v-if="isMarathonDuoTheme && !isObsMode"
+              class="marathon-telemetry pointer-events-none absolute right-4 top-4 hidden sm:flex"
+              aria-hidden="true"
+            >
+              <span>/SYS-CORE_04</span>
+              <span>STATUS: ACTIVE</span>
+              <span>LAT: 07.443.22N</span>
+              <span>VER: MTHN-1994.2</span>
+            </div>
+
             <GameSelector
+              class="hero-selector"
               v-if="!isObsMode && !isEditingTitle"
               variant="hero"
               @edit="handleEditTitle"
@@ -242,6 +268,7 @@ watch(
             </p>
 
             <TimerDisplay
+              class="timer-display-core"
               :is-focus-mode="isFocusMode"
               :is-obs-override="isObsMode"
               @toggle-focus="toggleFocusMode"
@@ -313,6 +340,24 @@ watch(
     ),
     #01030f;
   overflow: hidden;
+}
+
+.background-mesh.marathon-duo-theme {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.94) 0%,
+      rgba(0, 0, 0, 0.98) 45%,
+      rgba(0, 0, 0, 1) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0, 240, 255, 0.08) 0,
+      rgba(0, 240, 255, 0.08) 14px,
+      transparent 14px,
+      transparent 100%
+    ),
+    #030303;
 }
 
 .background-mesh.with-game-background {
@@ -428,6 +473,63 @@ watch(
   opacity: 0.55;
 }
 
+.background-mesh.marathon-duo-theme::before {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 240, 255, 0.09) 0 1px,
+      transparent 1px 64px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(180, 255, 0, 0.08) 0 1px,
+      transparent 1px 64px
+    ),
+    linear-gradient(
+      118deg,
+      transparent 0 24%,
+      rgba(255, 59, 59, 0.12) 24% 27%,
+      transparent 27% 55%,
+      rgba(0, 55, 255, 0.1) 55% 58%,
+      transparent 58% 100%
+    );
+  background-size: 100% 100%, 100% 100%, 180% 180%;
+  animation: marathonGridShift 18s linear infinite;
+  filter: none;
+  mix-blend-mode: normal;
+  opacity: 0.7;
+}
+
+.background-mesh.marathon-duo-theme::after {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.03) 0 1px,
+      transparent 1px 4px
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(0, 240, 255, 0.2) 48%,
+      rgba(0, 240, 255, 0) 52%,
+      transparent 100%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 0 20%,
+      rgba(255, 122, 0, 0.12) 20% 29%,
+      transparent 29% 64%,
+      rgba(180, 255, 0, 0.13) 64% 72%,
+      transparent 72% 100%
+    );
+  background-size: 100% 100%, 100% 300%, 160% 160%;
+  animation: marathonScan 3.2s steps(2, end) infinite,
+    marathonFlicker 4.8s steps(1, end) infinite;
+  filter: none;
+  mix-blend-mode: screen;
+  opacity: 0.45;
+}
+
 .background-mesh.obs-mode::before,
 .background-mesh.obs-mode::after {
   animation: none;
@@ -448,6 +550,79 @@ watch(
     background-position: -80px 80px, 120px -120px, -320px 300px, 320px 360px,
       0 -360px;
   }
+}
+
+@keyframes marathonGridShift {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 64px 0, 0 64px, -220px 180px;
+  }
+}
+
+@keyframes marathonScan {
+  0% {
+    background-position: 0 0, 0 -260%, 0 0;
+  }
+  100% {
+    background-position: 0 0, 0 260%, -120px 0;
+  }
+}
+
+@keyframes marathonFlicker {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  14% {
+    opacity: 0.28;
+  }
+  16% {
+    opacity: 0.52;
+  }
+  65% {
+    opacity: 0.36;
+  }
+}
+
+.marathon-panel {
+  border-radius: 4px;
+  border: 2px solid rgba(0, 240, 255, 0.55);
+  box-shadow: 0 0 0 1px rgba(180, 255, 0, 0.22),
+    18px 18px 0 rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(0);
+}
+
+.marathon-panel::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+}
+
+.background-mesh.marathon-duo-theme .top-panel-bar {
+  border-radius: 0;
+  background: linear-gradient(
+    90deg,
+    #00f0ff 0 22%,
+    #ff3b3b 22% 47%,
+    #b4ff00 47% 72%,
+    #ff7a00 72% 100%
+  );
+}
+
+.marathon-telemetry {
+  flex-direction: column;
+  gap: 0.25rem;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(0, 240, 255, 0.92);
+  text-align: right;
 }
 
 /* Slightly increase spacing for OBS overlay */
