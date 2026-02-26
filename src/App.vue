@@ -9,6 +9,7 @@ import TimerDisplay from "./components/TimerDisplay.vue";
 import GameSelector from "./components/GameSelector.vue";
 import ControlPanel from "./components/ControlPanel.vue";
 import OverlayCustomizer from "./components/OverlayCustomizer.vue";
+import UpcomingGamesCalendar from "./components/UpcomingGamesCalendar.vue";
 import type { Ref } from "vue";
 
 interface GameBackgroundMeta {
@@ -275,6 +276,8 @@ watch(
               @customize="toggleCustomizing"
             />
           </div>
+
+          <UpcomingGamesCalendar v-if="showChrome && !isCustomizing" />
         </section>
 
         <footer v-if="showChrome" class="mt-12">
