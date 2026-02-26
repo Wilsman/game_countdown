@@ -12,6 +12,7 @@ type GameOption = (typeof store.gameOptions)[number];
 const now = ref(new Date());
 const selectedDateKey = ref("");
 const displayedMonth = ref(startOfUtcMonth(now.value));
+const isCompactViewport = ref(false);
 
 let nowTicker: number | null = null;
 
@@ -93,6 +94,26 @@ const monthCells = computed(() => {
   });
 });
 
+const dayColumnTemplate = computed(() => {
+  if (isCompactViewport.value) {
+    return "1fr 1fr 1fr 1fr 1fr 1fr 1fr";
+  }
+
+  const weights = [0.88, 0.88, 0.88, 0.88, 0.88, 0.88, 0.88];
+
+  monthCells.value.forEach((cell) => {
+    const weekday = cell.date.getUTCDay();
+    if (cell.events.length > 0) {
+      weights[weekday] = Math.min(
+        1.45,
+        weights[weekday] + Math.min(0.22 * cell.events.length, 0.42)
+      );
+    }
+  });
+
+  return weights.map((weight) => `${weight.toFixed(2)}fr`).join(" ");
+});
+
 const currentWeekStart = computed(() => startOfUtcWeek(now.value));
 const currentWeekEnd = computed(
   () => new Date(currentWeekStart.value.getTime() + 7 * DAY_MS)
@@ -170,6 +191,11 @@ function isPastGame(game: GameOption): boolean {
   return game.targetDate.getTime() < now.value.getTime();
 }
 
+function syncViewportMode(): void {
+  if (typeof window === "undefined") return;
+  isCompactViewport.value = window.innerWidth < 1180;
+}
+
 function shiftMonth(direction: -1 | 1): void {
   displayedMonth.value = new Date(
     Date.UTC(
@@ -204,6 +230,9 @@ function activateGame(gameId: string): void {
 }
 
 onMounted(() => {
+  syncViewportMode();
+  window.addEventListener("resize", syncViewportMode);
+
   nowTicker = window.setInterval(() => {
     now.value = new Date();
   }, 30_000);
@@ -219,6 +248,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  window.removeEventListener("resize", syncViewportMode);
+
   if (nowTicker) {
     window.clearInterval(nowTicker);
   }
@@ -249,9 +280,9 @@ onUnmounted(() => {
       </div>
     </header>
 
-    <div class="grid gap-5 xl:grid-cols-[2.8fr_0.9fr]">
+    <div class="grid gap-5 2xl:grid-cols-[3.2fr_1fr]">
       <div class="space-y-2">
-        <div class="grid grid-cols-7 gap-2">
+        <div class="grid gap-1.5" :style="{ gridTemplateColumns: dayColumnTemplate }">
           <span
             v-for="day in dayLabels"
             :key="day"
@@ -261,7 +292,7 @@ onUnmounted(() => {
           </span>
         </div>
 
-        <div class="grid grid-cols-7 gap-2">
+        <div class="grid gap-1.5" :style="{ gridTemplateColumns: dayColumnTemplate }">
           <button
             v-for="(cell, cellIndex) in monthCells"
             :key="cell.key"
@@ -280,15 +311,15 @@ onUnmounted(() => {
 
             <div v-if="cell.events.length > 0" class="day-events mt-1 space-y-1">
               <span
-                v-for="event in cell.events.slice(0, 3)"
+                v-for="event in cell.events.slice(0, 2)"
                 :key="event.id"
                 class="event-chip"
                 :style="{ '--event-color': event.titleColor || '#38bdf8' }"
               >
                 <span class="event-title">{{ event.title }}</span>
               </span>
-              <span v-if="cell.events.length > 3" class="event-chip event-chip-more">
-                +{{ cell.events.length - 3 }} more
+              <span v-if="cell.events.length > 2" class="event-chip event-chip-more">
+                +{{ cell.events.length - 2 }} more
               </span>
             </div>
           </button>
@@ -423,7 +454,7 @@ onUnmounted(() => {
 
 .calendar-cell {
   position: relative;
-  min-height: 7rem;
+  min-height: 8rem;
   padding: 0.45rem;
   border-radius: 0.82rem;
   border: 1px solid rgba(45, 212, 191, 0.12);
@@ -502,19 +533,23 @@ onUnmounted(() => {
 .event-chip {
   display: block;
   border-radius: 0.55rem;
-  padding: 0.2rem 0.34rem;
+  padding: 0.2rem 0.34rem 0.24rem;
   font-size: 0.62rem;
-  line-height: 1.15;
+  line-height: 1.12;
   color: rgba(240, 253, 250, 0.95);
   border: 1px solid color-mix(in srgb, var(--event-color) 45%, transparent);
   background: color-mix(in srgb, var(--event-color) 18%, rgba(2, 6, 23, 1));
 }
 
 .event-title {
+  display: -webkit-box;
   min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-overflow: clip;
+  white-space: normal;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
   color: rgba(236, 253, 245, 0.95);
 }
 
@@ -643,13 +678,13 @@ onUnmounted(() => {
 
 @media (max-width: 1024px) {
   .calendar-cell {
-    min-height: 6.2rem;
+    min-height: 6.8rem;
   }
 }
 
 @media (max-width: 640px) {
   .calendar-cell {
-    min-height: 5.2rem;
+    min-height: 5.8rem;
   }
 
   .day-events {
