@@ -160,6 +160,19 @@ function formatEventDate(game: GameOption): string {
   }).format(game.targetDate);
 }
 
+function formatCompactEventTitle(title: string): string {
+  const withoutSuffix = title.replace(/\s+\([^)]*\)\s*$/u, "").trim();
+  if (withoutSuffix.length <= 34) {
+    return withoutSuffix;
+  }
+
+  return `${withoutSuffix.slice(0, 31).trimEnd()}...`;
+}
+
+function formatOverflowEventList(events: GameOption[]): string {
+  return events.map((event) => formatCompactEventTitle(event.title)).join("\n");
+}
+
 function getDaysUntil(game: GameOption): number {
   const nowDate = now.value;
   const nowUtc = Date.UTC(
@@ -318,7 +331,12 @@ onUnmounted(() => {
               >
                 <span class="event-title">{{ event.title }}</span>
               </span>
-              <span v-if="cell.events.length > 2" class="event-chip event-chip-more">
+              <span
+                v-if="cell.events.length > 2"
+                class="event-chip event-chip-more"
+                :title="formatOverflowEventList(cell.events.slice(2))"
+                :aria-label="`More games: ${formatOverflowEventList(cell.events.slice(2)).replace(/\n/g, ', ')}`"
+              >
                 +{{ cell.events.length - 2 }} more
               </span>
             </div>

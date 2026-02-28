@@ -270,10 +270,18 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "wow-midnight",
+      title: "World of Warcraft: Midnight",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-03-02T23:00:00Z"), // March 2, 2026 at 3:00 PM PST
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "slay-the-spire-2",
-      title: "Slay the Spire 2 (Early Access - TBD Thursday)",
+      title: "Slay the Spire 2 (Early Access)",
       titleColor: "#ff69b4",
-      targetDate: new Date("2026-03-12T00:00:00Z"), // March 2026 Thursday placeholder
+      targetDate: new Date("2026-03-05T00:00:00Z"), // March 5, 2026
       targetTimezone: "UTC",
       type: "game",
     },
@@ -403,6 +411,22 @@ export const useTimerStore = defineStore("timer", () => {
       title: "Crimson Desert (Full Launch)",
       titleColor: "#dc143c",
       targetDate: new Date("2026-03-19T00:00:00Z"), // March 19, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "death-stranding-2",
+      title: "Death Stranding 2: On the Beach",
+      titleColor: "#6b7280",
+      targetDate: new Date("2026-03-19T00:00:00Z"), // March 19, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "mlb-the-show-26",
+      title: "MLB The Show 26",
+      titleColor: "#1d4ed8",
+      targetDate: new Date("2026-03-17T00:00:00Z"), // March 17, 2026
       targetTimezone: "UTC",
       type: "game",
     },
@@ -643,6 +667,38 @@ export const useTimerStore = defineStore("timer", () => {
       title: "John Carpenter's Toxic Commando",
       titleColor: "#32cd32",
       targetDate: new Date("2026-03-12T00:00:00Z"), // Confirmed March 12, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "fatal-frame-2-crimson-butterfly-remake",
+      title: "Fatal Frame II: Crimson Butterfly Remake",
+      titleColor: "#b91c1c",
+      targetDate: new Date("2026-03-12T00:00:00Z"), // March 12, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "solasta-2",
+      title: "Solasta II (Early Access)",
+      titleColor: "#7c3aed",
+      targetDate: new Date("2026-03-12T00:00:00Z"), // March 12, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "monster-hunter-stories-3",
+      title: "Monster Hunter Stories 3: Twisted Reflection",
+      titleColor: "#f59e0b",
+      targetDate: new Date("2026-03-13T00:00:00Z"), // March 13, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "sand",
+      title: "SAND: Raiders of Sophie",
+      titleColor: "#c2b280",
+      targetDate: new Date("2026-03-31T00:00:00Z"), // March 2026 placeholder (TBD day)
       targetTimezone: "UTC",
       type: "game",
     },
