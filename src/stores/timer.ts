@@ -279,24 +279,10 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "slay-the-spire-2",
-      title: "Slay the Spire 2 (Early Access - UK/Western Europe)",
+      title: "Slay the Spire 2 (Early Access)",
       titleColor: "#ff69b4",
-      targetDate: new Date("2026-03-11T18:00:00Z"), // Wednesday, March 11, 2026 at 6:00 PM UK / 7:00 PM CET
+      targetDate: new Date("2026-03-05T18:00:00Z"), // UK (London): Thursday, March 5, 2026 at 6:00 PM GMT
       targetTimezone: "Europe/London",
-      regionalReleaseTimes: [
-        {
-          timezone: "Europe/London",
-          date: new Date("2026-03-11T18:00:00Z"), // 6:00 PM UK
-        },
-        {
-          timezone: "Europe/Paris",
-          date: new Date("2026-03-11T19:00:00+01:00"), // 7:00 PM CET
-        },
-        {
-          timezone: "Europe/Berlin",
-          date: new Date("2026-03-11T19:00:00+01:00"), // 7:00 PM CET
-        },
-      ],
       type: "game",
     },
     {
