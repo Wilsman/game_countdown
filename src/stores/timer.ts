@@ -281,7 +281,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "slay-the-spire-2",
       title: "Slay the Spire 2 (Early Access)",
       titleColor: "#ff69b4",
-      targetDate: new Date("2026-03-05T00:00:00Z"), // March 5, 2026
+      targetDate: new Date("2026-03-11T23:00:00Z"), // Wednesday, March 11, 2026 at 4:00 PM PT
       targetTimezone: "UTC",
       type: "game",
     },
@@ -392,10 +392,10 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon",
-      title: "Marathon (Global Launch)",
+      title: "Marathon: UK",
       titleColor: "#00ff00",
-      targetDate: new Date("2026-03-05T00:00:00Z"), // March 5, 2026
-      targetTimezone: "UTC",
+      targetDate: new Date("2026-03-05T18:00:00Z"), // UK: Wednesday, March 5, 2026 at 6:00 PM GMT
+      targetTimezone: "Europe/London",
       type: "game",
     },
     {
@@ -448,10 +448,10 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "nakwon-closed-alpha-test",
-      title: "NAKWON: Closed Playtest",
+      title: "NAKWON: Closed Alpha",
       titleColor: "#ff4500",
-      targetDate: new Date("2026-03-05T18:00:00Z"), // UK: Wednesday, March 5, 2026 at 6:00 PM GMT
-      targetTimezone: "Europe/London",
+      targetDate: new Date("2026-03-11T23:00:00Z"), // Wednesday, March 11, 2026 at 4:00 PM PT
+      targetTimezone: "America/Los_Angeles",
       type: "game",
     },
     {
@@ -1197,3 +1197,7 @@ export const useTimerStore = defineStore("timer", () => {
     utilityOptions,
   };
 });
+
+
+
+
