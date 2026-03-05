@@ -447,6 +447,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "nakwon-closed-alpha-test",
+      title: "NAKWON: Closed Playtest",
+      titleColor: "#ff4500",
+      targetDate: new Date("2026-03-05T18:00:00Z"), // UK: Wednesday, March 5, 2026 at 6:00 PM GMT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "decadent",
       title: "Decadent",
       titleColor: "#8b0000",
