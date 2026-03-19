@@ -10,6 +10,7 @@ import GameSelector from "./components/GameSelector.vue";
 import ControlPanel from "./components/ControlPanel.vue";
 import OverlayCustomizer from "./components/OverlayCustomizer.vue";
 import UpcomingGamesCalendar from "./components/UpcomingGamesCalendar.vue";
+import RegionalReleasePicker from "./components/RegionalReleasePicker.vue";
 import type { Ref } from "vue";
 
 interface GameBackgroundMeta {
@@ -319,6 +320,7 @@ watch(
       </button>
     </div>
   </div>
+  <RegionalReleasePicker />
   <Toaster position="bottom-center" />
 </template>
 

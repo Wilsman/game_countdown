@@ -236,10 +236,7 @@ function selectDate(key: string): void {
 }
 
 function activateGame(gameId: string): void {
-  const index = store.games.findIndex((game) => game.id === gameId);
-  if (index >= 0) {
-    store.setActiveGameIndex(index);
-  }
+  store.selectGameById(gameId);
 }
 
 onMounted(() => {

@@ -44,6 +44,8 @@ interface TimeRemaining {
 }
 
 interface RegionalReleaseTime {
+  id: string;
+  label: string;
   timezone: string;
   date: Date;
 }
@@ -61,6 +63,7 @@ interface Game {
 export const useTimerStore = defineStore("timer", () => {
   // Get user's current timezone
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const crimsonDesertGlobalReleaseDate = new Date("2026-03-19T22:00:00Z");
 
   // Function to handle URL parameters
   const handleUrlParams = () => {
@@ -410,9 +413,101 @@ export const useTimerStore = defineStore("timer", () => {
       id: "crimson-desert",
       title: "Crimson Desert (Full Launch)",
       titleColor: "#dc143c",
-      targetDate: new Date("2026-03-19T00:00:00Z"), // March 19, 2026
+      targetDate: crimsonDesertGlobalReleaseDate,
       targetTimezone: "UTC",
       type: "game",
+      regionalReleaseTimes: [
+        {
+          id: "los-angeles",
+          label: "Los Angeles",
+          timezone: "America/Los_Angeles",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "dallas",
+          label: "Dallas",
+          timezone: "America/Chicago",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "new-york",
+          label: "New York",
+          timezone: "America/New_York",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "sao-paulo",
+          label: "Sao Paulo",
+          timezone: "America/Sao_Paulo",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "london",
+          label: "London",
+          timezone: "Europe/London",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "berlin",
+          label: "Berlin",
+          timezone: "Europe/Berlin",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "paris",
+          label: "Paris",
+          timezone: "Europe/Paris",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "cape-town",
+          label: "Cape Town",
+          timezone: "Africa/Johannesburg",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "istanbul",
+          label: "Istanbul",
+          timezone: "Europe/Istanbul",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "dubai",
+          label: "Dubai",
+          timezone: "Asia/Dubai",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "singapore",
+          label: "Singapore",
+          timezone: "Asia/Singapore",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "beijing",
+          label: "Beijing",
+          timezone: "Asia/Shanghai",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "seoul",
+          label: "Seoul",
+          timezone: "Asia/Seoul",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "tokyo",
+          label: "Tokyo",
+          timezone: "Asia/Tokyo",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+        {
+          id: "sydney",
+          label: "Sydney",
+          timezone: "Australia/Sydney",
+          date: crimsonDesertGlobalReleaseDate,
+        },
+      ],
     },
     {
       id: "death-stranding-2",
@@ -724,6 +819,7 @@ export const useTimerStore = defineStore("timer", () => {
   const games = ref<Game[]>(defaultGames);
   // Will be set to the soonest ending game by findAndSetNextUpcomingGame
   const activeGameIndex = ref(0);
+  const pendingRegionalReleaseGameId = ref<string | null>(null);
   const isEditMode = ref(false);
   const isObsMode = ref(false);
   const settings: Ref<TimerSettings> = ref({
@@ -767,25 +863,22 @@ export const useTimerStore = defineStore("timer", () => {
   const getTargetDateForTimezone = (
     game: Game,
   ): { date: Date; timezone: string } => {
-    if (!game.regionalReleaseTimes || game.regionalReleaseTimes.length === 0) {
-      return { date: game.targetDate, timezone: game.targetTimezone };
-    }
-
-    // Find a matching regional release time for the user's timezone
-    const regionalMatch = game.regionalReleaseTimes.find(
-      (regional) => regional.timezone === userTimezone,
-    );
-
-    if (regionalMatch) {
-      return { date: regionalMatch.date, timezone: regionalMatch.timezone };
-    }
-
-    // No match found, use the default
-    return { date: game.targetDate, timezone: game.targetTimezone };
+    return {
+      date: new Date(game.targetDate),
+      timezone: game.targetTimezone,
+    };
   };
 
   // Computed properties for active game
   const activeGame = computed<Game>(() => games.value[activeGameIndex.value]);
+  const pendingRegionalReleaseGame = computed<Game | null>(() => {
+    if (!pendingRegionalReleaseGameId.value) return null;
+
+    return (
+      games.value.find((game) => game.id === pendingRegionalReleaseGameId.value) ||
+      null
+    );
+  });
   const gameTitle = computed(() => activeGame.value.title);
   const gameTitleColor = computed(() => activeGame.value.titleColor);
   const targetDate = computed(() => {
@@ -1007,6 +1100,54 @@ export const useTimerStore = defineStore("timer", () => {
     }
   };
 
+  const selectGameById = (gameId: string): void => {
+    const index = games.value.findIndex((game) => game.id === gameId);
+    if (index === -1) return;
+
+    const game = games.value[index];
+    if (
+      game.type === "game" &&
+      game.regionalReleaseTimes &&
+      game.regionalReleaseTimes.length > 0
+    ) {
+      pendingRegionalReleaseGameId.value = gameId;
+      return;
+    }
+
+    setActiveGameIndex(index);
+
+    if (gameId.startsWith("break-")) {
+      const minutes = parseInt(gameId.replace("break-", ""), 10);
+      if (!Number.isNaN(minutes)) {
+        const newDate = new Date();
+        newDate.setMinutes(newDate.getMinutes() + minutes);
+        setTargetDate(newDate, game.targetTimezone);
+      }
+    }
+  };
+
+  const cancelRegionalReleaseSelection = (): void => {
+    pendingRegionalReleaseGameId.value = null;
+  };
+
+  const confirmPendingRegionalRelease = (regionalReleaseId: string): void => {
+    const game = pendingRegionalReleaseGame.value;
+    if (!game?.regionalReleaseTimes) return;
+
+    const gameIndex = games.value.findIndex(
+      (candidate) => candidate.id === game.id,
+    );
+    const regionalRelease = game.regionalReleaseTimes.find(
+      (candidate) => candidate.id === regionalReleaseId,
+    );
+
+    if (gameIndex === -1 || !regionalRelease) return;
+
+    setActiveGameIndex(gameIndex);
+    setTargetDate(new Date(regionalRelease.date), regionalRelease.timezone);
+    pendingRegionalReleaseGameId.value = null;
+  };
+
   const addGame = (
     title: string,
     date: Date,
@@ -1040,6 +1181,7 @@ export const useTimerStore = defineStore("timer", () => {
   const resetGames = (): void => {
     games.value = JSON.parse(JSON.stringify(defaultGames));
     activeGameIndex.value = 0;
+    pendingRegionalReleaseGameId.value = null;
     findAndSetNextUpcomingGame();
   };
 
@@ -1170,6 +1312,7 @@ export const useTimerStore = defineStore("timer", () => {
     games,
     activeGameIndex,
     activeGame,
+    pendingRegionalReleaseGame,
     handleUrlParams,
     targetDate,
     targetTimezone,
@@ -1183,6 +1326,9 @@ export const useTimerStore = defineStore("timer", () => {
     setGameTitle,
     setGameTitleColor,
     setActiveGameIndex,
+    selectGameById,
+    confirmPendingRegionalRelease,
+    cancelRegionalReleaseSelection,
     addGame,
     removeGame,
     resetGames,

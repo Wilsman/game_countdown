@@ -23,6 +23,16 @@ defineEmits<{
 const dropdownRef = ref<HTMLDivElement | null>(null);
 const dropdownStyle = ref({});
 
+type RegionalGame = {
+  targetDate: Date | string;
+  targetTimezone: string;
+  regionalReleaseTimes?: Array<{
+    label: string;
+    timezone: string;
+    date: Date | string;
+  }>;
+};
+
 const updateDropdownPosition = () => {
   if (dropdownRef.value && isOpen.value) {
     const rect = dropdownRef.value.getBoundingClientRect();
@@ -47,18 +57,8 @@ function closeDropdown() {
 }
 
 function selectGame(gameId: string) {
-  const index = store.games.findIndex((g) => g.id === gameId);
-  if (index !== -1) {
-    store.setActiveGameIndex(index);
-    if (gameId.startsWith("break-")) {
-      const minutes = parseInt(gameId.replace("break-", ""));
-      const newDate = new Date();
-      newDate.setMinutes(newDate.getMinutes() + minutes);
-      const game = store.games[index];
-      store.setTargetDate(newDate, game.targetTimezone);
-    }
-    closeDropdown();
-  }
+  store.selectGameById(gameId);
+  closeDropdown();
 }
 
 function resetGames() {
@@ -113,6 +113,22 @@ const sortedUtilityOptions = computed(() => {
       );
     });
 });
+
+const getRegionalReleaseLabel = (game: RegionalGame): string | null => {
+  const regionalRelease = game.regionalReleaseTimes?.find((candidate) => {
+    return (
+      candidate.timezone === game.targetTimezone &&
+      new Date(candidate.date).getTime() === new Date(game.targetDate).getTime()
+    );
+  });
+
+  return regionalRelease?.label ?? null;
+};
+
+const activeRegionalReleaseLabel = computed(() => {
+  if (!store.activeGame?.regionalReleaseTimes?.length) return null;
+  return getRegionalReleaseLabel(store.activeGame);
+});
 </script>
 
 <template>
@@ -153,12 +169,24 @@ const sortedUtilityOptions = computed(() => {
         </div>
 
         <div class="flex items-center gap-3">
-          <span
-            class="text-4xl font-black transition duration-200 sm:text-5xl"
-            :style="{ color: store.activeGame.titleColor || '#f1f5f9' }"
-          >
-            {{ store.activeGame.title }}
-          </span>
+          <div class="flex flex-col items-center gap-2">
+            <span
+              class="text-4xl font-black transition duration-200 sm:text-5xl"
+              :style="{ color: store.activeGame.titleColor || '#f1f5f9' }"
+            >
+              {{ store.activeGame.title }}
+            </span>
+            <span
+              v-if="store.activeGame.regionalReleaseTimes?.length"
+              class="rounded-full border border-sky-400/25 bg-sky-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200"
+            >
+              {{
+                activeRegionalReleaseLabel
+                  ? `Launch Location: ${activeRegionalReleaseLabel}`
+                  : "Choose Launch Location"
+              }}
+            </span>
+          </div>
           <button
             type="button"
             class="rounded-full p-2 text-slate-400 opacity-0 transition-all hover:bg-white/10 hover:text-white group-hover:opacity-100"
@@ -288,7 +316,15 @@ const sortedUtilityOptions = computed(() => {
               }"
               @click="selectGame(game.id)"
             >
-              <span class="truncate">{{ game.title }}</span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate">{{ game.title }}</span>
+                <span
+                  v-if="game.regionalReleaseTimes?.length"
+                  class="mt-1 block text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-300/80"
+                >
+                  Choose location
+                </span>
+              </span>
               <span class="text-xs font-medium text-slate-400">
                 {{
                   new Date(game.targetDate).toLocaleDateString(undefined, {
