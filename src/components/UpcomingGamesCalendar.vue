@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
 import { useTimerStore } from "../stores/timer";
@@ -267,12 +267,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section class="calendar-shell glass-section mt-8 w-full px-4 py-5 sm:px-6 sm:py-6">
-    <header class="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <div class="space-y-1">
-        <p class="calendar-kicker">Upcoming Games Calendar</p>
-        <h2 class="calendar-title">{{ monthLabel }}</h2>
-      </div>
+  <section class="calendar-shell glass-section mt-10 w-full px-5 py-5 sm:px-6 sm:py-6">
+    <header
+      class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+    >
+      <h2 class="calendar-title">{{ monthLabel }}</h2>
 
       <div class="flex flex-wrap items-center gap-2">
         <button type="button" class="calendar-btn" @click="shiftMonth(-1)">
@@ -282,7 +281,7 @@ onUnmounted(() => {
           Today
         </button>
         <button type="button" class="calendar-btn" @click="jumpToFirstUpcoming">
-          Next Launch
+          Next launch
         </button>
         <button type="button" class="calendar-btn" @click="shiftMonth(1)">
           Next
@@ -292,7 +291,10 @@ onUnmounted(() => {
 
     <div class="grid gap-5 2xl:grid-cols-[3.2fr_1fr]">
       <div class="space-y-2">
-        <div class="grid gap-1.5" :style="{ gridTemplateColumns: dayColumnTemplate }">
+        <div
+          class="grid gap-1.5"
+          :style="{ gridTemplateColumns: dayColumnTemplate }"
+        >
           <span
             v-for="day in dayLabels"
             :key="day"
@@ -302,9 +304,12 @@ onUnmounted(() => {
           </span>
         </div>
 
-        <div class="grid gap-1.5" :style="{ gridTemplateColumns: dayColumnTemplate }">
+        <div
+          class="grid gap-1.5"
+          :style="{ gridTemplateColumns: dayColumnTemplate }"
+        >
           <button
-            v-for="(cell, cellIndex) in monthCells"
+            v-for="cell in monthCells"
             :key="cell.key"
             type="button"
             class="calendar-cell"
@@ -314,17 +319,16 @@ onUnmounted(() => {
               'has-events': cell.events.length > 0,
               'is-selected': selectedDateKey === cell.key,
             }"
-            :style="{ '--cell-index': String(cellIndex) }"
             @click="selectDate(cell.key)"
           >
             <span class="calendar-day-number">{{ cell.dayNumber }}</span>
 
-            <div v-if="cell.events.length > 0" class="day-events mt-1 space-y-1">
+            <div v-if="cell.events.length > 0" class="day-events mt-2 space-y-1">
               <span
                 v-for="event in cell.events.slice(0, 2)"
                 :key="event.id"
                 class="event-chip"
-                :style="{ '--event-color': event.titleColor || '#38bdf8' }"
+                :style="{ '--event-color': event.titleColor || '#f59e0b' }"
               >
                 <span class="event-title">{{ event.title }}</span>
               </span>
@@ -343,7 +347,7 @@ onUnmounted(() => {
 
       <aside class="agenda-panel">
         <div class="mb-3 space-y-1">
-          <h3 class="agenda-title">Current Week</h3>
+          <h3 class="agenda-title">This week</h3>
           <p class="agenda-subtitle">{{ weeklyRangeLabel }}</p>
         </div>
 
@@ -365,13 +369,13 @@ onUnmounted(() => {
           >
             <span
               class="agenda-dot"
-              :style="{ backgroundColor: game.titleColor || '#38bdf8' }"
+              :style="{ backgroundColor: game.titleColor || '#f59e0b' }"
               aria-hidden="true"
             ></span>
             <span class="min-w-0 flex-1">
               <span class="agenda-game">{{ game.title }}</span>
               <span class="agenda-time">
-                {{ formatEventDate(game) }} • {{ formatDaysUntil(game) }}
+                {{ formatEventDate(game) }} · {{ formatDaysUntil(game) }}
               </span>
             </span>
             <span v-if="activeGameId === game.id" class="active-tag">Live</span>
@@ -384,330 +388,203 @@ onUnmounted(() => {
 
 <style scoped>
 .calendar-shell {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  border-color: rgba(20, 184, 166, 0.4);
-  background:
-    linear-gradient(125deg, rgba(4, 12, 24, 0.96), rgba(2, 8, 16, 0.98)),
-    radial-gradient(circle at 8% 20%, rgba(20, 184, 166, 0.24), transparent 44%),
-    radial-gradient(circle at 90% 78%, rgba(56, 189, 248, 0.24), transparent 44%),
-    radial-gradient(circle at 50% 0%, rgba(132, 204, 22, 0.14), transparent 46%);
-}
-
-.calendar-shell::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.calendar-shell::before {
-  z-index: -1;
-  background:
-    repeating-linear-gradient(
-      135deg,
-      rgba(94, 234, 212, 0.08) 0,
-      rgba(94, 234, 212, 0.08) 1px,
-      transparent 1px,
-      transparent 24px
-    );
-  opacity: 0.35;
-}
-
-.calendar-kicker {
-  margin: 0;
-  font-size: 0.68rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(165, 243, 252, 0.85);
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-  font-weight: 700;
+  background: rgba(28, 27, 27, 0.9);
 }
 
 .calendar-title {
   margin: 0;
-  color: #e6fffb;
-  font-size: clamp(1.35rem, 1.6vw + 1rem, 2.05rem);
-  letter-spacing: 0.04em;
-  font-family: "Avenir Next", "Gill Sans", "Segoe UI", sans-serif;
-  font-weight: 700;
+  color: #e5e2e1;
+  font-family: "Geist Mono", monospace;
+  font-size: clamp(1.55rem, 1.8vw + 1rem, 2.3rem);
+  font-weight: 600;
+  line-height: 1.05;
 }
 
 .calendar-btn {
-  border: 1px solid rgba(94, 234, 212, 0.28);
-  background:
-    linear-gradient(180deg, rgba(8, 47, 73, 0.6), rgba(8, 47, 73, 0.2)),
-    rgba(2, 6, 23, 0.66);
-  color: rgba(240, 253, 250, 0.9);
-  border-radius: 999px;
-  padding: 0.42rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  border: 1px solid rgba(126, 210, 235, 0.14);
+  background: #1c1b1b;
+  color: #a7ccda;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: all 180ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
 }
 
 .calendar-btn:hover {
-  border-color: rgba(45, 212, 191, 0.88);
-  background:
-    linear-gradient(180deg, rgba(13, 148, 136, 0.4), rgba(13, 148, 136, 0.15)),
-    rgba(15, 23, 42, 0.8);
-  transform: translateY(-1px);
+  background: rgba(126, 210, 235, 0.06);
+  border-color: rgba(126, 210, 235, 0.24);
+  color: #e5e2e1;
 }
 
 .calendar-day-label {
-  text-align: center;
-  font-size: 0.67rem;
+  padding: 0 0.25rem 0.15rem;
+  color: rgba(167, 204, 218, 0.56);
+  font-size: 0.75rem;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(153, 246, 228, 0.68);
-  font-weight: 600;
-  padding-bottom: 0.12rem;
+  text-align: left;
 }
 
 .calendar-cell {
-  position: relative;
   min-height: 8rem;
-  padding: 0.45rem;
-  border-radius: 0.82rem;
-  border: 1px solid rgba(45, 212, 191, 0.12);
-  background:
-    linear-gradient(170deg, rgba(6, 20, 38, 0.78), rgba(2, 10, 24, 0.84)),
-    rgba(2, 6, 23, 0.56);
-  text-align: left;
+  border: 1px solid rgba(126, 210, 235, 0.08);
+  background: rgba(32, 31, 31, 0.9);
+  color: #e5e2e1;
   overflow: hidden;
-  transition: all 170ms ease;
-  animation: cellRise 420ms ease both;
-  animation-delay: calc(var(--cell-index) * 10ms);
-}
-
-.calendar-cell::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background:
-    linear-gradient(
-      120deg,
-      transparent 0%,
-      rgba(125, 211, 252, 0.12) 50%,
-      transparent 100%
-    );
-  opacity: 0;
-  transition: opacity 180ms ease;
+  padding: 0.5rem;
+  text-align: left;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
 }
 
 .calendar-cell:hover {
-  border-color: rgba(45, 212, 191, 0.5);
-  transform: translateY(-1px);
-}
-
-.calendar-cell:hover::after {
-  opacity: 1;
-}
-
-.calendar-cell.has-events {
-  border-color: rgba(94, 234, 212, 0.35);
-  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.18) inset;
+  background: rgba(53, 53, 52, 0.65);
+  border-color: rgba(126, 210, 235, 0.18);
 }
 
 .calendar-cell.is-selected {
-  border-color: rgba(125, 211, 252, 0.85);
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.34) inset,
-    0 8px 18px rgba(56, 189, 248, 0.14);
+  background: rgba(126, 210, 235, 0.08);
+  border-color: rgba(126, 210, 235, 0.35);
 }
 
-.calendar-cell.is-today .calendar-day-number {
-  color: #ccfbf1;
-  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.4) inset;
+.calendar-cell.is-today {
+  box-shadow: inset 0 -1px 0 rgba(255, 186, 61, 0.6);
 }
 
 .calendar-cell.is-off {
-  opacity: 0.4;
+  opacity: 0.46;
 }
 
 .calendar-day-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: rgba(226, 232, 240, 0.88);
-}
-
-.day-events {
-  margin-right: 0;
+  color: #e5e2e1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: "Geist Mono", monospace;
 }
 
 .event-chip {
   display: block;
-  border-radius: 0.55rem;
-  padding: 0.2rem 0.34rem 0.24rem;
-  font-size: 0.62rem;
-  line-height: 1.12;
-  color: rgba(240, 253, 250, 0.95);
-  border: 1px solid color-mix(in srgb, var(--event-color) 45%, transparent);
-  background: color-mix(in srgb, var(--event-color) 18%, rgba(2, 6, 23, 1));
+  border-left: 2px solid var(--event-color);
+  background: rgba(14, 14, 14, 0.72);
+  color: #e5e2e1;
+  padding: 0.28rem 0.4rem;
+}
+
+.event-chip-more {
+  border-left-color: rgba(126, 210, 235, 0.16);
+  color: rgba(167, 204, 218, 0.7);
 }
 
 .event-title {
   display: -webkit-box;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: clip;
-  white-space: normal;
-  -webkit-line-clamp: 3;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.25;
   -webkit-box-orient: vertical;
-  word-break: break-word;
-  color: rgba(236, 253, 245, 0.95);
-}
-
-.event-chip-more {
-  --event-color: #5eead4;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(153, 246, 228, 0.88);
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .agenda-panel {
-  border: 1px solid rgba(45, 212, 191, 0.22);
-  border-radius: 1rem;
-  padding: 0.9rem;
-  background:
-    linear-gradient(160deg, rgba(3, 14, 28, 0.82), rgba(2, 10, 20, 0.72)),
-    rgba(2, 10, 20, 0.7);
+  border: 1px solid rgba(126, 210, 235, 0.12);
+  background: rgba(14, 14, 14, 0.54);
+  padding: 1rem;
 }
 
 .agenda-title {
   margin: 0;
-  color: #ecfeff;
+  color: #e5e2e1;
   font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-weight: 600;
+  font-family: "Geist Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
 }
 
 .agenda-subtitle {
   margin: 0;
-  color: rgba(165, 243, 252, 0.76);
-  font-size: 0.8rem;
-}
-
-.agenda-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  border-radius: 0.8rem;
-  border: 1px solid rgba(45, 212, 191, 0.16);
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.62), rgba(3, 17, 31, 0.72));
-  padding: 0.58rem 0.62rem;
-  text-align: left;
-  transition: all 170ms ease;
-}
-
-.agenda-item:hover {
-  border-color: rgba(125, 211, 252, 0.66);
-  transform: translateY(-1px);
-}
-
-.agenda-item.is-active {
-  border-color: rgba(94, 234, 212, 0.75);
-  background: linear-gradient(180deg, rgba(20, 184, 166, 0.24), rgba(15, 118, 110, 0.16));
-}
-
-.agenda-item.is-past {
-  border-color: rgba(148, 163, 184, 0.28);
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.55), rgba(15, 23, 42, 0.62));
-  opacity: 0.58;
-}
-
-.agenda-item.is-past .agenda-game,
-.agenda-item.is-past .agenda-time {
-  color: rgba(148, 163, 184, 0.85);
-}
-
-.agenda-item.is-past .agenda-dot {
-  box-shadow: none;
-  filter: grayscale(0.45);
-}
-
-.agenda-dot {
-  width: 0.56rem;
-  height: 0.56rem;
-  border-radius: 999px;
-  flex-shrink: 0;
-  box-shadow: 0 0 12px currentColor;
-}
-
-.agenda-game {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: rgba(240, 253, 250, 0.95);
-  font-size: 0.87rem;
-  font-weight: 600;
-}
-
-.agenda-time {
-  display: block;
-  color: rgba(165, 243, 252, 0.72);
-  font-size: 0.73rem;
-  margin-top: 0.15rem;
-}
-
-.active-tag {
-  flex-shrink: 0;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 700;
-  color: rgba(153, 246, 228, 0.95);
+  color: rgba(167, 204, 218, 0.58);
+  font-size: 0.8125rem;
 }
 
 .empty-state {
-  border: 1px dashed rgba(45, 212, 191, 0.35);
-  border-radius: 0.8rem;
+  border: 1px dashed rgba(126, 210, 235, 0.14);
+  color: rgba(167, 204, 218, 0.7);
   padding: 0.9rem;
-  color: rgba(153, 246, 228, 0.78);
-  font-size: 0.82rem;
+  text-align: center;
+  font-size: 0.875rem;
 }
 
-@keyframes cellRise {
-  0% {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.agenda-item {
+  align-items: flex-start;
+  background: rgba(32, 31, 31, 0.9);
+  border: 1px solid rgba(126, 210, 235, 0.08);
+  color: inherit;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.8rem 0.85rem;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+  width: 100%;
 }
 
-@media (max-width: 1024px) {
+.agenda-item:hover {
+  background: rgba(53, 53, 52, 0.7);
+  border-color: rgba(126, 210, 235, 0.18);
+}
+
+.agenda-item.is-active {
+  background: rgba(126, 210, 235, 0.08);
+  border-color: rgba(126, 210, 235, 0.28);
+}
+
+.agenda-item.is-past {
+  opacity: 0.58;
+}
+
+.agenda-dot {
+  border-radius: 999px;
+  flex-shrink: 0;
+  height: 0.6rem;
+  margin-top: 0.35rem;
+  width: 0.6rem;
+}
+
+.agenda-game {
+  color: #e5e2e1;
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.agenda-time {
+  color: rgba(167, 204, 218, 0.64);
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+}
+
+.active-tag {
+  color: #ffba3d;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-top: 0.1rem;
+}
+
+@media (max-width: 767px) {
   .calendar-cell {
-    min-height: 6.8rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .calendar-cell {
-    min-height: 5.8rem;
-  }
-
-  .day-events {
-    margin-right: 0;
-  }
-
-  .event-chip {
-    font-size: 0.56rem;
+    min-height: 7rem;
   }
 }
 </style>

@@ -62,7 +62,7 @@ const presets = [
       shineOpacity: 0.25,
       backgroundOpacity: 0.25,
       bgBlur: 12,
-      obsFontFamily: "Inter",
+      obsFontFamily: "Geist Sans",
     },
   },
   {
@@ -81,7 +81,7 @@ const presets = [
       shineOpacity: 0.15,
       backgroundOpacity: 0.15,
       bgBlur: 8,
-      obsFontFamily: "Serif",
+      obsFontFamily: "Geist Mono",
     },
   },
   {
@@ -100,7 +100,7 @@ const presets = [
       shineOpacity: 0,
       backgroundOpacity: 0.1,
       bgBlur: 20,
-      obsFontFamily: "Inter",
+      obsFontFamily: "Geist Sans",
     },
   },
   {
@@ -120,7 +120,7 @@ const presets = [
       borderWidth: 5,
       backgroundOpacity: 0.4,
       bgBlur: 2,
-      obsFontFamily: "Monospace",
+      obsFontFamily: "Geist Mono",
     },
   },
 ];
@@ -150,8 +150,8 @@ const randomize = () => {
     scanlineOpacity: Math.random() * 0.4,
     showShine: Math.random() > 0.3,
     shineOpacity: Math.random() * 0.5,
-    obsFontFamily: ["Inter", "Monospace", "Serif", "Sans-Serif", "cursive"][
-      Math.floor(Math.random() * 5)
+    obsFontFamily: ["Geist Sans", "Geist Mono", "sans-serif", "monospace"][
+      Math.floor(Math.random() * 4)
     ],
   });
   toast.success("Shuffled all styles!");
@@ -170,15 +170,15 @@ const titleTextShadow = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 w-full animate-in fade-in duration-500">
+  <div class="overlay-customizer flex w-full flex-col gap-6 animate-in fade-in duration-500">
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="flex flex-col gap-1">
-        <h2 class="text-3xl font-black text-slate-50 tracking-tight">
+        <h2 class="text-3xl font-black tracking-tight text-[#e5e2e1]">
           Overlay Customizer
         </h2>
-        <p class="text-slate-400 text-sm">
-          Fine-tune your OBS overlay to perfection
+        <p class="text-sm text-cyan-100/55">
+          Tune the OBS output with the same terminal palette as the main app.
         </p>
       </div>
       <button @click="close" class="btn-ghost">
@@ -202,7 +202,7 @@ const titleTextShadow = computed(() => {
     <div class="flex flex-col gap-4">
       <!-- Live Preview -->
       <div
-        class="sticky top-0 -mx-4 sm:-mx-8 lg:-mx-12 px-4 sm:px-8 lg:px-12 z-50 flex flex-col gap-2 bg-[#01030f]/95 backdrop-blur-xl py-3 border-b border-white/5 shadow-2xl transition-all"
+          class="sticky top-0 z-50 -mx-4 flex flex-col gap-2 border-b border-cyan-200/10 bg-[#131313]/95 px-4 py-3 backdrop-blur-xl transition-all sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12"
       >
         <div class="flex items-center justify-between px-2">
           <h3
@@ -212,7 +212,7 @@ const titleTextShadow = computed(() => {
           </h3>
         </div>
         <div
-          class="preview-container relative flex items-center justify-center overflow-hidden min-h-[300px] w-full bg-slate-900/40 rounded-2xl border border-white/5"
+            class="preview-container relative flex min-h-[300px] w-full items-center justify-center overflow-hidden border border-cyan-200/10 bg-[#1c1b1b]"
         >
           <!-- Checkerboard background for transparency preview -->
           <div class="absolute inset-0 checkerboard opacity-5"></div>
@@ -272,9 +272,9 @@ const titleTextShadow = computed(() => {
 
       <!-- Controls -->
       <div class="flex flex-col gap-4">
-        <div class="glass-panel p-4 sm:p-6 space-y-8">
+        <div class="glass-panel space-y-8 p-4 sm:p-6">
           <!-- Actions -->
-          <div class="flex flex-col gap-4 pb-6 border-b border-white/5">
+          <div class="flex flex-col gap-4 border-b border-cyan-200/10 pb-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
               <button
                 @click="randomize"
@@ -541,7 +541,7 @@ const titleTextShadow = computed(() => {
                       >Font Family</label
                     >
                     <select
-                      :value="settings.obsFontFamily || 'Inter'"
+                      :value="settings.obsFontFamily || 'Geist Sans'"
                       @change="
                         update(
                           'obsFontFamily',
@@ -550,29 +550,29 @@ const titleTextShadow = computed(() => {
                       "
                       class="w-full h-9 px-3 rounded-xl bg-slate-900 border border-white/10 text-sm text-slate-300 focus:outline-none focus:border-cyan-500/50 cursor-pointer"
                     >
-                      <option value="Inter" class="bg-slate-900 text-slate-300">
-                        Modern Sans (Inter)
-                      </option>
                       <option
-                        value="Monospace"
+                        value="Geist Sans"
                         class="bg-slate-900 text-slate-300"
                       >
-                        Digital (Monospace)
-                      </option>
-                      <option value="Serif" class="bg-slate-900 text-slate-300">
-                        Classic (Serif)
+                        Geist Sans
                       </option>
                       <option
-                        value="Sans-Serif"
+                        value="Geist Mono"
                         class="bg-slate-900 text-slate-300"
                       >
-                        Clean (Sans-Serif)
+                        Geist Mono
                       </option>
                       <option
-                        value="cursive"
+                        value="sans-serif"
                         class="bg-slate-900 text-slate-300"
                       >
-                        Dungener (Cursive)
+                        Sans Serif
+                      </option>
+                      <option
+                        value="monospace"
+                        class="bg-slate-900 text-slate-300"
+                      >
+                        Monospace
                       </option>
                     </select>
                   </div>
@@ -874,13 +874,70 @@ const titleTextShadow = computed(() => {
 </template>
 
 <style scoped>
+.overlay-customizer {
+  color: #e5e2e1;
+}
+
+.overlay-customizer h2,
+.overlay-customizer h3,
+.overlay-customizer h4 {
+  font-family: "Geist Mono", monospace;
+}
+
+.overlay-customizer h2 {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.overlay-customizer h4 {
+  color: rgba(126, 210, 235, 0.74) !important;
+}
+
+.overlay-customizer button {
+  border-radius: 0 !important;
+}
+
+.overlay-customizer .glass-panel button:not(.btn-accent):not(.btn-ghost) {
+  background: rgba(28, 27, 27, 0.96);
+  border: 1px solid rgba(126, 210, 235, 0.12);
+  color: #e5e2e1;
+}
+
+.overlay-customizer .glass-panel button:not(.btn-accent):not(.btn-ghost):hover {
+  background: rgba(126, 210, 235, 0.06);
+  border-color: rgba(126, 210, 235, 0.28);
+}
+
+.overlay-customizer select,
+.overlay-customizer input[type="text"],
+.overlay-customizer input[type="number"] {
+  border-radius: 0 !important;
+  border-color: rgba(126, 210, 235, 0.14) !important;
+  background: rgba(28, 27, 27, 0.96) !important;
+  color: #e5e2e1 !important;
+}
+
+.overlay-customizer label,
+.overlay-customizer .text-slate-300 {
+  color: #e5e2e1 !important;
+}
+
+.overlay-customizer .text-slate-500,
+.overlay-customizer .text-slate-400 {
+  color: rgba(167, 204, 218, 0.58) !important;
+}
+
+.overlay-customizer input[type="range"] {
+  accent-color: #7ed2eb;
+}
+
 .preview-container {
   background-image: radial-gradient(
       circle at 50% 50%,
-      rgba(34, 211, 238, 0.05) 0%,
+      rgba(126, 210, 235, 0.08) 0%,
       transparent 100%
     ),
-    linear-gradient(180deg, rgba(2, 6, 23, 0.4) 0%, rgba(2, 6, 23, 0.2) 100%);
+    linear-gradient(180deg, rgba(19, 19, 19, 0.88) 0%, rgba(14, 14, 14, 0.82) 100%);
 }
 
 .preview-container :deep(.glass-section),
@@ -950,25 +1007,26 @@ const titleTextShadow = computed(() => {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
+  background: rgba(126, 210, 235, 0.16);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(126, 210, 235, 0.28);
 }
 
 .btn-accent {
-  @apply relative flex items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 py-2.5 font-bold text-slate-950 transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] active:scale-[0.98];
+  @apply relative flex items-center justify-center gap-2 border bg-transparent px-6 py-2.5 font-bold uppercase tracking-[0.14em] text-[#0f1415] transition-all active:scale-[0.98];
+  background: linear-gradient(90deg, #7ed2eb, #439cb3);
+  border-color: rgba(126, 210, 235, 0.4);
 }
 
 .btn-ghost {
-  @apply flex items-center gap-2 rounded-xl border border-transparent px-4 py-2 text-sm font-semibold text-slate-400 transition-all hover:bg-white/5 hover:text-slate-100;
+  @apply flex items-center gap-2 border border-transparent px-4 py-2 text-sm font-semibold uppercase tracking-[0.12em] text-cyan-100/70 transition-all hover:bg-cyan-200/[0.05] hover:text-[#e5e2e1];
 }
 
 .glass-panel {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(32, 31, 31, 0.94);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
+  border: 1px solid rgba(126, 210, 235, 0.14);
+  box-shadow: 0 0 32px rgba(126, 210, 235, 0.05);
 }
 </style>

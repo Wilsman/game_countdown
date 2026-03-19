@@ -3,6 +3,22 @@
 @tailwind utilities;
 
 :root {
+  --app-bg: #131313;
+  --surface-0: #0e0e0e;
+  --surface-1: rgba(28, 27, 27, 0.9);
+  --surface-2: rgba(32, 31, 31, 0.94);
+  --surface-3: rgba(53, 53, 52, 0.92);
+  --border-1: rgba(126, 210, 235, 0.12);
+  --border-2: rgba(126, 210, 235, 0.22);
+  --text-primary: #e5e2e1;
+  --text-secondary: #a7ccda;
+  --text-muted: rgba(167, 204, 218, 0.62);
+  --accent: #7ed2eb;
+  --accent-strong: #439cb3;
+  --warning: #ffba3d;
+  --font-family: "Geist Sans", sans-serif;
+  --font-family-mono: "Geist Mono", monospace;
+  color-scheme: dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -42,9 +58,9 @@
 body {
   margin: 0;
   min-width: 320px;
-  background-color: #0c0c0c;
-  color: #e2e8f0;
-  font-family: theme("fontFamily.sans");
+  background-color: var(--app-bg);
+  color: var(--text-primary);
+  font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -53,41 +69,133 @@ body {
   min-height: 100vh;
 }
 
+button,
+input,
+select,
+textarea,
+[class*="rounded-"],
+.glass-panel,
+.glass-section,
+.dialog-panel,
+.countdown-stage,
+.countdown-title-input,
+.calendar-cell,
+.agenda-panel,
+.agenda-item,
+.event-chip,
+.preview-container,
+.obs-frame {
+  border-radius: 0 !important;
+}
+
+h1,
+h2,
+h3,
+.countdown-obs-title,
+.calendar-title {
+  font-family: var(--font-family-mono);
+}
+
 @layer components {
   .glass-panel {
-    @apply rounded-3xl border border-neutral-900/80 bg-neutral-950/90 shadow-2xl shadow-black/60 backdrop-blur-2xl;
+    @apply border;
+    background: var(--surface-2);
+    border-color: var(--border-1);
+    box-shadow: 0 0 32px rgba(126, 210, 235, 0.04);
+    backdrop-filter: blur(10px);
   }
 
   .glass-section {
-    @apply rounded-2xl border border-neutral-900/80 bg-neutral-950/85 shadow-xl shadow-black/50 backdrop-blur-xl;
+    @apply border;
+    background: var(--surface-1);
+    border-color: var(--border-1);
+    box-shadow: 0 0 24px rgba(126, 210, 235, 0.025);
+    backdrop-filter: blur(8px);
   }
 
   .btn-muted {
-    @apply inline-flex items-center gap-2 rounded-xl border border-neutral-800/80 bg-neutral-900/80 px-4 py-2 text-sm font-semibold text-neutral-200 shadow transition duration-150 ease-out hover:border-sky-500/60 hover:bg-neutral-900/90 hover:text-sky-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500/60;
+    @apply inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] transition duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+    background: var(--surface-1);
+    border-color: var(--border-1);
+    color: var(--text-secondary);
+    box-shadow: none;
+  }
+
+  .btn-muted:hover {
+    background: rgba(126, 210, 235, 0.06);
+    border-color: var(--border-2);
+    color: var(--text-primary);
+  }
+
+  .btn-muted:focus-visible {
+    outline-color: rgba(126, 210, 235, 0.45);
   }
 
   .btn-ghost {
-    @apply inline-flex items-center gap-2 rounded-xl border border-transparent px-3 py-2 text-sm font-semibold text-neutral-400 transition duration-150 ease-out hover:text-neutral-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600/60;
+    @apply inline-flex items-center gap-2 border border-transparent px-3 py-2 text-sm font-medium uppercase tracking-[0.12em] transition duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+    color: var(--text-secondary);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(126, 210, 235, 0.05);
+    color: var(--text-primary);
+  }
+
+  .btn-ghost:focus-visible {
+    outline-color: rgba(126, 210, 235, 0.2);
   }
 
   .btn-accent {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-sky-500/60 bg-gradient-to-br from-sky-500/70 via-sky-600/60 to-sky-700/60 px-5 py-2.5 text-sm font-semibold text-neutral-100 shadow-lg shadow-sky-900/40 transition duration-150 ease-out hover:border-sky-400/70 hover:from-sky-400/70 hover:via-sky-500/60 hover:to-sky-600/60 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400/60;
+    @apply inline-flex items-center justify-center gap-2 border px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] transition duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+    background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+    border-color: rgba(126, 210, 235, 0.35);
+    color: #0f1415;
+    box-shadow: none;
+  }
+
+  .btn-accent:hover {
+    box-shadow: 0 0 18px rgba(126, 210, 235, 0.16);
+    filter: brightness(1.04);
+  }
+
+  .btn-accent:focus-visible {
+    outline-color: rgba(126, 210, 235, 0.45);
   }
 
   .status-pill {
-    @apply inline-flex items-center gap-2 rounded-full border border-neutral-900/80 bg-neutral-950/85 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-400;
+    @apply inline-flex items-center gap-2 border px-3 py-1 text-xs font-medium uppercase tracking-[0.12em];
+    background: var(--surface-0);
+    border-color: var(--border-1);
+    color: var(--text-secondary);
   }
 
   .dialog-overlay {
-    @apply fixed inset-0 z-40 flex items-center justify-center bg-black/80 px-4 backdrop-blur-2xl;
+    @apply fixed inset-0 z-40 flex items-center justify-center bg-black/70 px-4;
+    backdrop-filter: blur(2px);
   }
 
   .dialog-panel {
-    @apply w-full max-w-xl rounded-3xl border border-neutral-900/80 bg-neutral-950/95 p-6 shadow-2xl shadow-black/70;
+    @apply w-full max-w-xl border p-6;
+    background: var(--surface-2);
+    border-color: var(--border-1);
+    box-shadow: 0 0 36px rgba(126, 210, 235, 0.06);
   }
 
   .input-field {
-    @apply w-full rounded-2xl border border-neutral-800/80 bg-neutral-900/80 px-4 py-3 text-sm font-medium text-neutral-100 shadow-inner shadow-black/50 transition duration-150 ease-out focus:border-sky-500/60 focus:outline-none focus:ring-2 focus:ring-sky-500/30;
+    @apply w-full border px-4 py-3 text-sm font-medium transition duration-150 ease-out focus:outline-none focus:ring-0;
+    background:
+      linear-gradient(180deg, rgba(126, 210, 235, 0.02), rgba(126, 210, 235, 0)),
+      var(--surface-1);
+    border-color: transparent transparent var(--border-1) transparent;
+    color: var(--text-primary);
+    box-shadow: none;
+  }
+
+  .input-field:focus {
+    border-color: transparent transparent rgba(126, 210, 235, 0.7) transparent;
+    background:
+      linear-gradient(180deg, rgba(126, 210, 235, 0.06), rgba(126, 210, 235, 0.01)),
+      var(--surface-1);
   }
 
   .tron-card {

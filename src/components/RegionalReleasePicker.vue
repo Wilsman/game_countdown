@@ -14,7 +14,7 @@ const store = useTimerStore();
 
 const pendingGame = computed(() => store.pendingRegionalReleaseGame);
 const regionalReleaseOptions = computed<RegionalReleaseOption[]>(
-  () => pendingGame.value?.regionalReleaseTimes ?? [],
+  () => pendingGame.value?.regionalReleaseTimes ?? []
 );
 
 const formatRegionalDate = (regionalRelease: RegionalReleaseOption): string => {
@@ -57,10 +57,12 @@ const formatRegionalZone = (regionalRelease: RegionalReleaseOption): string => {
   >
     <div class="dialog-panel max-w-3xl space-y-5" @click.stop>
       <div class="space-y-2 text-left">
-        <h3 class="text-xl font-bold text-slate-50">Choose Launch Location</h3>
-        <p class="text-sm text-slate-400">
+        <h3 class="font-mono text-xl font-semibold uppercase tracking-[0.14em] text-[#e5e2e1]">
+          Choose launch location
+        </h3>
+        <p class="text-sm text-cyan-100/55">
           Pick the regional storefront time you want
-          <span class="font-semibold text-slate-200">{{ pendingGame.title }}</span>
+          <span class="font-semibold text-cyan-50">{{ pendingGame.title }}</span>
           to use.
         </p>
       </div>
@@ -70,17 +72,17 @@ const formatRegionalZone = (regionalRelease: RegionalReleaseOption): string => {
           v-for="regionalRelease in regionalReleaseOptions"
           :key="regionalRelease.id"
           type="button"
-          class="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 text-left transition duration-150 hover:-translate-y-0.5 hover:border-sky-500/60 hover:bg-slate-900/80"
+          class="border border-cyan-200/12 bg-[#1c1b1b] p-4 text-left transition duration-150 hover:border-cyan-200/28 hover:bg-[#201f1f]"
           @click="store.confirmPendingRegionalRelease(regionalRelease.id)"
         >
-          <span class="block text-sm font-bold uppercase tracking-[0.2em] text-slate-200">
+          <span class="block font-mono text-sm font-semibold uppercase tracking-[0.16em] text-cyan-200/75">
             {{ regionalRelease.label }}
           </span>
-          <span class="mt-3 block text-lg font-black text-sky-200">
+          <span class="mt-3 block font-mono text-lg font-semibold text-[#e5e2e1]">
             {{ formatRegionalTime(regionalRelease) }}
           </span>
-          <span class="mt-1 block text-sm font-medium text-slate-400">
-            {{ formatRegionalDate(regionalRelease) }} •
+          <span class="mt-1 block text-sm font-medium text-cyan-100/50">
+            {{ formatRegionalDate(regionalRelease) }} ·
             {{ formatRegionalZone(regionalRelease) }}
           </span>
         </button>

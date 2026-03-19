@@ -1,67 +1,92 @@
 <script setup lang="ts">
-import { useTimerStore } from '../stores/timer'
-import { computed } from 'vue'
+import { computed } from "vue";
 
-const store = useTimerStore()
+import { useTimerStore } from "../stores/timer";
 
-// Define major time zones with their IANA timezone identifiers
+const store = useTimerStore();
+
 const timeZones = [
-  { city: 'Seoul', timezone: 'Asia/Seoul', region: 'South Korea', flag: '🇰🇷' },
-  { city: 'London', timezone: 'Europe/London', region: 'UK', flag: '🇬🇧' },
-  { city: 'New York', timezone: 'America/New_York', region: 'US East', flag: '🇺🇸' },
-  { city: 'Los Angeles', timezone: 'America/Los_Angeles', region: 'US West', flag: '🇺🇸' },
-  { city: 'Moscow', timezone: 'Europe/Moscow', region: 'Russia', flag: '🇷🇺' },
-  // { city: 'Tokyo', timezone: 'Asia/Tokyo', region: 'Japan', flag: '🇯🇵' },
-]
+  { city: "Seoul", timezone: "Asia/Seoul", region: "South Korea" },
+  { city: "London", timezone: "Europe/London", region: "United Kingdom" },
+  { city: "New York", timezone: "America/New_York", region: "US East" },
+  {
+    city: "Los Angeles",
+    timezone: "America/Los_Angeles",
+    region: "US West",
+  },
+  { city: "Moscow", timezone: "Europe/Moscow", region: "Russia" },
+];
+
+const activeTimezone = computed(() => store.targetTimezone || "UTC");
 
 const timeZonePreviews = computed(() => {
-  return timeZones.map(zone => {
-    // Check if the active game has regional release times
+  return timeZones.map((zone) => {
     const regionalRelease = store.activeGame.regionalReleaseTimes?.find(
-      r => r.timezone === zone.timezone
-    )
-    
-    // Use regional release time if available, otherwise use the default target date
-    const targetDate = regionalRelease 
+      (release) => release.timezone === zone.timezone
+    );
+
+    const targetDate = regionalRelease
       ? new Date(regionalRelease.date)
-      : new Date(store.targetDate)
-    
-    const timeOptions: Intl.DateTimeFormatOptions = {
-      timeZone: zone.timezone,
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }
-    
-    const dateOptions: Intl.DateTimeFormatOptions = {
-      timeZone: zone.timezone,
-      month: 'short',
-      day: 'numeric'
-    }
-    
+      : new Date(store.targetDate);
+
     return {
       ...zone,
-      time: targetDate.toLocaleTimeString('en-US', timeOptions as any),
-      date: targetDate.toLocaleDateString('en-US', dateOptions as any)
-    }
-  })
-})
+      isPrimary: zone.timezone === activeTimezone.value,
+      time: targetDate.toLocaleTimeString("en-US", {
+        timeZone: zone.timezone,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+      date: targetDate.toLocaleDateString("en-US", {
+        timeZone: zone.timezone,
+        month: "short",
+        day: "numeric",
+      }),
+    };
+  });
+});
 </script>
 
 <template>
-  <div
-    class="grid w-full gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
-  >
-    <div
-      v-for="zone in timeZonePreviews"
-      :key="zone.city"
-      class="flex flex-col items-center gap-1 rounded-xl border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-center shadow-sm shadow-slate-950/30 transition duration-150 hover:-translate-y-0.5 hover:border-sky-500/40"
-    >
-      <span class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-        {{ zone.city }}
-      </span>
-      <span class="text-sm font-bold text-sky-200">{{ zone.time }}</span>
-      <span class="text-[11px] font-medium text-slate-500">{{ zone.date }}</span>
+  <div class="space-y-3">
+    <h3 class="font-mono text-sm font-medium uppercase tracking-[0.16em] text-cyan-200/75">
+      Regional times
+    </h3>
+
+    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div
+        v-for="zone in timeZonePreviews"
+        :key="zone.city"
+        class="border px-3 py-3 text-left transition duration-150"
+        :class="
+          zone.isPrimary
+            ? 'border-cyan-200/25 bg-cyan-200/[0.07]'
+            : 'border-cyan-200/10 bg-[#1c1b1b]'
+        "
+      >
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="font-mono text-sm font-semibold text-[#e5e2e1]">
+              {{ zone.city }}
+            </p>
+            <p class="text-xs uppercase tracking-[0.12em] text-cyan-100/40">
+              {{ zone.region }}
+            </p>
+          </div>
+          <span
+            v-if="zone.isPrimary"
+            class="text-xs font-medium uppercase tracking-[0.12em] text-cyan-200/80"
+          >
+            launch
+          </span>
+        </div>
+
+        <p class="mt-3 font-mono text-lg font-semibold text-[#e5e2e1]">
+          {{ zone.time }}
+        </p>
+        <p class="text-xs text-cyan-100/45">{{ zone.date }}</p>
+      </div>
     </div>
   </div>
 </template>

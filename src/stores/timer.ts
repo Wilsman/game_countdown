@@ -823,7 +823,7 @@ export const useTimerStore = defineStore("timer", () => {
   const isEditMode = ref(false);
   const isObsMode = ref(false);
   const settings: Ref<TimerSettings> = ref({
-    fontFamily: "Inter",
+    fontFamily: "Geist Sans",
     textColor: "#ffffff",
     backgroundColor: "#1a1a1a",
     fontSize: 48,

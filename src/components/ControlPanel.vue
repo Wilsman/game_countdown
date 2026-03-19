@@ -59,13 +59,10 @@ const themes = [
 ];
 
 const fontFamilies = [
-  { value: "Inter", label: "Inter" },
+  { value: "Geist Sans", label: "Geist Sans" },
+  { value: "Geist Mono", label: "Geist Mono" },
   { value: "system-ui", label: "System UI" },
-  { value: "Arial", label: "Arial" },
-  { value: "Helvetica", label: "Helvetica" },
   { value: "Georgia", label: "Georgia" },
-  { value: "Times New Roman", label: "Times New Roman" },
-  { value: "Courier New", label: "Courier New" },
   { value: "monospace", label: "Monospace" },
 ];
 
@@ -98,14 +95,14 @@ function updateTitleColor(color: string) {
 
 function resetToDefaults() {
   store.updateSettings({
-    fontFamily: "Inter",
+    fontFamily: "Geist Sans",
     fontSize: 48,
     enableAnimation: true,
     enableSound: false,
     theme: "dark",
     enableGameBackground: true,
   });
-  store.setGameTitleColor("#06B6D4");
+  store.setGameTitleColor("#7ed2eb");
 }
 
 function exportSettings() {
@@ -655,11 +652,10 @@ function importSettings(event: Event) {
 
 <style scoped>
 .glass-panel {
-  background: rgba(15, 23, 42, 0.6); /* Slate-900 with opacity */
-  backdrop-filter: blur(16px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05); /* inner stroke */
+  background: rgba(32, 31, 31, 0.96);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(126, 210, 235, 0.14);
+  box-shadow: 0 0 32px rgba(126, 210, 235, 0.05);
 }
 
 /* Custom scrollbar for the modal content */
@@ -670,11 +666,10 @@ function importSettings(event: Event) {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
+  background: rgba(126, 210, 235, 0.16);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(126, 210, 235, 0.28);
 }
 
 .fade-enter-active,
@@ -688,22 +683,22 @@ function importSettings(event: Event) {
 }
 
 .soft-btn {
-  /* Inherit shared button styles or define simplified version here if global css isn't enough */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: theme("colors.slate.400");
+  color: rgba(167, 204, 218, 0.68);
   transition: all 0.2s;
   padding: 0.5rem;
-  border-radius: 0.75rem;
+  border: 1px solid rgba(126, 210, 235, 0.14);
+  background: rgba(28, 27, 27, 0.92);
 }
 .soft-btn:hover {
-  color: theme("colors.white");
-  background: rgba(255, 255, 255, 0.05);
+  color: #e5e2e1;
+  background: rgba(126, 210, 235, 0.06);
 }
 .soft-btn.is-active {
-  color: theme("colors.cyan.400");
-  background: rgba(6, 182, 212, 0.1);
+  color: #7ed2eb;
+  background: rgba(126, 210, 235, 0.08);
 }
 
 /* Toggles */
@@ -722,9 +717,8 @@ function importSettings(event: Event) {
   appearance: none;
   width: 44px;
   height: 24px;
-  background: linear-gradient(180deg, #242424, #1a1a1a);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
-  border-radius: 999px;
+  background: #131313;
+  border: 1px solid rgba(126, 210, 235, 0.16);
   position: relative;
   outline: none;
   cursor: pointer;
@@ -737,19 +731,12 @@ function importSettings(event: Event) {
   left: 3px;
   width: 18px;
   height: 18px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #fff, #eaeaea);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  background: #e5e2e1;
   transition: transform 0.2s ease;
 }
 .toggle input:checked {
-  background: linear-gradient(
-    180deg,
-    rgba(34, 211, 238, 0.35),
-    rgba(6, 182, 212, 0.25)
-  );
-  border-color: rgba(34, 211, 238, 0.45);
-  box-shadow: 0 6px 18px rgba(6, 182, 212, 0.18) inset;
+  background: rgba(126, 210, 235, 0.12);
+  border-color: rgba(126, 210, 235, 0.34);
 }
 .toggle input:checked::before {
   transform: translateX(20px);
@@ -778,7 +765,7 @@ function importSettings(event: Event) {
   text-align: center;
   color: var(--text-primary, rgba(255, 255, 255, 0.92));
   border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
-  border-radius: 12px;
+  border-radius: 0;
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.02),
@@ -816,7 +803,7 @@ function importSettings(event: Event) {
     rgba(239, 68, 68, 0.18),
     rgba(239, 68, 68, 0.12)
   );
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  border: 1px solid rgba(255, 186, 61, 0.35);
   color: #fecaca;
   font-weight: 800;
   box-shadow: 0 8px 26px rgba(239, 68, 68, 0.18);
