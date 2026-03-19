@@ -402,6 +402,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "marathon-cryo-archive",
+      title: "Marathon | Cryo Archive",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-03-20T17:00:00Z"), // March 20, 2026 at 10:00 AM PT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
       id: "marathon-server-slam-open-beta",
       title: "Marathon - Server Slam (Open Beta, Feb 26-Mar 2)",
       titleColor: "#00ff00",
