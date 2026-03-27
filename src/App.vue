@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from "vue";
-import type { Ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { Toaster, toast } from "vue-sonner";
 
@@ -25,10 +24,9 @@ const timerStore = useTimerStore();
 const { gameTitle, gameTitleColor, isObsMode, settings } =
   storeToRefs(timerStore);
 
-const isEditingTitle = ref(false);
-const titleInput: Ref<HTMLInputElement | null> = ref(null);
 const isFocusMode = ref(false);
 const isCustomizing = ref(false);
+const createTimerRequest = ref(0);
 
 const showChrome = computed(
   () => !isFocusMode.value && !isObsMode.value && !isCustomizing.value
@@ -36,6 +34,11 @@ const showChrome = computed(
 
 const toggleCustomizing = () => {
   isCustomizing.value = !isCustomizing.value;
+};
+
+const openCreateTimerFromCustomizer = () => {
+  isCustomizing.value = false;
+  createTimerRequest.value += 1;
 };
 
 const MARATHON_DUO_THEME_IDS = new Set([
@@ -74,18 +77,6 @@ const gameBackground = computed<GameBackgroundMeta | null>(() => {
 const hasGameBackground = computed(() =>
   Boolean(gameBackground.value && settings.value.enableGameBackground)
 );
-
-const handleEditTitle = () => {
-  isEditingTitle.value = true;
-  nextTick(() => {
-    titleInput.value?.focus();
-    titleInput.value?.select();
-  });
-};
-
-const handleStopEditTitle = () => {
-  isEditingTitle.value = false;
-};
 
 const toggleFocusMode = () => {
   isFocusMode.value = !isFocusMode.value;
@@ -162,7 +153,11 @@ watch(
         </header>
 
         <section class="flex flex-1 flex-col">
-          <OverlayCustomizer v-if="isCustomizing" @close="toggleCustomizing" />
+          <OverlayCustomizer
+            v-if="isCustomizing"
+            @close="toggleCustomizing"
+            @create-timer="openCreateTimerFromCustomizer"
+          />
 
           <template v-else>
             <div class="flex min-h-[70vh] items-center py-8 sm:py-10">
@@ -209,28 +204,9 @@ watch(
                     isObsMode && settings.showShine ? 'running' : 'paused',
                 }"
               >
-                <div
-                  v-if="!isObsMode && !isEditingTitle"
-                  class="w-full max-w-4xl"
-                >
-                  <GameSelector variant="hero" @edit="handleEditTitle" />
+                <div v-if="!isObsMode" class="w-full max-w-4xl">
+                  <GameSelector variant="hero" />
                 </div>
-
-                <input
-                  v-else-if="!isObsMode && isEditingTitle"
-                  ref="titleInput"
-                  v-model="gameTitle"
-                  type="text"
-                  class="countdown-title-input w-full max-w-4xl"
-                  :style="{
-                    color: gameTitleColor || undefined,
-                    fontSize: settings.titleSize
-                      ? settings.titleSize + 'px'
-                      : undefined,
-                  }"
-                  @blur="handleStopEditTitle"
-                  @keyup.enter="handleStopEditTitle"
-                />
 
                 <p
                   v-else
@@ -250,6 +226,7 @@ watch(
                   class="timer-display-core w-full"
                   :is-focus-mode="isFocusMode"
                   :is-obs-override="isObsMode"
+                  :create-timer-request="createTimerRequest"
                   @toggle-focus="toggleFocusMode"
                   @customize="toggleCustomizing"
                 />

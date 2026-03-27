@@ -9,6 +9,7 @@ import { useTimerStore } from "../stores/timer";
 const props = defineProps<{
   isFocusMode: boolean;
   isObsOverride?: boolean;
+  createTimerRequest?: number;
 }>();
 
 const emit = defineEmits<{
@@ -25,6 +26,8 @@ const isObs = computed(() =>
 const showDatePicker = ref(false);
 const localDateTime = ref("");
 const currentTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const editTitle = ref("");
+const selectedEditGameId = ref("");
 
 const prevValues = ref({
   days: store.timeRemaining.days,
@@ -42,6 +45,7 @@ const animatingSegments = ref({
 const showManualDialog = ref(false);
 const manualTitle = ref("");
 const manualDateTime = ref("");
+const manualTimezoneId = ref(currentTz);
 
 const selectedTimezone = ref({
   id: currentTz,
@@ -133,8 +137,10 @@ const timezones = [
   return getOffset(a.id) - getOffset(b.id);
 });
 
-selectedTimezone.value.name =
-  timezones.find((tz) => tz.id === currentTz)?.name || currentTz;
+const getTimezoneName = (timezoneId: string) =>
+  timezones.find((timezone) => timezone.id === timezoneId)?.name || timezoneId;
+
+selectedTimezone.value.name = getTimezoneName(currentTz);
 
 const formatTimezone = (tz: string) => {
   try {
@@ -220,6 +226,9 @@ const formatLocalDate = (date: Date, timezone: string) => {
   }
 };
 
+const createDefaultManualDate = () =>
+  formatLocalDate(new Date(Date.now() + 60 * 60 * 1000), currentTz);
+
 const initLocalDateTime = () => {
   localDateTime.value = formatLocalDate(
     store.targetDate,
@@ -227,22 +236,7 @@ const initLocalDateTime = () => {
   );
 };
 
-const handleDateChange = () => {
-  if (!localDateTime.value) return;
-  const utcDate = localToUTCDate(
-    localDateTime.value,
-    selectedTimezone.value.id
-  );
-  store.setTargetDate(utcDate, selectedTimezone.value.id);
-};
-
 const handleTimezoneChange = () => {
-  if (!localDateTime.value) return;
-  const utcDate = localToUTCDate(
-    localDateTime.value,
-    selectedTimezone.value.id
-  );
-  store.setTargetDate(utcDate, selectedTimezone.value.id);
   const timezone = timezones.find((candidate) => {
     return candidate.id === selectedTimezone.value.id;
   });
@@ -298,6 +292,22 @@ const timeSegments = computed(() => {
   return segments.slice(firstNonZeroIndex);
 });
 
+const editableUtilityOptions = computed(() => {
+  return store.utilityOptions.filter((game) => {
+    return (
+      game.id === store.activeGame.id || new Date(game.targetDate).getTime() > Date.now()
+    );
+  });
+});
+
+const editableGameOptions = computed(() => {
+  return store.gameOptions.filter((game) => {
+    return (
+      game.id === store.activeGame.id || new Date(game.targetDate).getTime() > Date.now()
+    );
+  });
+});
+
 const launchDateLabel = computed(() => {
   const timezone = store.targetTimezone || currentTz;
   try {
@@ -318,8 +328,63 @@ const launchDateLabel = computed(() => {
 
 const launchTimezoneLabel = computed(() => {
   const timezone = store.targetTimezone || currentTz;
-  return timezones.find((candidate) => candidate.id === timezone)?.name || timezone;
+  return getTimezoneName(timezone);
 });
+
+const manualTimezoneLabel = computed(() =>
+  getTimezoneName(manualTimezoneId.value)
+);
+
+const manualPreviewDate = computed(() => {
+  if (!manualDateTime.value) return null;
+  return localToUTCDate(manualDateTime.value, manualTimezoneId.value);
+});
+
+const manualPreviewTitle = computed(() => {
+  const trimmedTitle = manualTitle.value.trim();
+  return trimmedTitle || "Your timer title";
+});
+
+const manualPreviewSchedule = computed(() => {
+  if (!manualPreviewDate.value) return "Choose a date and time to preview it.";
+
+  try {
+    return new Intl.DateTimeFormat("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: manualTimezoneId.value,
+    }).format(manualPreviewDate.value);
+  } catch {
+    return manualPreviewDate.value.toISOString();
+  }
+});
+
+watch(
+  () => props.createTimerRequest,
+  (request, previousRequest) => {
+    if ((request ?? 0) === (previousRequest ?? 0) || isObs.value) return;
+    openManualDialog();
+  }
+);
+
+watch(
+  () => store.activeGame.id,
+  () => {
+    if (!showDatePicker.value) return;
+    editTitle.value = store.gameTitle;
+    selectedEditGameId.value = store.activeGame.id;
+    selectedTimezone.value = {
+      id: store.targetTimezone || currentTz,
+      name: getTimezoneName(store.targetTimezone || currentTz),
+    };
+    initLocalDateTime();
+  }
+);
 
 watch(
   () => store.timeRemaining,
@@ -350,9 +415,10 @@ watch(
 function openDatePicker() {
   const timezone =
     store.targetTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const timezoneName = timezones.find((candidate) => candidate.id === timezone)
-    ?.name || timezone;
+  const timezoneName = getTimezoneName(timezone);
   selectedTimezone.value = { id: timezone, name: timezoneName };
+  editTitle.value = store.gameTitle;
+  selectedEditGameId.value = store.activeGame.id;
   initLocalDateTime();
   showDatePicker.value = true;
 }
@@ -361,9 +427,37 @@ function closeDatePicker() {
   showDatePicker.value = false;
 }
 
+function handleEditGameChange() {
+  if (!selectedEditGameId.value) return;
+  store.selectGameById(selectedEditGameId.value);
+}
+
+function saveEditedTimer() {
+  const trimmedTitle = editTitle.value.trim();
+  if (!trimmedTitle) {
+    toast.error("Add a title for the timer");
+    return;
+  }
+
+  if (!localDateTime.value) {
+    toast.error("Choose the date and time for the timer");
+    return;
+  }
+
+  const utcDate = localToUTCDate(
+    localDateTime.value,
+    selectedTimezone.value.id
+  );
+  store.setGameTitle(trimmedTitle);
+  store.setTargetDate(utcDate, selectedTimezone.value.id);
+  closeDatePicker();
+  toast.success("Timer updated");
+}
+
 function openManualDialog() {
   manualTitle.value = "";
-  manualDateTime.value = formatLocalDate(new Date(), currentTz);
+  manualDateTime.value = createDefaultManualDate();
+  manualTimezoneId.value = currentTz;
   showManualDialog.value = true;
 }
 
@@ -372,11 +466,21 @@ function closeManualDialog() {
 }
 
 function saveManualTimer() {
-  if (!manualTitle.value || !manualDateTime.value) return;
-  const utcDate = localToUTCDate(manualDateTime.value, currentTz);
-  store.addGame(manualTitle.value, utcDate);
+  const trimmedTitle = manualTitle.value.trim();
+  if (!trimmedTitle) {
+    toast.error("Add a title for the timer");
+    return;
+  }
+
+  if (!manualDateTime.value) {
+    toast.error("Choose the date and time for the timer");
+    return;
+  }
+
+  const utcDate = localToUTCDate(manualDateTime.value, manualTimezoneId.value);
+  store.addGame(trimmedTitle, utcDate, manualTimezoneId.value);
   showManualDialog.value = false;
-  toast.success("Manual timer created successfully");
+  toast.success("Custom timer created");
 }
 
 async function copyShareableUrl() {
@@ -541,141 +645,129 @@ onUnmounted(() => {
       v-if="!isFocusMode && !isObs"
       class="flex w-full flex-col gap-6 border border-cyan-200/10 bg-[#1c1b1b] px-4 py-5 sm:px-6"
     >
-      <TimeZonePreview />
+      <div class="grid w-full gap-2">
+        <div class="grid gap-2 sm:grid-cols-2">
+          <button
+            type="button"
+            class="btn-muted min-w-0 justify-center px-4 py-3 text-xs"
+            @click="openDatePicker"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M8 2v4" />
+              <path d="M16 2v4" />
+              <rect x="3" y="4" width="18" height="18" />
+              <path d="M3 10h18" />
+            </svg>
+            Edit current timer
+          </button>
 
-      <div
-        class="grid w-full gap-2 pb-1 [grid-template-columns:repeat(auto-fit,minmax(10.5rem,1fr))]"
-      >
-        <button
-          type="button"
-          class="btn-muted min-w-0 justify-start px-3 py-2 text-[0.72rem] sm:justify-center sm:text-xs"
-          @click="openDatePicker"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+          <button
+            type="button"
+            class="btn-muted min-w-0 flex-col items-center justify-center px-4 py-3 text-center"
+            @click="openOverlayCustomizer"
           >
-            <path d="M8 2v4" />
-            <path d="M16 2v4" />
-            <rect x="3" y="4" width="18" height="18" />
-            <path d="M3 10h18" />
-          </svg>
-          Set launch time
-        </button>
-        <button
-          type="button"
-          class="btn-muted min-w-0 justify-start px-3 py-2 text-[0.72rem] sm:justify-center sm:text-xs"
-          @click="$emit('toggle-focus')"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            <span class="inline-flex w-full items-center justify-center gap-2 text-xs uppercase tracking-[0.12em]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 5h18" />
+                <path d="M3 12h18" />
+                <path d="M3 19h18" />
+                <path d="M7 3v4" />
+                <path d="M17 10v4" />
+                <path d="M11 17v4" />
+              </svg>
+              OBS Overlay
+            </span>
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 pt-1">
+          <button
+            type="button"
+            class="btn-ghost px-1 py-1 text-[0.72rem]"
+            @click="$emit('toggle-focus')"
           >
-            <path d="M9 3H5a2 2 0 0 0-2 2v4" />
-            <path d="M15 3h4a2 2 0 0 1 2 2v4" />
-            <path d="M21 15v4a2 2 0 0 1-2 2h-4" />
-            <path d="M3 15v4a2 2 0 0 0 2 2h4" />
-          </svg>
-          Focus mode
-        </button>
-        <button
-          type="button"
-          class="btn-muted min-w-0 justify-start px-3 py-2 text-[0.72rem] sm:justify-center sm:text-xs"
-          @click="copyShareableUrl"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M9 3H5a2 2 0 0 0-2 2v4" />
+              <path d="M15 3h4a2 2 0 0 1 2 2v4" />
+              <path d="M21 15v4a2 2 0 0 1-2 2h-4" />
+              <path d="M3 15v4a2 2 0 0 0 2 2h4" />
+            </svg>
+            Focus mode
+          </button>
+
+          <button
+            type="button"
+            class="btn-ghost px-1 py-1 text-[0.72rem]"
+            @click="copyShareableUrl"
           >
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-          </svg>
-          Share link
-        </button>
-        <button
-          type="button"
-          class="btn-muted min-w-0 justify-start px-3 py-2 text-[0.72rem] sm:justify-center sm:text-xs"
-          @click="openOverlayCustomizer"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+            Share link
+          </button>
+
+          <button
+            v-if="store.activeGame.type === 'utility'"
+            type="button"
+            class="btn-ghost px-1 py-1 text-[0.72rem]"
+            @click="store.restartCountdown(store.activeGame.id)"
           >
-            <path d="M3 5h18" />
-            <path d="M3 12h18" />
-            <path d="M3 19h18" />
-            <path d="M7 3v4" />
-            <path d="M17 10v4" />
-            <path d="M11 17v4" />
-          </svg>
-          Overlay settings
-        </button>
-        <button
-          type="button"
-          class="btn-muted min-w-0 justify-start px-3 py-2 text-[0.72rem] sm:justify-center sm:text-xs"
-          @click="openManualDialog"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 8v4l3 3" />
-          </svg>
-          Manual timer
-        </button>
-        <button
-          v-if="store.activeGame.type === 'utility'"
-          type="button"
-          class="btn-muted min-w-0 justify-start px-3 py-2 text-[0.72rem] sm:justify-center sm:text-xs"
-          @click="store.restartCountdown(store.activeGame.id)"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M21 12a9 9 0 1 1-3.2-6.9" />
-            <path d="M21 3v6h-6" />
-          </svg>
-          Restart
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12a9 9 0 1 1-3.2-6.9" />
+              <path d="M21 3v6h-6" />
+            </svg>
+            Restart
+          </button>
+        </div>
       </div>
+
+      <TimeZonePreview />
     </div>
 
     <div
@@ -686,14 +778,52 @@ onUnmounted(() => {
       <div class="dialog-panel space-y-5" @click.stop>
         <div class="space-y-2 text-left">
           <h3 class="text-xl font-semibold text-stone-100">
-            Set target date and time
+            Edit current countdown
           </h3>
           <p class="text-sm text-cyan-100/55">
-            Choose a launch time and timezone for the active countdown.
+            Adjust the live timer using the timezone you want this countdown to follow.
           </p>
         </div>
 
         <div class="space-y-3">
+          <label class="flex flex-col gap-2 text-sm font-medium text-cyan-50">
+            Current event
+            <select
+              v-model="selectedEditGameId"
+              class="input-field"
+              @change="handleEditGameChange"
+            >
+              <optgroup label="Quick timers">
+                <option
+                  v-for="game in editableUtilityOptions"
+                  :key="game.id"
+                  :value="game.id"
+                >
+                  {{ game.title }}
+                </option>
+              </optgroup>
+              <optgroup label="Upcoming games">
+                <option
+                  v-for="game in editableGameOptions"
+                  :key="game.id"
+                  :value="game.id"
+                >
+                  {{ game.title }}
+                </option>
+              </optgroup>
+            </select>
+          </label>
+
+          <label class="flex flex-col gap-2 text-sm font-medium text-cyan-50">
+            Title
+            <input
+              v-model="editTitle"
+              type="text"
+              class="input-field"
+              placeholder="Enter timer title"
+            />
+          </label>
+
           <label class="flex flex-col gap-2 text-sm font-medium text-cyan-50">
             Date and time
             <input
@@ -701,7 +831,6 @@ onUnmounted(() => {
               v-model="localDateTime"
               type="datetime-local"
               class="input-field"
-              @change="handleDateChange"
             />
           </label>
 
@@ -718,10 +847,20 @@ onUnmounted(() => {
               </option>
             </select>
           </label>
+
+          <div class="border border-cyan-200/10 bg-black/15 px-4 py-3 text-sm text-cyan-100/60">
+            <p class="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200/70">
+              Active timezone
+            </p>
+            <p class="mt-2 font-medium text-stone-100">{{ selectedTimezone.name }}</p>
+            <p class="mt-1 text-cyan-100/50">
+              Enter the time exactly as it should happen in this timezone.
+            </p>
+          </div>
         </div>
 
         <div class="flex justify-end">
-          <button type="button" class="btn-accent" @click="closeDatePicker">
+          <button type="button" class="btn-accent" @click="saveEditedTimer">
             Save
           </button>
         </div>
@@ -736,34 +875,78 @@ onUnmounted(() => {
       <div class="dialog-panel space-y-5" @click.stop>
         <div class="space-y-2 text-left">
           <h3 class="text-xl font-semibold text-stone-100">
-            Create manual timer
+            Create your own timer
           </h3>
           <p class="text-sm text-cyan-100/55">
-            Add a custom timer with its own title and start time.
+            Follow the three steps below. The timer will be stored in the timezone you choose.
           </p>
         </div>
 
-        <div class="space-y-3">
-          <label class="flex flex-col gap-2 text-sm font-medium text-cyan-50">
-            Title
-            <input
-              id="manual-title"
-              v-model="manualTitle"
-              type="text"
-              placeholder="Enter title"
-              class="input-field"
-            />
-          </label>
+        <div class="space-y-4">
+          <div class="border border-cyan-200/10 bg-black/15 px-4 py-4">
+            <p class="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200/70">
+              Step 1
+            </p>
+            <label class="mt-3 flex flex-col gap-2 text-sm font-medium text-cyan-50">
+              Timer title
+              <input
+                id="manual-title"
+                v-model="manualTitle"
+                type="text"
+                placeholder="Friday stream starts"
+                class="input-field"
+              />
+            </label>
+          </div>
 
-          <label class="flex flex-col gap-2 text-sm font-medium text-cyan-50">
-            Time
-            <input
-              id="manual-datetime"
-              v-model="manualDateTime"
-              type="datetime-local"
-              class="input-field"
-            />
-          </label>
+          <div class="border border-cyan-200/10 bg-black/15 px-4 py-4">
+            <p class="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200/70">
+              Step 2
+            </p>
+            <label class="mt-3 flex flex-col gap-2 text-sm font-medium text-cyan-50">
+              Date and time in that timezone
+              <input
+                id="manual-datetime"
+                v-model="manualDateTime"
+                type="datetime-local"
+                class="input-field"
+              />
+            </label>
+          </div>
+
+          <div class="border border-cyan-200/10 bg-black/15 px-4 py-4">
+            <p class="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200/70">
+              Step 3
+            </p>
+            <label class="mt-3 flex flex-col gap-2 text-sm font-medium text-cyan-50">
+              Timezone
+              <select v-model="manualTimezoneId" class="input-field">
+                <option v-for="timezone in timezones" :key="timezone.id" :value="timezone.id">
+                  {{ formatTimezone(timezone.id) }} - {{ timezone.name }}
+                </option>
+              </select>
+            </label>
+            <p class="mt-2 text-sm text-cyan-100/50">
+              Your current timezone,
+              <span class="font-medium text-stone-100">{{ manualTimezoneLabel }}</span>,
+              is selected by default.
+            </p>
+          </div>
+
+          <div class="border border-cyan-200/12 bg-cyan-200/[0.04] px-4 py-4">
+            <p class="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200/75">
+              Preview
+            </p>
+            <p class="mt-3 text-base font-semibold text-stone-100">
+              {{ manualPreviewTitle }}
+            </p>
+            <p class="mt-1 text-sm text-cyan-100/60">
+              {{ manualPreviewSchedule }} · {{ manualTimezoneLabel }}
+            </p>
+            <p class="mt-3 text-sm text-cyan-100/50">
+              People opening your shared link will see this converted into their own local time automatically.
+            </p>
+          </div>
         </div>
 
         <div class="flex justify-end gap-3">
@@ -771,7 +954,7 @@ onUnmounted(() => {
             Cancel
           </button>
           <button type="button" class="btn-accent" @click="saveManualTimer">
-            Save
+            Create timer
           </button>
         </div>
       </div>

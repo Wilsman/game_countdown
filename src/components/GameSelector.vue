@@ -149,50 +149,35 @@ const activeDateLabel = computed(() => {
 <template>
   <div ref="dropdownRef" class="relative w-full">
     <template v-if="variant === 'hero'">
-      <div class="flex flex-col gap-3">
-        <button
-          type="button"
-          class="w-full border border-cyan-200/12 bg-[#1c1b1b] px-5 py-6 text-center transition duration-150 hover:border-cyan-200/28 hover:bg-[#201f1f] focus:outline-none focus:ring-2 focus:ring-cyan-300/25"
-          @click="toggleDropdown"
+      <button
+        type="button"
+        class="w-full border border-cyan-200/12 bg-[#1c1b1b] px-5 py-6 text-center transition duration-150 hover:border-cyan-200/28 hover:bg-[#201f1f] focus:outline-none focus:ring-2 focus:ring-cyan-300/25"
+        @click="toggleDropdown"
+      >
+        <div
+          class="text-balance font-semibold leading-[0.98] text-[#e5e2e1]"
+          :class="'text-3xl sm:text-4xl lg:text-5xl'"
+          :style="{
+            color: store.activeGame.titleColor || undefined,
+            fontFamily: 'Geist Mono, monospace',
+          }"
         >
-          <div
-            class="text-balance font-semibold leading-[0.98] text-[#e5e2e1]"
-            :class="'text-3xl sm:text-4xl lg:text-5xl'"
-            :style="{
-              color: store.activeGame.titleColor || undefined,
-              fontFamily: 'Geist Mono, monospace',
-            }"
-          >
-            {{ store.activeGame.title }}
-          </div>
-
-          <div
-            class="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-medium text-cyan-100/70"
-          >
-            <span v-if="activeRegionalReleaseLabel">
-              {{ activeRegionalReleaseLabel }}
-            </span>
-            <span>{{ activeDateLabel }}</span>
-          </div>
-        </button>
-
-        <div class="flex items-center justify-center gap-3 text-sm">
-          <button
-            type="button"
-            class="btn-ghost"
-            @click="toggleDropdown"
-          >
-            Change event
-          </button>
-          <button
-            type="button"
-            class="btn-ghost"
-            @click="$emit('edit')"
-          >
-            Rename title
-          </button>
+          {{ store.activeGame.title }}
         </div>
-      </div>
+
+        <div
+          class="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-medium text-cyan-100/70"
+        >
+          <span v-if="activeRegionalReleaseLabel">
+            {{ activeRegionalReleaseLabel }}
+          </span>
+          <span>{{ activeDateLabel }}</span>
+        </div>
+
+        <p class="mt-3 text-[0.68rem] font-medium uppercase tracking-[0.14em] text-cyan-100/38">
+          Click title to switch timer
+        </p>
+      </button>
     </template>
 
     <button

@@ -7,6 +7,7 @@ import TimerDisplay from "./TimerDisplay.vue";
 
 const emit = defineEmits<{
   (e: "close"): void;
+  (e: "create-timer"): void;
 }>();
 
 const store = useTimerStore();
@@ -14,6 +15,10 @@ const { settings, gameTitle, gameTitleColor } = storeToRefs(store);
 
 const close = () => {
   emit("close");
+};
+
+const createCustomTimer = () => {
+  emit("create-timer");
 };
 
 const copyFinalLink = () => {
@@ -275,7 +280,7 @@ const titleTextShadow = computed(() => {
         <div class="glass-panel space-y-8 p-4 sm:p-6">
           <!-- Actions -->
           <div class="flex flex-col gap-4 border-b border-cyan-200/10 pb-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <div class="grid grid-cols-1 gap-6 items-center md:grid-cols-4">
               <button
                 @click="randomize"
                 class="group py-4 rounded-xl border-2 border-dashed border-cyan-500/20 text-cyan-400 font-bold transition-all hover:bg-cyan-500/5 hover:border-cyan-500/50 flex items-center justify-center gap-2 active:scale-95"
@@ -307,6 +312,27 @@ const titleTextShadow = computed(() => {
                 class="relative group btn-accent py-4 text-lg font-black shadow-[0_0_30px_rgba(6,182,212,0.2)]"
               >
                 <span>Copy Final Link</span>
+              </button>
+              <button
+                @click="createCustomTimer"
+                class="group py-4 rounded-xl border-2 border-dashed border-cyan-500/20 text-cyan-400 font-bold transition-all hover:bg-cyan-500/5 hover:border-cyan-500/50 flex items-center justify-center gap-2 active:scale-95"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 8v8" />
+                  <path d="M8 12h8" />
+                  <circle cx="12" cy="12" r="9" />
+                </svg>
+                Create Custom Timer
               </button>
               <button
                 @click="resetCustomization"
