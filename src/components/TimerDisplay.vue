@@ -693,7 +693,7 @@ onUnmounted(() => {
                 <path d="M17 10v4" />
                 <path d="M11 17v4" />
               </svg>
-              OBS Overlay
+              OBS Overlay setup
             </span>
           </button>
         </div>

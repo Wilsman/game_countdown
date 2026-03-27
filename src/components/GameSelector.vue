@@ -151,7 +151,7 @@ const activeDateLabel = computed(() => {
     <template v-if="variant === 'hero'">
       <button
         type="button"
-        class="w-full border border-cyan-200/12 bg-[#1c1b1b] px-5 py-6 text-center transition duration-150 hover:border-cyan-200/28 hover:bg-[#201f1f] focus:outline-none focus:ring-2 focus:ring-cyan-300/25"
+        class="group relative w-full border border-cyan-200/12 bg-[#1c1b1b] px-5 py-6 text-center transition duration-150 hover:border-cyan-200/28 hover:bg-[#201f1f] focus:outline-none focus:ring-2 focus:ring-cyan-300/25"
         @click="toggleDropdown"
       >
         <div
@@ -174,9 +174,22 @@ const activeDateLabel = computed(() => {
           <span>{{ activeDateLabel }}</span>
         </div>
 
-        <p class="mt-3 text-[0.68rem] font-medium uppercase tracking-[0.14em] text-cyan-100/38">
-          Click title to switch timer
-        </p>
+        <div
+          class="mt-2 flex h-1 w-full items-center justify-center border-t border-cyan-200/10 text-cyan-100/28 transition duration-150 group-hover:border-cyan-200/18 group-hover:text-cyan-100/54"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 transition duration-150 group-hover:translate-y-0.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="m8 15 8 8 8-8" />
+          </svg>
+        </div>
       </button>
     </template>
 
