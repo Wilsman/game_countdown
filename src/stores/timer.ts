@@ -662,8 +662,8 @@ export const useTimerStore = defineStore("timer", () => {
       id: "road-to-vostok",
       title: "Road to Vostok (Early Access)",
       titleColor: "#ffffff",
-      targetDate: new Date("2026-04-07T00:00:00Z"), // April 7, 2026
-      targetTimezone: "UTC",
+      targetDate: new Date("2026-04-07T15:00:00Z"), // April 7, 2026 8:00 AM PT
+      targetTimezone: "America/Los_Angeles",
       type: "game",
     },
     {
