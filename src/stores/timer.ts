@@ -1544,6 +1544,17 @@ export const useTimerStore = defineStore("timer", () => {
     return url.toString();
   }
 
+  function getObsOverlayUrl() {
+    const shareableUrl = getShareableUrl();
+    if (!shareableUrl) return "";
+
+    const url = new URL(shareableUrl);
+    url.searchParams.set("obs", "1");
+    url.searchParams.set("bg", "0");
+
+    return url.toString();
+  }
+
   // Set the initial active game to a saved custom timer when available,
   // otherwise fall back to the soonest upcoming countdown.
   if (typeof window !== "undefined") {
@@ -1588,6 +1599,7 @@ export const useTimerStore = defineStore("timer", () => {
     updateSettings,
 
     getShareableUrl,
+    getObsOverlayUrl,
     restartCountdown,
     startTimer,
     stopTimer,

@@ -77,6 +77,7 @@ const dialogDescription = computed(() =>
 const submitLabel = computed(() =>
   isCreateMode.value ? "Save countdown" : "Save changes",
 );
+const saveAndCopyObsLabel = computed(() => "Save + OBS Link");
 
 const createDefaultDate = () =>
   formatLocalDateTime(new Date(Date.now() + 60 * 60 * 1000), currentTz);
@@ -133,29 +134,59 @@ watch(
   },
 );
 
-const save = () => {
+const copyWithExecCommand = (value: string) => {
+  const textArea = document.createElement("textarea");
+  textArea.value = value;
+  textArea.setAttribute("readonly", "");
+  textArea.style.position = "fixed";
+  textArea.style.top = "-9999px";
+  textArea.style.left = "-9999px";
+  document.body.appendChild(textArea);
+  textArea.select();
+  const copied = document.execCommand("copy");
+  document.body.removeChild(textArea);
+  if (!copied) {
+    throw new Error("document.execCommand('copy') returned false");
+  }
+};
+
+const writeToClipboard = async (value: string) => {
+  try {
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+  } catch {
+    // Fall through to the legacy copy path when Clipboard API is blocked.
+  }
+
+  copyWithExecCommand(value);
+};
+
+const persistCountdown = (showToast: boolean = true) => {
   const trimmedTitle = title.value.trim();
   if (!trimmedTitle) {
     toast.error("Add a title for the countdown");
-    return;
+    return false;
   }
 
   if (!dateTime.value) {
     toast.error("Choose the date and time for the countdown");
-    return;
+    return false;
   }
 
   const utcDate = localToUTCDate(dateTime.value, timezoneId.value);
 
   if (isCreateMode.value) {
     const customGame = store.addCustomTimer(trimmedTitle, utcDate, timezoneId.value);
-    toast.success(`"${customGame.title}" added and saved on this device`);
-    emit("close");
-    return;
+    if (showToast) {
+      toast.success(`"${customGame.title}" added and saved on this device`);
+    }
+    return true;
   }
 
   const game = selectedGame.value;
-  if (!game) return;
+  if (!game) return false;
 
   if (game.source === "custom") {
     store.updateCustomTimer(game.id, {
@@ -163,15 +194,38 @@ const save = () => {
       targetDate: utcDate,
       targetTimezone: timezoneId.value,
     });
-    toast.success(`"${trimmedTitle}" updated`);
-    emit("close");
-    return;
+    if (showToast) {
+      toast.success(`"${trimmedTitle}" updated`);
+    }
+    return true;
   }
 
   store.selectGameById(game.id);
   store.setGameTitle(trimmedTitle);
   store.setTargetDate(utcDate, timezoneId.value);
-  toast.success("Timer updated");
+  if (showToast) {
+    toast.success("Timer updated");
+  }
+  return true;
+};
+
+const save = () => {
+  if (!persistCountdown()) return;
+  emit("close");
+};
+
+const saveAndCopyObsLink = async () => {
+  if (!isCreateMode.value) return;
+  if (!persistCountdown(false)) return;
+
+  try {
+    await writeToClipboard(store.getObsOverlayUrl());
+    toast.success("Countdown saved and OBS link copied");
+  } catch (error) {
+    console.error("Failed to copy OBS overlay link:", error);
+    toast.error("Countdown saved, but the OBS link could not be copied");
+  }
+
   emit("close");
 };
 </script>
@@ -302,11 +356,19 @@ const save = () => {
         </div>
       </div>
 
-      <div class="flex justify-end gap-3">
-        <button type="button" class="btn-ghost" @click="emit('close')">
+      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button type="button" class="btn-ghost w-full sm:w-auto" @click="emit('close')">
           Cancel
         </button>
-        <button type="button" class="btn-accent" @click="save">
+        <button
+          v-if="isCreateMode"
+          type="button"
+          class="btn-muted w-full justify-center sm:w-auto"
+          @click="saveAndCopyObsLink"
+        >
+          {{ saveAndCopyObsLabel }}
+        </button>
+        <button type="button" class="btn-accent w-full sm:w-auto" @click="save">
           {{ submitLabel }}
         </button>
       </div>

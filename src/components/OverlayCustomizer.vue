@@ -22,11 +22,7 @@ const createCustomTimer = () => {
 };
 
 const copyFinalLink = () => {
-  let url = store.getShareableUrl() + "&obs=1";
-  // Force bg=0 for OBS links by default as requested in generic OBS link logic
-  if (url.includes("bg=1")) {
-    url = url.replace("bg=1", "bg=0");
-  }
+  const url = store.getObsOverlayUrl();
   navigator.clipboard.writeText(url);
   toast.success("Customized OBS link copied!");
 };
