@@ -13,11 +13,11 @@ withDefaults(
   }>(),
   {
     variant: "default",
-  }
+  },
 );
 
-defineEmits<{
-  (e: "edit"): void;
+const emit = defineEmits<{
+  (e: "create"): void;
 }>();
 
 const dropdownRef = ref<HTMLDivElement | null>(null);
@@ -67,6 +67,15 @@ function resetGames() {
   closeDropdown();
 }
 
+function createCountdown() {
+  closeDropdown();
+  emit("create");
+}
+
+function deleteCustomCountdown(gameId: string) {
+  store.removeCustomTimer(gameId);
+}
+
 function handleClickOutside(event: MouseEvent) {
   const dropdownElement = document.querySelector(".dropdown-menu-teleport");
   if (
@@ -94,12 +103,30 @@ watch(isOpen, (newValue) => {
 const isGameInPast = (game: RegionalGame) =>
   differenceInSeconds(new Date(game.targetDate), new Date()) <= 0;
 
+const sortedCustomOptions = computed(() => {
+  return [...store.customGameOptions]
+    .sort((a, b) => {
+      const aIsPast = isGameInPast(a);
+      const bIsPast = isGameInPast(b);
+
+      if (aIsPast !== bIsPast) {
+        return aIsPast ? 1 : -1;
+      }
+
+      const timeDiff = aIsPast
+        ? new Date(b.targetDate).getTime() - new Date(a.targetDate).getTime()
+        : new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+      if (timeDiff !== 0) return timeDiff;
+      return (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0);
+    });
+});
+
 const sortedGameOptions = computed(() => {
   return [...store.gameOptions]
     .filter((game) => !isGameInPast(game))
     .sort(
       (a, b) =>
-        new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime()
+        new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime(),
     );
 });
 
@@ -108,7 +135,7 @@ const sortedUtilityOptions = computed(() => {
     .filter((game) => !isGameInPast(game))
     .sort(
       (a, b) =>
-        new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime()
+        new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime(),
     );
 });
 
@@ -227,6 +254,74 @@ const activeDateLabel = computed(() => {
       <div v-if="isOpen" class="dropdown-menu-teleport" :style="dropdownStyle">
         <div class="glass-section w-full overflow-hidden">
           <div class="border-b border-cyan-200/10 px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <h3 class="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-200/75">
+                Custom countdowns
+              </h3>
+              <button type="button" class="btn-ghost px-0 py-0 text-[0.68rem]" @click="createCountdown">
+                Add countdown
+              </button>
+            </div>
+          </div>
+
+          <div v-if="sortedCustomOptions.length" class="max-h-56 overflow-y-auto px-2 py-2">
+            <div
+              v-for="game in sortedCustomOptions"
+              :key="game.id"
+              class="flex items-center gap-2 px-1 py-1"
+            >
+              <button
+                type="button"
+                class="flex min-w-0 flex-1 items-center justify-between gap-3 px-3 py-3 text-left text-sm font-medium text-[#e5e2e1] transition duration-150 hover:bg-cyan-200/[0.04]"
+                :class="{
+                  'bg-cyan-200/[0.08] text-cyan-50': game.id === store.activeGame.id,
+                }"
+                @click="selectGame(game.id)"
+              >
+                <span class="min-w-0 flex-1">
+                  <span class="flex items-center gap-2">
+                    <span class="truncate">{{ game.title }}</span>
+                    <span class="status-pill border-cyan-400/20 bg-cyan-400/10 text-cyan-100">
+                      Custom
+                    </span>
+                  </span>
+                  <span class="mt-1 block text-xs uppercase tracking-[0.12em] text-cyan-100/45">
+                    {{
+                      new Date(game.targetDate).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })
+                    }}
+                  </span>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="btn-ghost shrink-0 px-2 py-1 text-[0.65rem] text-red-200/70 hover:text-red-100"
+                @click="deleteCustomCountdown(game.id)"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <div v-else class="px-4 py-4">
+            <div class="rounded-xl border border-dashed border-cyan-200/12 bg-black/15 px-4 py-4 text-left">
+              <p class="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200/70">
+                Nothing saved yet
+              </p>
+              <p class="mt-2 text-sm text-cyan-100/55">
+                New countdowns show up here after you create them, so they're easy to switch back to later.
+              </p>
+              <button type="button" class="btn-accent mt-4" @click="createCountdown">
+                Add countdown
+              </button>
+            </div>
+          </div>
+
+          <div class="border-y border-cyan-200/10 px-4 py-3">
             <h3 class="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-200/75">
               Quick timers
             </h3>

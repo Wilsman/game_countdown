@@ -50,20 +50,105 @@ interface RegionalReleaseTime {
   date: Date;
 }
 
-interface Game {
+export type GameSource = "default" | "custom";
+
+export interface Game {
   id: string;
   title: string;
   titleColor: string;
   targetDate: Date;
   targetTimezone: string;
   type: "game" | "utility";
+  source: GameSource;
+  createdAt: Date | null;
   regionalReleaseTimes?: RegionalReleaseTime[];
 }
 
+type GameBase = Omit<Game, "source" | "createdAt">;
+
 export const useTimerStore = defineStore("timer", () => {
+  const CUSTOM_GAMES_STORAGE_KEY = "game-countdown.custom-games";
+  const ACTIVE_CUSTOM_GAME_STORAGE_KEY = "game-countdown.active-custom-game-id";
+
   // Get user's current timezone
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const crimsonDesertGlobalReleaseDate = new Date("2026-03-19T22:00:00Z");
+
+  const cloneRegionalReleaseTimes = (
+    regionalReleaseTimes?: RegionalReleaseTime[],
+  ) =>
+    regionalReleaseTimes?.map((regionalRelease) => ({
+      ...regionalRelease,
+      date: new Date(regionalRelease.date),
+    }));
+
+  const toDefaultGame = (game: GameBase): Game => ({
+    ...game,
+    targetDate: new Date(game.targetDate),
+    source: "default",
+    createdAt: null,
+    regionalReleaseTimes: cloneRegionalReleaseTimes(game.regionalReleaseTimes),
+  });
+
+  const toCustomGame = (game: Game): Game => ({
+    ...game,
+    targetDate: new Date(game.targetDate),
+    createdAt: game.createdAt ? new Date(game.createdAt) : new Date(),
+    regionalReleaseTimes: cloneRegionalReleaseTimes(game.regionalReleaseTimes),
+  });
+
+  const isValidStoredCustomGame = (value: unknown): value is Game => {
+    if (!value || typeof value !== "object") return false;
+
+    const game = value as Record<string, unknown>;
+    const parsedTargetDate = new Date(String(game.targetDate ?? ""));
+    const parsedCreatedAt = new Date(String(game.createdAt ?? game.targetDate ?? ""));
+
+    return (
+      typeof game.id === "string" &&
+      typeof game.title === "string" &&
+      typeof game.titleColor === "string" &&
+      typeof game.targetTimezone === "string" &&
+      game.type === "game" &&
+      game.source === "custom" &&
+      !Number.isNaN(parsedTargetDate.getTime()) &&
+      !Number.isNaN(parsedCreatedAt.getTime())
+    );
+  };
+
+  const loadPersistedCustomGames = (): Game[] => {
+    if (typeof window === "undefined") return [];
+
+    try {
+      const raw = window.localStorage.getItem(CUSTOM_GAMES_STORAGE_KEY);
+      if (!raw) return [];
+
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+
+      return parsed
+        .filter(isValidStoredCustomGame)
+        .map((game) =>
+          toCustomGame({
+            ...game,
+            targetDate: new Date(game.targetDate),
+            createdAt: new Date(game.createdAt ?? game.targetDate),
+          }),
+        );
+    } catch {
+      return [];
+    }
+  };
+
+  const loadPersistedActiveCustomGameId = (): string | null => {
+    if (typeof window === "undefined") return null;
+
+    try {
+      return window.localStorage.getItem(ACTIVE_CUSTOM_GAME_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  };
 
   // Function to handle URL parameters
   const handleUrlParams = () => {
@@ -124,7 +209,7 @@ export const useTimerStore = defineStore("timer", () => {
           const tz = timezone || userTimezone;
           const colorHex = color ? `#${color.replace(/^#/, "")}` : undefined;
           // Create with the provided id so subsequent shares are stable
-          addGame(newTitle, date, tz, "game", gameId);
+          addCustomTimer(newTitle, date, tz, gameId);
           // Apply color if provided
           if (colorHex) setGameTitleColor(colorHex);
         }
@@ -175,7 +260,7 @@ export const useTimerStore = defineStore("timer", () => {
   };
 
   // Default games
-  const defaultGames: Game[] = [
+  const defaultGames: GameBase[] = [
     {
       id: "break-60",
       title: "eepy time 😴 (60min)",
@@ -823,10 +908,51 @@ export const useTimerStore = defineStore("timer", () => {
     },
   ];
 
+  const createDefaultGames = () => defaultGames.map(toDefaultGame);
+
+  const persistCustomGames = () => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const customGames = games.value
+        .filter((game) => game.source === "custom")
+        .map((game) => ({
+          ...game,
+          targetDate: game.targetDate.toISOString(),
+          createdAt: game.createdAt?.toISOString() ?? new Date().toISOString(),
+        }));
+
+      window.localStorage.setItem(
+        CUSTOM_GAMES_STORAGE_KEY,
+        JSON.stringify(customGames),
+      );
+    } catch {
+      // Ignore storage failures so the timer keeps working.
+    }
+  };
+
+  const setPersistedActiveCustomGameId = (gameId: string | null) => {
+    if (typeof window === "undefined") return;
+
+    try {
+      if (gameId) {
+        window.localStorage.setItem(ACTIVE_CUSTOM_GAME_STORAGE_KEY, gameId);
+      } else {
+        window.localStorage.removeItem(ACTIVE_CUSTOM_GAME_STORAGE_KEY);
+      }
+    } catch {
+      // Ignore storage failures so the timer keeps working.
+    }
+  };
+
   // Store state
-  const games = ref<Game[]>(defaultGames);
+  const games = ref<Game[]>([
+    ...createDefaultGames(),
+    ...loadPersistedCustomGames(),
+  ]);
   // Will be set to the soonest ending game by findAndSetNextUpcomingGame
   const activeGameIndex = ref(0);
+  const persistedActiveCustomGameId = ref(loadPersistedActiveCustomGameId());
   const pendingRegionalReleaseGameId = ref<string | null>(null);
   const isEditMode = ref(false);
   const isObsMode = ref(false);
@@ -949,7 +1075,7 @@ export const useTimerStore = defineStore("timer", () => {
 
     // Only update if we found a valid game
     if (foundGame) {
-      activeGameIndex.value = nextGameIndex;
+      setActiveGameIndex(nextGameIndex);
     }
   }
 
@@ -1045,9 +1171,21 @@ export const useTimerStore = defineStore("timer", () => {
     stopCelebration();
   }
 
+  const customGameOptions = computed(() =>
+    games.value
+      .filter((game) => game.source === "custom")
+      .sort((a, b) => {
+        const timeDiff = a.targetDate.getTime() - b.targetDate.getTime();
+        if (timeDiff !== 0) return timeDiff;
+
+        return (
+          (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)
+        );
+      }),
+  );
   const gameOptions = computed(() =>
     games.value
-      .filter((game) => game.type === "game")
+      .filter((game) => game.type === "game" && game.source === "default")
       .sort((a, b) => a.targetDate.getTime() - b.targetDate.getTime()),
   );
   const utilityOptions = computed(() =>
@@ -1056,10 +1194,20 @@ export const useTimerStore = defineStore("timer", () => {
       .sort((a, b) => a.targetDate.getTime() - b.targetDate.getTime()),
   );
 
+  const syncCustomGamePersistence = (gameId: string) => {
+    const game = games.value.find((candidate) => candidate.id === gameId);
+    if (!game) return;
+
+    if (game.source === "custom") {
+      persistCustomGames();
+    }
+  };
+
   const setTargetDate = (date: Date, timezone: string = userTimezone): void => {
     if (games.value[activeGameIndex.value]) {
       games.value[activeGameIndex.value].targetDate = date;
       games.value[activeGameIndex.value].targetTimezone = timezone;
+      syncCustomGamePersistence(games.value[activeGameIndex.value].id);
     }
   };
 
@@ -1067,6 +1215,7 @@ export const useTimerStore = defineStore("timer", () => {
     const gameIndex = activeGameIndex.value;
     if (gameIndex !== -1 && games.value[gameIndex]) {
       games.value[gameIndex] = { ...games.value[gameIndex], titleColor: color };
+      syncCustomGamePersistence(games.value[gameIndex].id);
 
       // Update CSS variables if running in browser
       if (typeof window !== "undefined") {
@@ -1099,12 +1248,18 @@ export const useTimerStore = defineStore("timer", () => {
   const setGameTitle = (title: string): void => {
     if (games.value[activeGameIndex.value]) {
       games.value[activeGameIndex.value].title = title;
+      syncCustomGamePersistence(games.value[activeGameIndex.value].id);
     }
   };
 
   const setActiveGameIndex = (index: number): void => {
     if (index >= 0 && index < games.value.length) {
       activeGameIndex.value = index;
+      const activeGame = games.value[index];
+      const customGameId =
+        activeGame?.source === "custom" ? activeGame.id : null;
+      persistedActiveCustomGameId.value = customGameId;
+      setPersistedActiveCustomGameId(customGameId);
     }
   };
 
@@ -1171,9 +1326,81 @@ export const useTimerStore = defineStore("timer", () => {
       targetDate: date,
       targetTimezone: timezone,
       type,
+      source: "default",
+      createdAt: null,
     });
     // Set the newly added game as active
-    activeGameIndex.value = games.value.length - 1;
+    setActiveGameIndex(games.value.length - 1);
+  };
+
+  const addCustomTimer = (
+    title: string,
+    date: Date,
+    timezone: string = userTimezone,
+    idOverride?: string,
+  ): Game => {
+    const id = idOverride || `custom-${Date.now()}`;
+    const customGame: Game = {
+      id,
+      title,
+      titleColor: "#ffffff",
+      targetDate: date,
+      targetTimezone: timezone,
+      type: "game",
+      source: "custom",
+      createdAt: new Date(),
+    };
+
+    const existingIndex = games.value.findIndex((game) => game.id === id);
+    if (existingIndex !== -1) {
+      games.value[existingIndex] = customGame;
+      setActiveGameIndex(existingIndex);
+    } else {
+      games.value.push(customGame);
+      setActiveGameIndex(games.value.length - 1);
+    }
+
+    persistCustomGames();
+    return customGame;
+  };
+
+  const updateCustomTimer = (
+    gameId: string,
+    updates: Pick<Game, "title" | "targetDate" | "targetTimezone">,
+  ): void => {
+    const gameIndex = games.value.findIndex((game) => game.id === gameId);
+    if (gameIndex === -1 || games.value[gameIndex].source !== "custom") return;
+
+    games.value[gameIndex] = {
+      ...games.value[gameIndex],
+      title: updates.title,
+      targetDate: updates.targetDate,
+      targetTimezone: updates.targetTimezone,
+    };
+
+    setActiveGameIndex(gameIndex);
+    persistCustomGames();
+  };
+
+  const removeCustomTimer = (gameId: string): void => {
+    const gameIndex = games.value.findIndex((game) => game.id === gameId);
+    if (gameIndex === -1 || games.value[gameIndex].source !== "custom") return;
+
+    const wasActive = activeGameIndex.value === gameIndex;
+    games.value.splice(gameIndex, 1);
+    persistCustomGames();
+
+    if (wasActive) {
+      persistedActiveCustomGameId.value = null;
+      setPersistedActiveCustomGameId(null);
+      activeGameIndex.value = 0;
+      findAndSetNextUpcomingGame();
+      return;
+    }
+
+    if (activeGameIndex.value > gameIndex) {
+      activeGameIndex.value -= 1;
+    }
   };
 
   const removeGame = (index: number): void => {
@@ -1187,7 +1414,13 @@ export const useTimerStore = defineStore("timer", () => {
   };
 
   const resetGames = (): void => {
-    games.value = JSON.parse(JSON.stringify(defaultGames));
+    const customGames = games.value
+      .filter((game) => game.source === "custom")
+      .map(toCustomGame);
+
+    games.value = [...createDefaultGames(), ...customGames];
+    persistedActiveCustomGameId.value = null;
+    setPersistedActiveCustomGameId(null);
     activeGameIndex.value = 0;
     pendingRegionalReleaseGameId.value = null;
     findAndSetNextUpcomingGame();
@@ -1311,9 +1544,20 @@ export const useTimerStore = defineStore("timer", () => {
     return url.toString();
   }
 
-  // Set the initial active game to the soonest ending one
+  // Set the initial active game to a saved custom timer when available,
+  // otherwise fall back to the soonest upcoming countdown.
   if (typeof window !== "undefined") {
-    findAndSetNextUpcomingGame();
+    const savedCustomIndex = persistedActiveCustomGameId.value
+      ? games.value.findIndex(
+          (game) => game.id === persistedActiveCustomGameId.value,
+        )
+      : -1;
+
+    if (savedCustomIndex >= 0) {
+      setActiveGameIndex(savedCustomIndex);
+    } else {
+      findAndSetNextUpcomingGame();
+    }
   }
 
   return {
@@ -1347,8 +1591,12 @@ export const useTimerStore = defineStore("timer", () => {
     restartCountdown,
     startTimer,
     stopTimer,
+    customGameOptions,
     gameOptions,
     utilityOptions,
+    addCustomTimer,
+    updateCustomTimer,
+    removeCustomTimer,
   };
 });
 

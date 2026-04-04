@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { Toaster, toast } from "vue-sonner";
 
+import CountdownEditorDialog from "./components/CountdownEditorDialog.vue";
 import ControlPanel from "./components/ControlPanel.vue";
 import GameSelector from "./components/GameSelector.vue";
 import OverlayCustomizer from "./components/OverlayCustomizer.vue";
@@ -26,7 +27,8 @@ const { gameTitle, gameTitleColor, isObsMode, settings } =
 
 const isFocusMode = ref(false);
 const isCustomizing = ref(false);
-const createTimerRequest = ref(0);
+const countdownDialogMode = ref<"create" | "edit" | null>(null);
+const countdownDialogGameId = ref<string | null>(null);
 
 const showChrome = computed(
   () => !isFocusMode.value && !isObsMode.value && !isCustomizing.value
@@ -36,9 +38,19 @@ const toggleCustomizing = () => {
   isCustomizing.value = !isCustomizing.value;
 };
 
-const openCreateTimerFromCustomizer = () => {
-  isCustomizing.value = false;
-  createTimerRequest.value += 1;
+const closeCountdownDialog = () => {
+  countdownDialogMode.value = null;
+  countdownDialogGameId.value = null;
+};
+
+const openCreateCountdownDialog = () => {
+  countdownDialogMode.value = "create";
+  countdownDialogGameId.value = timerStore.activeGame.id;
+};
+
+const openEditCountdownDialog = () => {
+  countdownDialogMode.value = "edit";
+  countdownDialogGameId.value = timerStore.activeGame.id;
 };
 
 const MARATHON_DUO_THEME_IDS = new Set([
@@ -156,7 +168,7 @@ watch(
           <OverlayCustomizer
             v-if="isCustomizing"
             @close="toggleCustomizing"
-            @create-timer="openCreateTimerFromCustomizer"
+            @create-timer="openCreateCountdownDialog"
           />
 
           <template v-else>
@@ -205,7 +217,10 @@ watch(
                 }"
               >
                 <div v-if="!isObsMode" class="w-full max-w-4xl">
-                  <GameSelector variant="hero" />
+                  <GameSelector
+                    variant="hero"
+                    @create="openCreateCountdownDialog"
+                  />
                 </div>
 
                 <p
@@ -226,9 +241,10 @@ watch(
                   class="timer-display-core w-full"
                   :is-focus-mode="isFocusMode"
                   :is-obs-override="isObsMode"
-                  :create-timer-request="createTimerRequest"
                   @toggle-focus="toggleFocusMode"
                   @customize="toggleCustomizing"
+                  @open-create="openCreateCountdownDialog"
+                  @open-edit="openEditCountdownDialog"
                 />
               </div>
             </div>
@@ -263,6 +279,12 @@ watch(
       </button>
     </div>
   </div>
+  <CountdownEditorDialog
+    :is-open="countdownDialogMode !== null"
+    :mode="countdownDialogMode ?? 'create'"
+    :initial-game-id="countdownDialogGameId"
+    @close="closeCountdownDialog"
+  />
   <RegionalReleasePicker />
   <Toaster position="bottom-center" />
 </template>
