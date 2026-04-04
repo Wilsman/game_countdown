@@ -969,7 +969,7 @@ export const useTimerStore = defineStore("timer", () => {
     enableChristmasTheme: false,
     digitColor: null,
     labelColor: null,
-    digitSize: null,
+    digitSize: 100,
     labelSize: null,
     titleSize: null,
     glowColor: null,

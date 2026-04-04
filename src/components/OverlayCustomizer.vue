@@ -35,7 +35,7 @@ const resetCustomization = () => {
   store.updateSettings({
     digitColor: null,
     labelColor: null,
-    digitSize: null,
+    digitSize: 100,
     labelSize: null,
     titleSize: null,
     glowColor: null,
@@ -617,14 +617,14 @@ const titleTextShadow = computed(() => {
                           >Digit Size</label
                         >
                         <span class="text-[10px] font-mono text-cyan-400"
-                          >{{ settings.digitSize || 60 }}px</span
+                          >{{ settings.digitSize || 100 }}px</span
                         >
                       </div>
                       <input
                         type="range"
                         min="20"
                         max="200"
-                        :value="settings.digitSize || 60"
+                        :value="settings.digitSize || 100"
                         @input="
                           update(
                             'digitSize',
