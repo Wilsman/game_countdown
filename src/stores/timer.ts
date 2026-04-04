@@ -667,6 +667,110 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "replaced",
+      title: "REPLACED",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-14T00:00:00Z"), // April 14, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "mouse-pi-for-hire",
+      title: "MOUSE: P.I. For Hire",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-16T00:00:00Z"), // April 16, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "tides-of-tomorrow",
+      title: "Tides of Tomorrow",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-22T00:00:00Z"), // April 22, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "outbound",
+      title: "Outbound",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-23T00:00:00Z"), // April 23, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "moomintroll-winters-warmth",
+      title: "Moomintroll: Winter's Warmth",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-27T00:00:00Z"), // April 27, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "hades-ii-xbox-pc-pc-game-pass",
+      title: "Hades II on Xbox PC / PC Game Pass",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-14T00:00:00Z"), // April 14, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "diablo-iv-lord-of-hatred",
+      title: "Diablo IV: Lord of Hatred",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-28T00:00:00Z"), // April 28, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "will-follow-the-light",
+      title: "WILL: Follow The Light",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-28T00:00:00Z"), // April 28, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "heroes-of-might-and-magic-olden-era",
+      title: "Heroes of Might and Magic: Olden Era",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-30T00:00:00Z"), // April 30, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "wax-heads",
+      title: "Wax Heads",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-05-05T00:00:00Z"), // May 5, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "mixtape",
+      title: "Mixtape",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-05-07T00:00:00Z"), // May 7, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "zero-parades-for-dead-spies",
+      title: "ZERO PARADES: For Dead Spies",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-05-21T00:00:00Z"), // May 21, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "paralives",
+      title: "Paralives",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-05-25T00:00:00Z"), // May 25, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "gray-zone-warfare-1",
       title: "Gray Zone Warfare 1.0",
       titleColor: "#a9a9a9",
@@ -903,6 +1007,78 @@ export const useTimerStore = defineStore("timer", () => {
       title: "Rules of Engagement: The Grey State",
       titleColor: "#708090",
       targetDate: new Date("2026-06-01T00:00:00Z"), // Est 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "gothic-1-remake",
+      title: "Gothic 1 Remake",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-06-05T00:00:00Z"), // June 5, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "the-adventures-of-elliot-the-millennium-tales",
+      title: "The Adventures of Elliot: The Millennium Tales",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-06-18T00:00:00Z"), // June 18, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "ascend-to-zero",
+      title: "Ascend to Zero",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-07-13T00:00:00Z"), // July 13, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "grave-seasons",
+      title: "Grave Seasons",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-14T00:00:00Z"), // August 14, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "metal-gear-solid-master-collection-vol-2",
+      title: "Metal Gear Solid: Master Collection Vol. 2",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-27T00:00:00Z"), // August 27, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "people-of-note",
+      title: "People of Note",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-07T00:00:00Z"), // April 7, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "morbid-metal",
+      title: "Morbid Metal",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-08T00:00:00Z"), // April 8, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "the-occultist",
+      title: "The Occultist",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-08T00:00:00Z"), // April 8, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "find-your-words",
+      title: "Find Your Words",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-08T00:00:00Z"), // April 8, 2026 (time not announced)
       targetTimezone: "UTC",
       type: "game",
     },
