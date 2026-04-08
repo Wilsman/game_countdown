@@ -7,11 +7,29 @@ export async function onRequest(context: { request: Request; env: Env }) {
   const url = new URL(request.url);
 
   // Parse query parameters
-  const game = url.searchParams.get("game") || "Game Countdown";
-  const dateStr = url.searchParams.get("date");
-  const timezone = url.searchParams.get("timezone") || "UTC";
-  const title = url.searchParams.get("title") || game;
-  const color = url.searchParams.get("color") || "7ed2eb";
+  let game = url.searchParams.get("game") || "Game Countdown";
+  let dateStr = url.searchParams.get("date");
+  let timezone = url.searchParams.get("timezone") || "UTC";
+  let title = url.searchParams.get("title") || game;
+  let color = url.searchParams.get("color") || "7ed2eb";
+
+  // If parameters are not in query string, try to get them from referer header
+  // This is needed for Discord crawler which doesn't execute JavaScript
+  if (!dateStr) {
+    const referer = request.headers.get("referer");
+    if (referer) {
+      try {
+        const refererUrl = new URL(referer);
+        game = refererUrl.searchParams.get("game") || game;
+        dateStr = refererUrl.searchParams.get("date");
+        timezone = refererUrl.searchParams.get("timezone") || timezone;
+        title = refererUrl.searchParams.get("title") || title;
+        color = refererUrl.searchParams.get("color") || color;
+      } catch (e) {
+        console.error("Failed to parse referer:", e);
+      }
+    }
+  }
 
   // Calculate countdown
   let countdownText = "Loading...";
