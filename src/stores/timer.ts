@@ -102,7 +102,9 @@ export const useTimerStore = defineStore("timer", () => {
 
     const game = value as Record<string, unknown>;
     const parsedTargetDate = new Date(String(game.targetDate ?? ""));
-    const parsedCreatedAt = new Date(String(game.createdAt ?? game.targetDate ?? ""));
+    const parsedCreatedAt = new Date(
+      String(game.createdAt ?? game.targetDate ?? ""),
+    );
 
     return (
       typeof game.id === "string" &&
@@ -126,15 +128,13 @@ export const useTimerStore = defineStore("timer", () => {
       const parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) return [];
 
-      return parsed
-        .filter(isValidStoredCustomGame)
-        .map((game) =>
-          toCustomGame({
-            ...game,
-            targetDate: new Date(game.targetDate),
-            createdAt: new Date(game.createdAt ?? game.targetDate),
-          }),
-        );
+      return parsed.filter(isValidStoredCustomGame).map((game) =>
+        toCustomGame({
+          ...game,
+          targetDate: new Date(game.targetDate),
+          createdAt: new Date(game.createdAt ?? game.targetDate),
+        }),
+      );
     } catch {
       return [];
     }
@@ -779,6 +779,62 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "grayzone-warfare-drops-stage-2-start",
+      title: "Grayzone Warfare Drops Stage 2 - PB Laugo Arms (Starts)",
+      titleColor: "#a9a9a9",
+      targetDate: new Date("2026-04-04T13:00:00Z"), // April 4, 2026 at 15:00 CEST
+      targetTimezone: "Europe/Berlin",
+      type: "game",
+    },
+    {
+      id: "grayzone-warfare-drops-stage-2-end",
+      title: "Grayzone Warfare Drops Stage 2 - PB Laugo Arms (Ends)",
+      titleColor: "#a9a9a9",
+      targetDate: new Date("2026-04-08T12:59:00Z"), // April 8, 2026 at 14:59 CEST
+      targetTimezone: "Europe/Berlin",
+      type: "game",
+    },
+    {
+      id: "grayzone-warfare-hotfix-shutdown",
+      title: "Gray Zone Warfare: Hotfix Shutdown Starts",
+      titleColor: "#a9a9a9",
+      targetDate: new Date("2026-04-08T07:30:00Z"), // April 8, 2026 at 3:30 AM EDT / 9:30 AM CEST
+      targetTimezone: "America/New_York",
+      type: "game",
+    },
+    {
+      id: "grayzone-warfare-hotfix-down",
+      title: "Gray Zone Warfare: Servers Down",
+      titleColor: "#a9a9a9",
+      targetDate: new Date("2026-04-08T08:00:00Z"), // April 8, 2026 at 4:00 AM EDT / 10:00 AM CEST
+      targetTimezone: "America/New_York",
+      type: "game",
+    },
+    {
+      id: "grayzone-warfare-hotfix-up",
+      title: "Gray Zone Warfare: Servers Back Online",
+      titleColor: "#a9a9a9",
+      targetDate: new Date("2026-04-08T08:40:00Z"), // April 8, 2026 at 4:40 AM EDT / 10:40 AM CEST
+      targetTimezone: "America/New_York",
+      type: "game",
+    },
+    {
+      id: "grayzone-warfare-twitch-drops-stage-3-start",
+      title: "Gray Zone Warfare: Twitch Drops Stage 3 (Starts)",
+      titleColor: "#a9a9a9",
+      targetDate: new Date("2026-04-08T13:00:00Z"), // April 8, 2026 at 9 AM ET / 2 PM UK / 3 PM CET
+      targetTimezone: "America/New_York",
+      type: "game",
+    },
+    {
+      id: "grayzone-warfare-twitch-drops-stage-3-end",
+      title: "Gray Zone Warfare: Twitch Drops Stage 3 (Ends)",
+      titleColor: "#a9a9a9",
+      targetDate: new Date("2026-04-12T23:59:00-04:00"), // April 12, 2026 at 11:59 PM ET (end of day)
+      targetTimezone: "America/New_York",
+      type: "game",
+    },
+    {
       id: "cor3-teaser-video",
       title: "COR3 teaser video",
       titleColor: "#ffffff",
@@ -1185,8 +1241,9 @@ export const useTimerStore = defineStore("timer", () => {
     if (!pendingRegionalReleaseGameId.value) return null;
 
     return (
-      games.value.find((game) => game.id === pendingRegionalReleaseGameId.value) ||
-      null
+      games.value.find(
+        (game) => game.id === pendingRegionalReleaseGameId.value,
+      ) || null
     );
   });
   const gameTitle = computed(() => activeGame.value.title);
@@ -1354,9 +1411,7 @@ export const useTimerStore = defineStore("timer", () => {
         const timeDiff = a.targetDate.getTime() - b.targetDate.getTime();
         if (timeDiff !== 0) return timeDiff;
 
-        return (
-          (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)
-        );
+        return (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0);
       }),
   );
   const gameOptions = computed(() =>
@@ -1787,7 +1842,3 @@ export const useTimerStore = defineStore("timer", () => {
     removeCustomTimer,
   };
 });
-
-
-
-
