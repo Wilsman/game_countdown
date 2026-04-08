@@ -22,7 +22,7 @@ type Theme = "light" | "dark";
 const isClient = typeof window !== "undefined";
 
 const timerStore = useTimerStore();
-const { gameTitle, gameTitleColor, isObsMode, settings } =
+const { gameTitle, gameTitleColor, isObsMode, settings, activeGame } =
   storeToRefs(timerStore);
 
 const isFocusMode = ref(false);
@@ -31,7 +31,7 @@ const countdownDialogMode = ref<"create" | "edit" | null>(null);
 const countdownDialogGameId = ref<string | null>(null);
 
 const showChrome = computed(
-  () => !isFocusMode.value && !isObsMode.value && !isCustomizing.value
+  () => !isFocusMode.value && !isObsMode.value && !isCustomizing.value,
 );
 
 const toggleCustomizing = () => {
@@ -59,7 +59,7 @@ const MARATHON_DUO_THEME_IDS = new Set([
 ]);
 
 const isMarathonDuoTheme = computed(() =>
-  MARATHON_DUO_THEME_IDS.has((timerStore.activeGame?.id ?? "").toLowerCase())
+  MARATHON_DUO_THEME_IDS.has((timerStore.activeGame?.id ?? "").toLowerCase()),
 );
 
 const gameBackground = computed<GameBackgroundMeta | null>(() => {
@@ -87,7 +87,7 @@ const gameBackground = computed<GameBackgroundMeta | null>(() => {
 });
 
 const hasGameBackground = computed(() =>
-  Boolean(gameBackground.value && settings.value.enableGameBackground)
+  Boolean(gameBackground.value && settings.value.enableGameBackground),
 );
 
 const toggleFocusMode = () => {
@@ -120,13 +120,66 @@ const titleTextShadow = computed(() => {
   return shadow;
 });
 
+const updateMetaTags = () => {
+  if (!isClient) return;
+
+  const game = activeGame.value;
+  if (!game) return;
+
+  // Update OG image with current parameters
+  const ogImageMeta = document.querySelector('meta[property="og:image"]');
+  const twitterImageMeta = document.querySelector('meta[name="twitter:image"]');
+
+  if (ogImageMeta) {
+    const imageUrl = `/api/og?game=${encodeURIComponent(game.id)}&date=${encodeURIComponent(game.targetDate.toISOString())}&timezone=${encodeURIComponent(game.targetTimezone)}&title=${encodeURIComponent(game.title)}&color=${encodeURIComponent(game.titleColor.replace("#", ""))}`;
+    ogImageMeta.setAttribute("content", imageUrl);
+  }
+
+  if (twitterImageMeta) {
+    const imageUrl = `/api/og?game=${encodeURIComponent(game.id)}&date=${encodeURIComponent(game.targetDate.toISOString())}&timezone=${encodeURIComponent(game.targetTimezone)}&title=${encodeURIComponent(game.title)}&color=${encodeURIComponent(game.titleColor.replace("#", ""))}`;
+    twitterImageMeta.setAttribute("content", imageUrl);
+  }
+
+  // Update OG title and description
+  const ogTitleMeta = document.querySelector('meta[property="og:title"]');
+  const ogDescMeta = document.querySelector('meta[property="og:description"]');
+  const twitterTitleMeta = document.querySelector('meta[name="twitter:title"]');
+  const twitterDescMeta = document.querySelector(
+    'meta[name="twitter:description"]',
+  );
+
+  if (ogTitleMeta) {
+    ogTitleMeta.setAttribute("content", game.title);
+  }
+  if (ogDescMeta) {
+    ogDescMeta.setAttribute("content", `Countdown to ${game.title}`);
+  }
+  if (twitterTitleMeta) {
+    twitterTitleMeta.setAttribute("content", game.title);
+  }
+  if (twitterDescMeta) {
+    twitterDescMeta.setAttribute("content", `Countdown to ${game.title}`);
+  }
+
+  // Update page title
+  document.title = `${game.title} - Game Countdown`;
+};
+
+watch(
+  activeGame,
+  () => {
+    updateMetaTags();
+  },
+  { immediate: true },
+);
+
 watch(
   () => timerStore.settings.theme as Theme,
   (theme) => {
     if (!isClient) return;
     document.documentElement.classList.toggle("dark", theme === "dark");
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 
@@ -158,7 +211,9 @@ watch(
           v-if="showChrome"
           class="flex items-center justify-between gap-4 border-b border-cyan-200/10 pb-4"
         >
-          <p class="text-sm font-medium uppercase tracking-[0.18em] text-cyan-200/80">
+          <p
+            class="text-sm font-medium uppercase tracking-[0.18em] text-cyan-200/80"
+          >
             Game Countdown
           </p>
           <ControlPanel />
@@ -210,7 +265,7 @@ watch(
                       : undefined,
                   '--obs-shine-opacity':
                     isObsMode && settings.showShine
-                      ? settings.shineOpacity ?? 0.22
+                      ? (settings.shineOpacity ?? 0.22)
                       : 0,
                   '--obs-shine-state':
                     isObsMode && settings.showShine ? 'running' : 'paused',
@@ -293,11 +348,7 @@ watch(
 .background-mesh {
   position: relative;
   background:
-    radial-gradient(
-      circle at top,
-      rgba(126, 210, 235, 0.12),
-      transparent 28%
-    ),
+    radial-gradient(circle at top, rgba(126, 210, 235, 0.12), transparent 28%),
     linear-gradient(180deg, #131313 0%, #101010 46%, #0c0c0c 100%);
 }
 
@@ -321,9 +372,21 @@ watch(
 
 .background-mesh::after {
   background:
-    radial-gradient(circle at 18% 16%, rgba(126, 210, 235, 0.08), transparent 22%),
-    radial-gradient(circle at 82% 12%, rgba(67, 156, 179, 0.08), transparent 22%),
-    radial-gradient(circle at 50% 74%, rgba(255, 186, 61, 0.06), transparent 26%);
+    radial-gradient(
+      circle at 18% 16%,
+      rgba(126, 210, 235, 0.08),
+      transparent 22%
+    ),
+    radial-gradient(
+      circle at 82% 12%,
+      rgba(67, 156, 179, 0.08),
+      transparent 22%
+    ),
+    radial-gradient(
+      circle at 50% 74%,
+      rgba(255, 186, 61, 0.06),
+      transparent 26%
+    );
 }
 
 .background-mesh.with-game-background {
