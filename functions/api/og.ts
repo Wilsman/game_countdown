@@ -62,41 +62,44 @@ export async function onRequest(context: { request: Request; env: Env }) {
   try {
     // placehold.co allows custom text on images
     const text1 = encodeURIComponent(countdownText);
-    const text2 = encodeURIComponent(subtitleText);
 
-    // Create image URL with custom text
-    const imageUrl = `https://placehold.co/1200x630/131313/${color}?text=${text1}&font=roboto&fontsize=120`;
+    // Create image URL with custom text - use simpler URL format
+    const imageUrl = `https://placehold.co/1200x630/131313/${color}?text=${text1}`;
 
     const imageResponse = await fetch(imageUrl);
 
     if (imageResponse.ok) {
       const imageBuffer = await imageResponse.arrayBuffer();
-      return new Response(imageBuffer, {
-        headers: {
-          "Content-Type": "image/png",
-          "Cache-Control": "public, max-age=60",
-        },
-      });
+
+      // Verify it's actually PNG by checking the file signature
+      const uint8Array = new Uint8Array(imageBuffer);
+      const isPng =
+        uint8Array[0] === 0x89 &&
+        uint8Array[1] === 0x50 &&
+        uint8Array[2] === 0x4e &&
+        uint8Array[3] === 0x47;
+
+      if (isPng && imageBuffer.byteLength > 1000) {
+        return new Response(imageBuffer, {
+          headers: {
+            "Content-Type": "image/png",
+            "Cache-Control": "public, max-age=60",
+          },
+        });
+      }
     }
   } catch (e) {
     console.error("Placehold service failed:", e);
   }
 
-  // Fallback: return JSON with countdown data
-  return new Response(
-    JSON.stringify({
-      countdown: countdownText,
-      title: subtitleText,
-      color: color,
-      game: game,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "public, max-age=60",
-      },
+  // Fallback: return SVG with correct Content-Type
+  const svg = generateOGSVG(countdownText, subtitleText, color);
+  return new Response(svg, {
+    headers: {
+      "Content-Type": "image/svg+xml",
+      "Cache-Control": "public, max-age=60",
     },
-  );
+  });
 }
 
 function escapeHTML(str: string): string {
@@ -106,6 +109,49 @@ function escapeHTML(str: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function generateOGSVG(
+  countdown: string,
+  subtitle: string,
+  colorHex: string,
+): string {
+  const color = `#${colorHex}`;
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#131313"/>
+  
+  <!-- Countdown text -->
+  <text x="600" y="280" 
+        text-anchor="middle" 
+        font-family="Arial, sans-serif" 
+        font-size="120" 
+        font-weight="bold" 
+        fill="${color}">
+    ${escapeXML(countdown)}
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="400" 
+        text-anchor="middle" 
+        font-family="Arial, sans-serif" 
+        font-size="48" 
+        font-weight="bold" 
+        fill="#e5e2e1">
+    ${escapeXML(subtitle)}
+  </text>
+  
+  <!-- Footer text -->
+  <text x="600" y="560" 
+        text-anchor="middle" 
+        font-family="Arial, sans-serif" 
+        font-size="24" 
+        fill="#a0a0a0">
+    UTC countdowns · regional launch selection
+  </text>
+</svg>`;
 }
 
 function escapeXML(str: string): string {
