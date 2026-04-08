@@ -787,14 +787,6 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "grayzone-warfare-drops-stage-2-end",
-      title: "Grayzone Warfare Drops Stage 2 - PB Laugo Arms (Ends)",
-      titleColor: "#a9a9a9",
-      targetDate: new Date("2026-04-08T12:59:00Z"), // April 8, 2026 at 14:59 CEST
-      targetTimezone: "Europe/Berlin",
-      type: "game",
-    },
-    {
       id: "grayzone-warfare-hotfix-shutdown",
       title: "Gray Zone Warfare: Hotfix Shutdown Starts",
       titleColor: "#a9a9a9",
