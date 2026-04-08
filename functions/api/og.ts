@@ -58,8 +58,31 @@ export async function onRequest(context: { request: Request; env: Env }) {
     subtitleText = "Share a timer to see the countdown";
   }
 
-  // Return JSON with countdown data
-  // This can be used by the frontend or other services
+  // Try to generate PNG using placehold.co (free service with custom text)
+  try {
+    // placehold.co allows custom text on images
+    const text1 = encodeURIComponent(countdownText);
+    const text2 = encodeURIComponent(subtitleText);
+
+    // Create image URL with custom text
+    const imageUrl = `https://placehold.co/1200x630/131313/${color}?text=${text1}&font=roboto&fontsize=120`;
+
+    const imageResponse = await fetch(imageUrl);
+
+    if (imageResponse.ok) {
+      const imageBuffer = await imageResponse.arrayBuffer();
+      return new Response(imageBuffer, {
+        headers: {
+          "Content-Type": "image/png",
+          "Cache-Control": "public, max-age=60",
+        },
+      });
+    }
+  } catch (e) {
+    console.error("Placehold service failed:", e);
+  }
+
+  // Fallback: return JSON with countdown data
   return new Response(
     JSON.stringify({
       countdown: countdownText,
