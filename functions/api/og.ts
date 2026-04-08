@@ -58,59 +58,31 @@ export async function onRequest(context: { request: Request; env: Env }) {
     subtitleText = "Share a timer to see the countdown";
   }
 
-  // Generate SVG image
-  const svg = generateOGSVG(countdownText, subtitleText, color);
-
-  return new Response(svg, {
-    headers: {
-      "Content-Type": "image/svg+xml",
-      "Cache-Control": "public, max-age=60",
-      "Access-Control-Allow-Origin": "*",
+  // Return JSON with countdown data
+  // This can be used by the frontend or other services
+  return new Response(
+    JSON.stringify({
+      countdown: countdownText,
+      title: subtitleText,
+      color: color,
+      game: game,
+    }),
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=60",
+      },
     },
-  });
+  );
 }
 
-function generateOGSVG(
-  countdown: string,
-  subtitle: string,
-  colorHex: string,
-): string {
-  const color = `#${colorHex}`;
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="1200" height="630" fill="#131313"/>
-  
-  <!-- Countdown text -->
-  <text x="600" y="280" 
-        text-anchor="middle" 
-        font-family="Arial, sans-serif" 
-        font-size="120" 
-        font-weight="bold" 
-        fill="${color}">
-    ${escapeXML(countdown)}
-  </text>
-  
-  <!-- Subtitle -->
-  <text x="600" y="400" 
-        text-anchor="middle" 
-        font-family="Arial, sans-serif" 
-        font-size="48" 
-        font-weight="bold" 
-        fill="#e5e2e1">
-    ${escapeXML(subtitle)}
-  </text>
-  
-  <!-- Footer text -->
-  <text x="600" y="560" 
-        text-anchor="middle" 
-        font-family="Arial, sans-serif" 
-        font-size="24" 
-        fill="#a0a0a0">
-    UTC countdowns · regional launch selection
-  </text>
-</svg>`;
+function escapeHTML(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function escapeXML(str: string): string {
