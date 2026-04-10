@@ -1,13 +1,16 @@
 interface Env {
-  // Cloudflare Pages Functions environment variables if needed
+  ASSETS: {
+    fetch(input: RequestInfo | URL): Promise<Response>;
+  };
 }
 
 export async function onRequest(context: { request: Request; env: Env }) {
-  const { request } = context;
+  const { request, env } = context;
   const url = new URL(request.url);
 
-  // Read the original index.html
-  const indexHtml = await fetch(request.url).then(res => res.text());
+  // Read the static root document without re-invoking this Function.
+  const assetResponse = await env.ASSETS.fetch(new URL("/", request.url));
+  const indexHtml = await assetResponse.text();
 
   // Parse query parameters
   const game = url.searchParams.get('game');
