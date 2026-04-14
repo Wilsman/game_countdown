@@ -1130,6 +1130,14 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "UTC",
       type: "game",
     },
+    {
+      id: "wind-rose",
+      title: "Wind Rose",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-14T08:00:00Z"), // April 14, 2026 at 9:00 AM BST (UTC+1)
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
   ];
 
   const createDefaultGames = () => defaultGames.map(toDefaultGame);
