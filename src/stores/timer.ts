@@ -259,6 +259,22 @@ export const useTimerStore = defineStore("timer", () => {
     return date;
   };
 
+  const getUtilityTimerDurationMinutes = (title: string): number | null => {
+    const minuteMatch = title.match(/\((\d+)min\)/i);
+    if (minuteMatch) {
+      return parseInt(minuteMatch[1], 10);
+    }
+
+    const hourMinuteMatch = title.match(/\((\d+)h\s*(\d+)m\)/i);
+    if (hourMinuteMatch) {
+      return (
+        parseInt(hourMinuteMatch[1], 10) * 60 + parseInt(hourMinuteMatch[2], 10)
+      );
+    }
+
+    return null;
+  };
+
   // Default games
   const defaultGames: GameBase[] = [
     {
@@ -1694,11 +1710,11 @@ export const useTimerStore = defineStore("timer", () => {
     if (gameIndex === -1) return;
 
     const game = games.value[gameIndex];
-    // Match titles like "Be Right Back (10min)"
-    const match = game.title.match(/\((\d+)min\)/);
-    if (!match || game.type !== "utility") return;
+    if (game.type !== "utility") return;
 
-    const minutes = parseInt(match[1], 10);
+    const minutes = getUtilityTimerDurationMinutes(game.title);
+    if (minutes === null) return;
+
     games.value[gameIndex].targetDate = createDateMinutesFromNow(minutes);
 
     // If the active game is the one we just restarted, reset the celebration flag

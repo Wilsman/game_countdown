@@ -38,6 +38,16 @@ const animatingSegments = ref({
   seconds: false,
 });
 const currentTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const shareMenuOpen = ref(false);
+const shareMenuRef = ref<HTMLElement | null>(null);
+const canRestartActiveGame = computed(() => {
+  const activeGame = store.activeGame;
+  return (
+    activeGame.type === "utility" &&
+    (/\((\d+)min\)/i.test(activeGame.title) ||
+      /\((\d+)h\s*(\d+)m\)/i.test(activeGame.title))
+  );
+});
 
 const formattedTime = computed(() => {
   const { days, hours, minutes, seconds } = store.timeRemaining;
@@ -139,8 +149,38 @@ async function copyShareableUrl() {
   try {
     await navigator.clipboard.writeText(store.getShareableUrl());
     toast.success("Link copied to clipboard");
+    shareMenuOpen.value = false;
   } catch {
     toast.error("Couldn't copy the link");
+  }
+}
+
+async function copyObsOverlayUrl() {
+  try {
+    await navigator.clipboard.writeText(store.getObsOverlayUrl());
+    toast.success("OBS link copied to clipboard");
+    shareMenuOpen.value = false;
+  } catch {
+    toast.error("Couldn't copy the OBS link");
+  }
+}
+
+function toggleShareMenu() {
+  shareMenuOpen.value = !shareMenuOpen.value;
+}
+
+function closeShareMenu() {
+  shareMenuOpen.value = false;
+}
+
+function handleDocumentClick(event: MouseEvent) {
+  if (!shareMenuOpen.value) return;
+
+  const target = event.target;
+  if (!(target instanceof Node)) return;
+
+  if (!shareMenuRef.value?.contains(target)) {
+    closeShareMenu();
   }
 }
 
@@ -201,6 +241,7 @@ const obsLabelShadow = computed(() => {
 onMounted(() => {
   store.startTimer();
   animationFrameId = requestAnimationFrame(updateTitle);
+  document.addEventListener("click", handleDocumentClick);
 });
 
 onUnmounted(() => {
@@ -208,6 +249,7 @@ onUnmounted(() => {
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
   }
+  document.removeEventListener("click", handleDocumentClick);
   document.title = originalTitle;
 });
 </script>
@@ -396,31 +438,65 @@ onUnmounted(() => {
             Focus mode
           </button>
 
-          <button
-            type="button"
-            class="btn-ghost px-1 py-1 text-[0.72rem]"
-            @click="copyShareableUrl"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+          <div ref="shareMenuRef" class="relative">
+            <button
+              type="button"
+              class="btn-ghost px-1 py-1 text-[0.72rem]"
+              @click="toggleShareMenu"
             >
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-            </svg>
-            Share link
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+              Share link
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-3.5 w-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            <div
+              v-if="shareMenuOpen"
+              class="absolute left-1/2 top-full z-20 mt-2 flex min-w-44 -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-cyan-200/12 bg-[#181717] shadow-[0_14px_32px_rgba(0,0,0,0.38)]"
+            >
+              <button
+                type="button"
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-cyan-50 transition duration-150 hover:bg-cyan-200/[0.06]"
+                @click="copyShareableUrl"
+              >
+                Share timer link
+              </button>
+              <button
+                type="button"
+                class="border-t border-cyan-200/10 px-4 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-cyan-50 transition duration-150 hover:bg-cyan-200/[0.06]"
+                @click="copyObsOverlayUrl"
+              >
+                Share OBS link
+              </button>
+            </div>
+          </div>
 
           <button
-            v-if="store.activeGame.type === 'utility'"
             type="button"
-            class="btn-ghost px-1 py-1 text-[0.72rem]"
+            class="btn-ghost px-1 py-1 text-[0.72rem] disabled:cursor-not-allowed disabled:opacity-40"
+            :disabled="!canRestartActiveGame"
             @click="store.restartCountdown(store.activeGame.id)"
           >
             <svg
