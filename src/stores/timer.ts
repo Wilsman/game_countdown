@@ -262,6 +262,14 @@ export const useTimerStore = defineStore("timer", () => {
   // Default games
   const defaultGames: GameBase[] = [
     {
+      id: "refund-2hour",
+      title: "2hour Refund Window",
+      titleColor: "#ffffff",
+      targetDate: createDateMinutesFromNow(119),
+      targetTimezone: userTimezone,
+      type: "utility",
+    },
+    {
       id: "break-60",
       title: "eepy time 😴 (60min)",
       titleColor: "#ffffff",
