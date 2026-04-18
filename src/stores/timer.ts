@@ -334,6 +334,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "utility",
     },
     {
+      id: "arc-raiders-",
+      title: "Arc Raiders - Riven Tides",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-04-28T09:00:00Z"), // April 28 - 9am BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "tarkov-servers-going-offline",
       title: "EFT going offline",
       titleColor: "#ffffff",
