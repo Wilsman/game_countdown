@@ -441,7 +441,8 @@ onUnmounted(() => {
           <div ref="shareMenuRef" class="relative">
             <button
               type="button"
-              class="btn-ghost px-1 py-1 text-[0.72rem]"
+              class="btn-link-chip"
+              :class="{ 'is-open': shareMenuOpen }"
               @click="toggleShareMenu"
             >
               <svg
@@ -457,7 +458,7 @@ onUnmounted(() => {
                 <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
               </svg>
-              Share link
+              Gets links
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-3.5 w-3.5"

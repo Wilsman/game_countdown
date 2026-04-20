@@ -145,6 +145,43 @@ h3,
     outline-color: rgba(126, 210, 235, 0.2);
   }
 
+  .btn-link-chip {
+    @apply inline-flex items-center gap-2 border px-3.5 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.14em] transition duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+    background:
+      linear-gradient(135deg, rgba(126, 210, 235, 0.14), rgba(67, 156, 179, 0.07)),
+      rgba(28, 27, 27, 0.92);
+    border-color: rgba(126, 210, 235, 0.2);
+    color: var(--text-primary);
+    box-shadow:
+      0 0 0 1px rgba(126, 210, 235, 0.06) inset,
+      0 0 14px rgba(126, 210, 235, 0.08);
+  }
+
+  .btn-link-chip:hover {
+    transform: translateY(-1px);
+    background:
+      linear-gradient(135deg, rgba(126, 210, 235, 0.18), rgba(67, 156, 179, 0.1)),
+      rgba(28, 27, 27, 0.96);
+    border-color: rgba(126, 210, 235, 0.34);
+    box-shadow:
+      0 0 0 1px rgba(126, 210, 235, 0.1) inset,
+      0 0 18px rgba(126, 210, 235, 0.14);
+  }
+
+  .btn-link-chip:focus-visible {
+    outline-color: rgba(126, 210, 235, 0.45);
+  }
+
+  .btn-link-chip.is-open {
+    background:
+      linear-gradient(135deg, rgba(126, 210, 235, 0.22), rgba(67, 156, 179, 0.12)),
+      rgba(28, 27, 27, 0.98);
+    border-color: rgba(126, 210, 235, 0.42);
+    box-shadow:
+      0 0 0 1px rgba(126, 210, 235, 0.14) inset,
+      0 0 20px rgba(126, 210, 235, 0.18);
+  }
+
   .btn-accent {
     @apply inline-flex items-center justify-center gap-2 border px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] transition duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
     background: linear-gradient(90deg, var(--accent), var(--accent-strong));
