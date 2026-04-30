@@ -676,9 +676,9 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "decadent",
-      title: "Decadent",
+      title: "Decadent Gameplay Reveal",
       titleColor: "#8b0000",
-      targetDate: new Date("2026-05-01T00:00:00Z"), // Est 2026
+      targetDate: new Date("2025-05-06T00:00:00Z"), // Gameplay reveal
       targetTimezone: "UTC",
       type: "game",
     },
