@@ -366,6 +366,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkovtv-live-may-2026",
+      title: "TarkovTV LIVE",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-05-08T16:00:00Z"), // May 8, 2026 - 5:00 PM BST / 12:00 PM EDT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "high-on-life-2-13-february-2026",
       title: "High on Life 2 (Q4 placeholder)",
       titleColor: "#ffffff",
@@ -875,6 +883,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "machine-party",
+      title: "Machine Party",
+      titleColor: "#dc143c",
+      targetDate: new Date("2026-07-01T00:00:00Z"), // Steam planned Q3 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "project-lll",
       title: "Project LLL (Cinder City)",
       titleColor: "#ff6347",
@@ -903,6 +919,14 @@ export const useTimerStore = defineStore("timer", () => {
       title: "State of Decay 3",
       titleColor: "#228b22",
       targetDate: new Date("2027-01-01T00:00:00Z"), // Est 2027
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "guns-n-goblins",
+      title: "Guns 'n Goblins",
+      titleColor: "#6b8e23",
+      targetDate: new Date("2027-01-01T00:00:00Z"), // Steam planned release year
       targetTimezone: "UTC",
       type: "game",
     },
