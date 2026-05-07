@@ -811,6 +811,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "path-of-exile-2-patch-0-5-return-of-the-ancients",
+      title: "Path of Exile 2: Patch 0.5 - Return of the Ancients",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-05-29T20:00:00Z"), // May 29, 2026 at 1:00 PM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
       id: "gray-zone-warfare-1",
       title: "Gray Zone Warfare 1.0",
       titleColor: "#a9a9a9",
