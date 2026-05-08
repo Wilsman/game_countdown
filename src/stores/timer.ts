@@ -819,6 +819,70 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "stalker-gamma-0-9-5-update",
+      title: "S.T.A.L.K.E.R. GAMMA 0.9.5 Update",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-05-09T00:00:00Z"), // May 9, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "subnautica-2-early-access",
+      title: "Subnautica 2 (Early Access)",
+      titleColor: "#00bfff",
+      targetDate: new Date("2026-05-14T15:00:00Z"), // May 14, 2026 at 4:00 PM BST / 8:00 AM PT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "summer-game-fest-2026",
+      title: "Summer Game Fest 2026",
+      titleColor: "#ff8c00",
+      targetDate: new Date("2026-06-05T21:00:00Z"), // June 5, 2026 at 2:00 PM PT / 10:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "assassins-creed-black-flag-resynced",
+      title: "Assassin's Creed Black Flag Resynced",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-07-09T00:00:00Z"), // July 9, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "dune-awakening-cerulean-onslaught",
+      title: "Dune: Awakening - Cerulean Onslaught",
+      titleColor: "#c2b280",
+      targetDate: new Date("2026-08-01T00:00:00Z"), // August 2026 placeholder
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "007-first-light",
+      title: "007 First Light",
+      titleColor: "#d4af37",
+      targetDate: new Date("2026-05-27T00:00:00Z"), // May 27, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "metro-2039",
+      title: "Metro 2039",
+      titleColor: "#a9a9a9",
+      targetDate: new Date("2026-12-01T00:00:00Z"), // Winter 2026 placeholder
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "clockwork-revolution",
+      title: "Clockwork Revolution",
+      titleColor: "#daa520",
+      targetDate: new Date("2026-12-01T00:00:00Z"), // 2026 placeholder (date not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "gray-zone-warfare-1",
       title: "Gray Zone Warfare 1.0",
       titleColor: "#a9a9a9",
@@ -886,7 +950,63 @@ export const useTimerStore = defineStore("timer", () => {
       id: "judas",
       title: "Judas",
       titleColor: "#daa520",
-      targetDate: new Date("2026-09-01T00:00:00Z"), // Est 2026
+      targetDate: new Date("2026-12-01T00:00:00Z"), // 2026 placeholder (date not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "the-blood-of-dawnwalker",
+      title: "The Blood of Dawnwalker",
+      titleColor: "#8b0000",
+      targetDate: new Date("2026-09-03T00:00:00Z"), // September 3, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "no-law",
+      title: "NO LAW",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-12-01T00:00:00Z"), // 2026 placeholder (date not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "supreme-experiment",
+      title: "Supreme Experiment",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-12-01T00:00:00Z"), // 2026 placeholder (date not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "neo-berlin-2087",
+      title: "NEO Berlin 2087",
+      titleColor: "#00ffff",
+      targetDate: new Date("2026-12-01T00:00:00Z"), // 2026 placeholder (date not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "exodus",
+      title: "EXODUS",
+      titleColor: "#87ceeb",
+      targetDate: new Date("2027-01-01T00:00:00Z"), // 2027 placeholder (date not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "the-expanse-osiris-reborn",
+      title: "The Expanse: Osiris Reborn",
+      titleColor: "#add8e6",
+      targetDate: new Date("2027-03-20T00:00:00Z"), // Spring 2027 placeholder
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "zero-sievert-2",
+      title: "ZERO Sievert 2",
+      titleColor: "#9acd32",
+      targetDate: new Date("2026-12-01T00:00:00Z"), // Early Access planned; date not announced
       targetTimezone: "UTC",
       type: "game",
     },
@@ -1110,7 +1230,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "sand",
       title: "SAND: Raiders of Sophie",
       titleColor: "#c2b280",
-      targetDate: new Date("2026-03-31T00:00:00Z"), // March 2026 placeholder (TBD day)
+      targetDate: new Date("2026-05-25T00:00:00Z"), // Final week of May 2026 placeholder
       targetTimezone: "UTC",
       type: "game",
     },
