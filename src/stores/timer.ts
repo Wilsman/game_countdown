@@ -867,6 +867,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "the-mound-omen-of-cthulhu",
+      title: "The Mound: Omen of Cthulhu",
+      titleColor: "#4a0080",
+      targetDate: new Date("2026-07-15T00:00:00Z"), // July 15, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "dune-awakening-cerulean-onslaught",
       title: "Dune: Awakening - Cerulean Onslaught",
       titleColor: "#c2b280",
