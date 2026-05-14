@@ -811,6 +811,22 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "season-2-nightfall-details",
+      title: "Season 2: NIGHTFALL Details",
+      titleColor: "#9400d3",
+      targetDate: new Date("2026-05-25T00:00:00Z"), // May 25, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "season-2-nightfall-begins",
+      title: "Season 2: NIGHTFALL Begins",
+      titleColor: "#4b0082",
+      targetDate: new Date("2026-06-02T00:00:00Z"), // June 2, 2026
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "path-of-exile-2-patch-0-5-return-of-the-ancients",
       title: "Path of Exile 2: Patch 0.5 - Return of the Ancients",
       titleColor: "#ffffff",
