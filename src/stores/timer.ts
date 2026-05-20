@@ -827,6 +827,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "state-of-play-returns",
+      title: "State of Play returns",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-06-02T21:00:00Z"), // June 2, 2026 at 2:00 PM PT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
       id: "path-of-exile-2-patch-0-5-return-of-the-ancients",
       title: "Path of Exile 2: Patch 0.5 - Return of the Ancients",
       titleColor: "#ffffff",
