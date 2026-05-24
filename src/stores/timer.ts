@@ -382,6 +382,22 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkov-icebreaker-patch-end-4hr",
+      title: "Tarkov Icebreaker Patch End (4hr)",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-05-25T11:00:00Z"), // May 25, 2026 - 12:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-icebreaker-patch-end-6hr",
+      title: "Tarkov Icebreaker Patch End (6hr)",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-05-25T13:00:00Z"), // May 25, 2026 - 2:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "high-on-life-2-13-february-2026",
       title: "High on Life 2 (Q4 placeholder)",
       titleColor: "#ffffff",
