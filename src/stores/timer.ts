@@ -843,11 +843,59 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "season-2-nightfall-begins",
-      title: "Season 2: NIGHTFALL Begins",
+      id: "marathon-background-maintenance-starts-2026-06-01",
+      title: "Marathon: Background Maintenance Starts",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-06-01T17:00:00Z"), // June 1, 2026 at 10:00 AM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-background-maintenance-ends-2026-06-01",
+      title: "Marathon: Background Maintenance Ends",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-06-01T20:00:00Z"), // June 1, 2026 at 1:00 PM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-season-2-maintenance-starts",
+      title: "Marathon: Season 2 Maintenance Starts",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-06-02T15:00:00Z"), // June 2, 2026 at 8:00 AM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-season-2-offline",
+      title: "Marathon: Game Begins Going Offline",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-06-02T15:15:00Z"), // June 2, 2026 at 8:15 AM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-update-1-1-0-available",
+      title: "Marathon: Update 1.1.0 Available",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-06-02T16:00:00Z"), // June 2, 2026 at 9:00 AM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-season-2-login-returns",
+      title: "Marathon: Login Expected to Return",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-06-02T17:00:00Z"), // June 2, 2026 at 10:00 AM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-season-2-maintenance-ends",
+      title: "Marathon: Season 2 Maintenance Ends",
       titleColor: "#4b0082",
-      targetDate: new Date("2026-06-02T00:00:00Z"), // June 2, 2026
-      targetTimezone: "UTC",
+      targetDate: new Date("2026-06-02T18:00:00Z"), // June 2, 2026 at 11:00 AM PDT
+      targetTimezone: "America/Los_Angeles",
       type: "game",
     },
     {
