@@ -270,7 +270,7 @@ onUnmounted(() => {
 
       <div
         class="mt-4 grid gap-x-8 gap-y-6 sm:flex sm:flex-wrap sm:items-end sm:justify-center"
-        :class="isObs ? 'sm:gap-x-4' : 'sm:gap-x-10'"
+        :class="isObs ? 'obs-time-segments sm:gap-x-0' : 'sm:gap-x-10'"
       >
         <div
           v-for="segment in timeSegments"
@@ -522,3 +522,20 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.obs-time-segments {
+  width: 100%;
+  justify-content: space-around;
+}
+
+.obs-time-segments > div {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.obs-time-segments .tabular-nums {
+  transform: scale(1.12);
+  transform-origin: center bottom;
+}
+</style>

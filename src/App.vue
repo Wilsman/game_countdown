@@ -231,7 +231,7 @@ watch(
               <div
                 class="glass-panel countdown-stage relative mx-auto flex w-full flex-col items-center justify-center gap-8 px-5 py-8 sm:px-8 sm:py-10 lg:max-w-5xl lg:px-10 lg:py-12"
                 :class="{
-                  'obs-frame w-fit max-w-none': isObsMode,
+                  'obs-frame w-full max-w-[61rem]': isObsMode,
                   'marathon-panel': isMarathonDuoTheme,
                 }"
                 :style="{
@@ -435,11 +435,15 @@ watch(
 
 .countdown-obs-title {
   margin: 0;
+  width: 100%;
+  max-width: 56rem;
   color: #e5e2e1;
   font-family: "Geist Mono", monospace;
   font-size: clamp(2.5rem, 4vw, 4.5rem);
   font-weight: 600;
   line-height: 1;
   text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 </style>
