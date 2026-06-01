@@ -884,7 +884,7 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon-season-2-login-returns",
-      title: "Marathon: Login Expected to Return",
+      title: "Marathon: Season 2 Launches",
       titleColor: "#00ff00",
       targetDate: new Date("2026-06-02T17:00:00Z"), // June 2, 2026 at 10:00 AM PDT
       targetTimezone: "America/Los_Angeles",
