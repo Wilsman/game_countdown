@@ -860,7 +860,7 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon-season-2-maintenance-starts",
-      title: "Marathon: Season 2 Maintenance Starts",
+      title: "Marathon: Season 2 Timeline Starts",
       titleColor: "#00ff00",
       targetDate: new Date("2026-06-02T15:00:00Z"), // June 2, 2026 at 8:00 AM PDT
       targetTimezone: "America/Los_Angeles",
@@ -868,7 +868,7 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon-season-2-offline",
-      title: "Marathon: Game Begins Going Offline",
+      title: "Marathon: Downtime Starts",
       titleColor: "#00ff00",
       targetDate: new Date("2026-06-02T15:15:00Z"), // June 2, 2026 at 8:15 AM PDT
       targetTimezone: "America/Los_Angeles",
@@ -876,7 +876,7 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon-update-1-1-0-available",
-      title: "Marathon: Update 1.1.0 Available",
+      title: "Marathon: New Update Released",
       titleColor: "#00ff00",
       targetDate: new Date("2026-06-02T16:00:00Z"), // June 2, 2026 at 9:00 AM PDT
       targetTimezone: "America/Los_Angeles",
@@ -884,7 +884,7 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon-season-2-login-returns",
-      title: "Marathon: Season 2 Launches",
+      title: "Marathon: Season 2 Launches / Login Available",
       titleColor: "#00ff00",
       targetDate: new Date("2026-06-02T17:00:00Z"), // June 2, 2026 at 10:00 AM PDT
       targetTimezone: "America/Los_Angeles",
@@ -892,7 +892,7 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon-season-2-maintenance-ends",
-      title: "Marathon: Season 2 Maintenance Ends",
+      title: "Marathon: Season 2 Timeline Ends",
       titleColor: "#4b0082",
       targetDate: new Date("2026-06-02T18:00:00Z"), // June 2, 2026 at 11:00 AM PDT
       targetTimezone: "America/Los_Angeles",
