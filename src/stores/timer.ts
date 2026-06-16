@@ -342,6 +342,54 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkov-hunger-games-day-1-start",
+      title: "Tarkov Hunger Games - Day 1 Start",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-06-19T14:00:00Z"), // June 19, 2026 - 16:00 CEST
+      targetTimezone: "Europe/Berlin",
+      type: "game",
+    },
+    {
+      id: "tarkov-hunger-games-day-1-end",
+      title: "Tarkov Hunger Games - Day 1 End",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-06-19T18:00:00Z"), // June 19, 2026 - 20:00 CEST
+      targetTimezone: "Europe/Berlin",
+      type: "game",
+    },
+    {
+      id: "tarkov-hunger-games-day-2-start",
+      title: "Tarkov Hunger Games - Day 2 Start",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-06-20T14:00:00Z"), // June 20, 2026 - 16:00 CEST
+      targetTimezone: "Europe/Berlin",
+      type: "game",
+    },
+    {
+      id: "tarkov-hunger-games-day-2-end",
+      title: "Tarkov Hunger Games - Day 2 End",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-06-20T18:00:00Z"), // June 20, 2026 - 20:00 CEST
+      targetTimezone: "Europe/Berlin",
+      type: "game",
+    },
+    {
+      id: "tarkov-hunger-games-day-3-start",
+      title: "Tarkov Hunger Games - Day 3 Start",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-06-21T14:00:00Z"), // June 21, 2026 - 16:00 CEST
+      targetTimezone: "Europe/Berlin",
+      type: "game",
+    },
+    {
+      id: "tarkov-hunger-games-day-3-end",
+      title: "Tarkov Hunger Games - Day 3 End",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-06-21T18:00:00Z"), // June 21, 2026 - 20:00 CEST
+      targetTimezone: "Europe/Berlin",
+      type: "game",
+    },
+    {
       id: "tarkov-servers-going-offline",
       title: "EFT going offline",
       titleColor: "#ffffff",
