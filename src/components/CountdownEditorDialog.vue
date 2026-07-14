@@ -8,7 +8,7 @@ import {
   formatLocalDateTime,
   formatTimezoneOption,
   getTimezoneName,
-  localToUTCDate,
+  resolveLocalDateTime,
   timezones,
 } from "../lib/timezones";
 
@@ -40,16 +40,56 @@ const selectedGame = computed(() =>
     : null,
 );
 const timezoneLabel = computed(() => getTimezoneName(timezoneId.value));
-const previewDate = computed(() => {
+const dateResolution = computed(() => {
   if (!dateTime.value) return null;
-  return localToUTCDate(dateTime.value, timezoneId.value);
+  return resolveLocalDateTime(dateTime.value, timezoneId.value);
 });
+const previewDate = computed(() => {
+  const resolution = dateResolution.value;
+  if (
+    resolution?.status !== "exact" &&
+    resolution?.status !== "ambiguous"
+  ) {
+    return null;
+  }
+
+  return resolution.date;
+});
+const dateValidationMessage = computed(() => {
+  switch (dateResolution.value?.status) {
+    case "ambiguous":
+      return "That local time occurs twice because the clocks move back. The earlier occurrence will be used.";
+    case "nonexistent":
+      return "That local time does not exist in this timezone because the clocks move forward. Choose another time.";
+    case "malformed":
+      return "Enter a valid date and time.";
+    case "unsupported-zone":
+      return "This timezone is not supported by your browser. Choose another timezone.";
+    default:
+      return "";
+  }
+});
+const hasDateError = computed(() =>
+  ["malformed", "nonexistent", "unsupported-zone"].includes(
+    dateResolution.value?.status ?? "",
+  ),
+);
+const canPersistCountdown = computed(
+  () =>
+    dateResolution.value?.status === "exact" ||
+    dateResolution.value?.status === "ambiguous",
+);
+const timezoneReferenceDate = computed(() => previewDate.value ?? new Date());
 const previewTitle = computed(() => {
   const trimmedTitle = title.value.trim();
   return trimmedTitle || "Your countdown title";
 });
 const previewSchedule = computed(() => {
-  if (!previewDate.value) return "Choose a date and time to preview it.";
+  if (!previewDate.value) {
+    return (
+      dateValidationMessage.value || "Choose a date and time to preview it."
+    );
+  }
 
   try {
     return new Intl.DateTimeFormat("en-GB", {
@@ -175,7 +215,16 @@ const persistCountdown = (showToast: boolean = true) => {
     return false;
   }
 
-  const utcDate = localToUTCDate(dateTime.value, timezoneId.value);
+  const resolution = dateResolution.value;
+  if (
+    resolution?.status !== "exact" &&
+    resolution?.status !== "ambiguous"
+  ) {
+    toast.error(dateValidationMessage.value || "Enter a valid date and time");
+    return false;
+  }
+
+  const utcDate = resolution.date;
 
   if (isCreateMode.value) {
     const customGame = store.addCustomTimer(trimmedTitle, utcDate, timezoneId.value);
@@ -314,8 +363,21 @@ const saveAndCopyObsLink = async () => {
               v-model="dateTime"
               type="datetime-local"
               class="input-field"
+              :aria-describedby="
+                dateValidationMessage ? 'countdown-date-validation' : undefined
+              "
+              :aria-invalid="hasDateError"
             />
           </label>
+          <p
+            v-if="dateValidationMessage"
+            id="countdown-date-validation"
+            class="mt-2 text-sm"
+            :class="hasDateError ? 'text-amber-200/80' : 'text-cyan-100/60'"
+            aria-live="polite"
+          >
+            {{ dateValidationMessage }}
+          </p>
         </div>
 
         <div class="border border-cyan-200/10 bg-black/15 px-4 py-4">
@@ -330,7 +392,9 @@ const saveAndCopyObsLink = async () => {
                 :key="timezone.id"
                 :value="timezone.id"
               >
-                {{ formatTimezoneOption(timezone.id) }} - {{ timezone.name }}
+                {{
+                  formatTimezoneOption(timezone.id, timezoneReferenceDate)
+                }} - {{ timezone.name }}
               </option>
             </select>
           </label>
@@ -364,11 +428,17 @@ const saveAndCopyObsLink = async () => {
           v-if="isCreateMode"
           type="button"
           class="btn-muted w-full justify-center sm:w-auto"
+          :disabled="!canPersistCountdown"
           @click="saveAndCopyObsLink"
         >
           {{ saveAndCopyObsLabel }}
         </button>
-        <button type="button" class="btn-accent w-full sm:w-auto" @click="save">
+        <button
+          type="button"
+          class="btn-accent w-full sm:w-auto"
+          :disabled="!canPersistCountdown"
+          @click="save"
+        >
           {{ submitLabel }}
         </button>
       </div>
