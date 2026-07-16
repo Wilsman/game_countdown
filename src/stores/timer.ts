@@ -947,6 +947,22 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "marathon-season-2-mid-season",
+      title: "Marathon: Season 2 Mid-Season Begins",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-07-21T15:00:00Z"), // July 21, 2026 at 4:00 PM BST (usual update time)
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "marathon-season-3-begins",
+      title: "Marathon: Season 3 Begins",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-09-22T15:00:00Z"), // September 22, 2026 at 4:00 PM BST (usual update time)
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "state-of-play-returns",
       title: "State of Play returns",
       titleColor: "#ffffff",
