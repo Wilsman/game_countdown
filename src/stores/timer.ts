@@ -964,7 +964,7 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon-update-1-1-5-available",
-      title: "Marathon: Update 1.1.5 Released",
+      title: "Marathon: Update 1.1.5 New Update Released",
       titleColor: "#00ff00",
       targetDate: new Date("2026-07-21T16:00:00Z"), // July 21, 2026 at 9:00 AM PDT
       targetTimezone: "America/Los_Angeles",
@@ -980,7 +980,7 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon-update-1-1-5-maintenance-ends",
-      title: "Marathon: Update 1.1.5 Timeline Ends",
+      title: "Marathon: Update 1.1.5 Maintenance Complete",
       titleColor: "#4b0082",
       targetDate: new Date("2026-07-21T18:00:00Z"), // July 21, 2026 at 11:00 AM PDT
       targetTimezone: "America/Los_Angeles",
