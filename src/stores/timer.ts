@@ -948,10 +948,42 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "marathon-season-2-mid-season",
-      title: "Marathon: Season 2 Mid-Season Begins",
+      title: "Marathon: Update 1.1.5 Timeline Starts (Season 2 Mid-Season)",
       titleColor: "#00ff00",
-      targetDate: new Date("2026-07-21T15:00:00Z"), // July 21, 2026 at 4:00 PM BST (usual update time)
-      targetTimezone: "Europe/London",
+      targetDate: new Date("2026-07-21T15:00:00Z"), // July 21, 2026 at 8:00 AM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-update-1-1-5-offline",
+      title: "Marathon: Update 1.1.5 Downtime Starts",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-07-21T15:15:00Z"), // July 21, 2026 at 8:15 AM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-update-1-1-5-available",
+      title: "Marathon: Update 1.1.5 Released",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-07-21T16:00:00Z"), // July 21, 2026 at 9:00 AM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-update-1-1-5-login-returns",
+      title: "Marathon: Update 1.1.5 Login Available",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-07-21T17:00:00Z"), // July 21, 2026 at 10:00 AM PDT
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-update-1-1-5-maintenance-ends",
+      title: "Marathon: Update 1.1.5 Timeline Ends",
+      titleColor: "#4b0082",
+      targetDate: new Date("2026-07-21T18:00:00Z"), // July 21, 2026 at 11:00 AM PDT
+      targetTimezone: "America/Los_Angeles",
       type: "game",
     },
     {
