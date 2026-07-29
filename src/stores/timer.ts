@@ -342,6 +342,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkov-season-1-kord-breach",
+      title: "Tarkov Season 1 [Kord Breach]",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-03T07:00:00Z"), // August 3, 2026 - estimated 8:00 AM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "tarkov-hunger-games-day-1-start",
       title: "Tarkov Hunger Games - Day 1 Start",
       titleColor: "#ffffff",
