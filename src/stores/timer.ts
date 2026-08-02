@@ -343,9 +343,25 @@ export const useTimerStore = defineStore("timer", () => {
     },
     {
       id: "tarkov-season-1-kord-breach",
-      title: "Tarkov Season 1 [Kord Breach]",
+      title: "Tarkov Patch 1.1.0.0 Installation Start",
       titleColor: "#ffffff",
-      targetDate: new Date("2026-08-03T07:00:00Z"), // August 3, 2026 - estimated 8:00 AM BST
+      targetDate: new Date("2026-08-03T06:00:00Z"), // August 3, 2026 - 7:00 AM BST / 2:00 AM EDT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-patch-1-1-0-0-installation-end-6hr",
+      title: "Tarkov Patch 1.1.0.0 Installation End (6hr)",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-03T12:00:00Z"), // August 3, 2026 - 1:00 PM BST / 8:00 AM EDT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-patch-1-1-0-0-installation-end-8hr",
+      title: "Tarkov Patch 1.1.0.0 Installation End (8hr)",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-03T14:00:00Z"), // August 3, 2026 - 3:00 PM BST / 10:00 AM EDT
       targetTimezone: "Europe/London",
       type: "game",
     },
