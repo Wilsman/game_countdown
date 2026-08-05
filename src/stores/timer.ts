@@ -366,6 +366,22 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkov-twitch-drops-start",
+      title: "Tarkov Twitch Drops Start",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-05T13:00:00Z"), // August 5, 2026 - 2:00 PM BST / 9:00 AM EDT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-twitch-drops-end",
+      title: "Tarkov Twitch Drops End",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-17T13:00:00Z"), // August 17, 2026 - 2:00 PM BST / 9:00 AM EDT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "tarkov-hunger-games-day-1-start",
       title: "Tarkov Hunger Games - Day 1 Start",
       titleColor: "#ffffff",
@@ -1487,14 +1503,6 @@ export const useTimerStore = defineStore("timer", () => {
       title: "Ascend to Zero",
       titleColor: "#ffffff",
       targetDate: new Date("2026-07-13T00:00:00Z"), // July 13, 2026 (time not announced)
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "grave-seasons",
-      title: "Grave Seasons",
-      titleColor: "#ffffff",
-      targetDate: new Date("2026-08-14T00:00:00Z"), // August 14, 2026 (time not announced)
       targetTimezone: "UTC",
       type: "game",
     },
