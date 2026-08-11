@@ -366,18 +366,50 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "tarkov-twitch-drops-start",
-      title: "Tarkov Twitch Drops Start",
+      id: "tarkov-twitch-drops-day-7",
+      title: "Tarkov Drops Day 7 Ends \u2192 New Drops",
       titleColor: "#ffffff",
-      targetDate: new Date("2026-08-05T13:00:00Z"), // August 5, 2026 - 2:00 PM BST / 9:00 AM EDT
+      targetDate: new Date("2026-08-12T13:00:00Z"), // August 12, 2026 - 2:00 PM BST
       targetTimezone: "Europe/London",
       type: "game",
     },
     {
-      id: "tarkov-twitch-drops-end",
-      title: "Tarkov Twitch Drops End",
+      id: "tarkov-twitch-drops-day-8",
+      title: "Tarkov Drops Day 8 Ends \u2192 New Drops",
       titleColor: "#ffffff",
-      targetDate: new Date("2026-08-17T13:00:00Z"), // August 17, 2026 - 2:00 PM BST / 9:00 AM EDT
+      targetDate: new Date("2026-08-13T13:00:00Z"), // August 13, 2026 - 2:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-twitch-drops-day-9",
+      title: "Tarkov Drops Day 9 Ends \u2192 New Drops",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-14T13:00:00Z"), // August 14, 2026 - 2:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-twitch-drops-day-10",
+      title: "Tarkov Drops Day 10 Ends \u2192 New Drops",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-15T13:00:00Z"), // August 15, 2026 - 2:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-twitch-drops-day-11",
+      title: "Tarkov Drops Day 11 Ends \u2192 New Drops",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-16T13:00:00Z"), // August 16, 2026 - 2:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-twitch-drops-day-12",
+      title: "Tarkov Drops Day 12 Ends",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-08-17T13:00:00Z"), // August 17, 2026 - 2:00 PM BST
       targetTimezone: "Europe/London",
       type: "game",
     },
