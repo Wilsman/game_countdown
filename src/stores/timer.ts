@@ -414,6 +414,30 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "wardogs-closed-beta-start",
+      title: "WARDOGS Closed Beta Starts",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-08-21T17:00:00Z"), // August 21, 2026 - 6:00 PM BST / 1:00 PM EDT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "wardogs-closed-beta-end",
+      title: "WARDOGS Closed Beta Ends",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-08-24T02:00:00Z"), // August 24, 2026 - 3:00 AM BST / 10:00 PM EDT (Aug 23)
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "wardogs-twitch-drops-end",
+      title: "WARDOGS Twitch Drops End (Beta Exclusive)",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-08-24T02:00:00Z"), // Drops end with the Closed Beta - August 24, 2026 - 3:00 AM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "tarkov-hunger-games-day-1-start",
       title: "Tarkov Hunger Games - Day 1 Start",
       titleColor: "#ffffff",
