@@ -414,6 +414,22 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "tarkov-gold-coin-event-28",
+      title: "Tarkov Gold Coin Event - August 28",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-08-28T15:00:00Z"), // 11:00 AM ET / 4:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-gold-coin-event-29",
+      title: "Tarkov Gold Coin Event - August 29",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-08-29T15:00:00Z"), // 11:00 AM ET / 4:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "wardogs-closed-beta-start",
       title: "WARDOGS Closed Beta Starts",
       titleColor: "#ffd700",
