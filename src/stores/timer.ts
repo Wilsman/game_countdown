@@ -1723,6 +1723,30 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "UTC",
       type: "game",
     },
+    {
+      id: "tokyo-game-show-2026",
+      title: "Tokyo Game Show 2026",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-09-17T10:00:00+09:00"), // September 17, 2026 - 10:00 AM JST (business day start)
+      targetTimezone: "Asia/Tokyo",
+      type: "game",
+    },
+    {
+      id: "the-game-awards-2026",
+      title: "The Game Awards 2026",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-12-10T19:30:00-05:00"), // December 10, 2026 - 7:30 PM EST
+      targetTimezone: "America/New_York",
+      type: "game",
+    },
+    {
+      id: "gamescom-2027",
+      title: "gamescom 2027",
+      titleColor: "#ffffff",
+      targetDate: new Date("2027-08-23T00:00:00Z"), // August 23-29, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
   ];
 
   const createDefaultGames = () => defaultGames.map(toDefaultGame);
