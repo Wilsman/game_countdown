@@ -401,6 +401,14 @@ const titleTextShadow = computed(() => {
           </div>
           <div class="preset-grid">
             <button
+              type="button"
+              class="reset-button"
+              style="grid-column: 1 / -1"
+              @click="resetCustomization"
+            >
+              Reset
+            </button>
+            <button
               v-for="preset in presets"
               :key="preset.name"
               type="button"
