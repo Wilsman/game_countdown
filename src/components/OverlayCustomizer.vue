@@ -1069,11 +1069,6 @@ const titleTextShadow = computed(() => {
               Leave <strong>Custom CSS</strong> blank and check <strong>Shutdown source when not visible</strong> for clean scene switching.
             </li>
           </ol>
-          <div class="secondary-actions">
-            <button type="button" class="reset-button" @click="resetCustomization">
-              Reset styles
-            </button>
-          </div>
         </section>
       </div>
     </div>
