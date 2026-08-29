@@ -1683,6 +1683,46 @@ export const useTimerStore = defineStore("timer", () => {
       targetTimezone: "Europe/London",
       type: "game",
     },
+    {
+      id: "fps-games-show-2026",
+      title: "FPS Games Show",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-09-03T18:00:00Z"), // September 3, 2026 - 2:00 PM EDT / 7:00 PM BST
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "wardogs-early-access",
+      title: "WARDOGS Steam Early Access",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-09-10T00:00:00Z"), // September 10, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "delta-force-season-11-reorientation",
+      title: "Delta Force Season 11: Reorientation",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-09-08T00:00:00Z"), // September 8, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "marathon-season-3",
+      title: "Marathon Season 3",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-09-22T00:00:00Z"), // September 22, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "arc-raiders-frozen-trail",
+      title: "ARC Raiders: Frozen Trail",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-10-08T00:00:00Z"), // October 8, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
   ];
 
   const createDefaultGames = () => defaultGames.map(toDefaultGame);
