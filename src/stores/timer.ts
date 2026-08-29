@@ -1156,8 +1156,8 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
-      id: "marathon-season-3-begins",
-      title: "Marathon: Season 3 Begins",
+      id: "marathon-season-3",
+      title: "Marathon: Season 3 ",
       titleColor: "#00ff00",
       targetDate: new Date("2026-09-22T15:00:00Z"), // September 22, 2026 at 4:00 PM BST (usual update time)
       targetTimezone: "Europe/London",
@@ -1704,14 +1704,6 @@ export const useTimerStore = defineStore("timer", () => {
       title: "Delta Force Season 11: Reorientation",
       titleColor: "#ffffff",
       targetDate: new Date("2026-09-08T00:00:00Z"), // September 8, 2026 (time not announced)
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "marathon-season-3",
-      title: "Marathon Season 3",
-      titleColor: "#00ff00",
-      targetDate: new Date("2026-09-22T00:00:00Z"), // September 22, 2026 (time not announced)
       targetTimezone: "UTC",
       type: "game",
     },
