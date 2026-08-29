@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useTimerStore } from "../stores/timer";
 import { storeToRefs } from "pinia";
 import { toast } from "vue-sonner";
+
+import { useTimerStore } from "../stores/timer";
 import TimerDisplay from "./TimerDisplay.vue";
 
 const emit = defineEmits<{
@@ -21,9 +22,10 @@ const createCustomTimer = () => {
   emit("create-timer");
 };
 
+const overlayUrl = computed(() => store.getObsOverlayUrl());
+
 const copyFinalLink = () => {
-  const url = store.getObsOverlayUrl();
-  navigator.clipboard.writeText(url);
+  navigator.clipboard.writeText(overlayUrl.value);
   toast.success("Customized OBS link copied!");
 };
 
@@ -33,10 +35,24 @@ const resetCustomization = () => {
     labelColor: null,
     digitSize: 100,
     labelSize: null,
-    titleSize: null,
+    titleSize: 48,
+    showTitle: true,
+    showLabels: true,
+    framePadding: 24,
+    segmentGap: 0,
     glowColor: null,
     glowIntensity: null,
+    glowSpread: null,
     showScanlines: true,
+    backgroundOpacity: null,
+    bgBlur: null,
+    obsFontFamily: null,
+    borderWidth: null,
+    borderColor: null,
+    animationSpeed: null,
+    scanlineOpacity: null,
+    showShine: true,
+    shineOpacity: null,
   });
   toast.info("Customizations reset");
 };
@@ -63,6 +79,8 @@ const presets = [
       shineOpacity: 0.25,
       backgroundOpacity: 0.25,
       bgBlur: 12,
+      framePadding: 24,
+      segmentGap: 4,
       obsFontFamily: "Geist Sans",
     },
   },
@@ -82,6 +100,8 @@ const presets = [
       shineOpacity: 0.15,
       backgroundOpacity: 0.15,
       bgBlur: 8,
+      framePadding: 28,
+      segmentGap: 12,
       obsFontFamily: "Geist Mono",
     },
   },
@@ -101,6 +121,8 @@ const presets = [
       shineOpacity: 0,
       backgroundOpacity: 0.1,
       bgBlur: 20,
+      framePadding: 16,
+      segmentGap: 20,
       obsFontFamily: "Geist Sans",
     },
   },
@@ -121,6 +143,8 @@ const presets = [
       borderWidth: 5,
       backgroundOpacity: 0.4,
       bgBlur: 2,
+      framePadding: 26,
+      segmentGap: 2,
       obsFontFamily: "Geist Mono",
     },
   },
@@ -145,6 +169,8 @@ const randomize = () => {
     glowSpread: Math.floor(Math.random() * 20),
     backgroundOpacity: Math.random() * 0.8,
     bgBlur: Math.floor(Math.random() * 40),
+    framePadding: Math.floor(Math.random() * 33) + 8,
+    segmentGap: Math.floor(Math.random() * 29),
     borderWidth: Math.floor(Math.random() * 10),
     borderColor: randomHex(),
     animationSpeed: Math.floor(Math.random() * 20) + 1,
@@ -157,6 +183,7 @@ const randomize = () => {
   });
   toast.success("Shuffled all styles!");
 };
+
 const titleTextShadow = computed(() => {
   if (!settings.value.glowColor) return undefined;
   const intensity = settings.value.glowIntensity || 20;
@@ -171,22 +198,21 @@ const titleTextShadow = computed(() => {
 </script>
 
 <template>
-  <div class="overlay-customizer flex w-full flex-col gap-6 animate-in fade-in duration-500">
+  <div class="overlay-customizer w-full animate-in fade-in duration-500">
     <!-- Header -->
-    <div class="flex items-center justify-between">
-      <div class="flex flex-col gap-1">
-        <h2 class="text-3xl font-black tracking-tight text-[#e5e2e1]">
-          Overlay Customizer
-        </h2>
-        <p class="text-sm text-cyan-100/55">
-          Tune the OBS output with the same terminal palette as the main app.
+    <div class="builder-header">
+      <div>
+        <p class="builder-eyebrow">OBS Studio</p>
+        <h2>Overlay Builder</h2>
+        <p class="builder-description">
+          Style your countdown, preview every change, then copy the browser source URL.
         </p>
       </div>
-      <button @click="close" class="btn-ghost">
+      <button type="button" class="back-button" @click="close">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -196,708 +222,634 @@ const titleTextShadow = computed(() => {
         >
           <path d="m15 18-6-6 6-6" />
         </svg>
-        Back to Dashboard
+        Dashboard
       </button>
     </div>
 
-    <div class="flex flex-col gap-4">
-      <!-- Live Preview -->
-      <div
-          class="sticky top-0 z-50 -mx-4 flex flex-col gap-2 border-b border-cyan-200/10 bg-[#131313]/95 px-4 py-3 backdrop-blur-xl transition-all sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12"
-      >
-        <div class="flex items-center justify-between px-2">
-          <h3
-            class="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-500/80"
-          >
-            Preview Window
-          </h3>
-        </div>
-        <div
-            class="preview-container relative flex min-h-[300px] w-full items-center justify-center overflow-hidden border border-cyan-200/10 bg-[#1c1b1b]"
-        >
-          <!-- Checkerboard background for transparency preview -->
-          <div class="absolute inset-0 checkerboard opacity-5"></div>
+    <div class="builder-grid">
+      <!-- Controls -->
+      <!-- Left Column: Style Presets, Colors & Glow -->
+      <aside class="control-column">
+        <!-- Style Presets -->
+        <section class="builder-card">
+          <div class="section-heading">
+            <span>01</span>
+            <h3>Presets</h3>
+          </div>
+          <div class="preset-grid">
+            <button
+              v-for="preset in presets"
+              :key="preset.name"
+              type="button"
+              class="preset-button"
+              @click="applyPreset(preset)"
+            >
+              {{ preset.name }}
+            </button>
+          </div>
+        </section>
 
-          <div
-            class="obs-frame relative z-10 w-fit flex flex-col items-center gap-6 p-6 sm:p-10"
-            :class="{ 'with-scanlines': settings.showScanlines }"
-            :style="{
-              '--obs-bg':
-                settings.backgroundOpacity !== null
-                  ? `rgba(0,0,0,${settings.backgroundOpacity})`
-                  : undefined,
-              '--obs-bg-opacity':
-                settings.backgroundOpacity !== null
-                  ? settings.backgroundOpacity
-                  : undefined,
-              '--obs-blur':
-                settings.bgBlur !== null ? `${settings.bgBlur}px` : undefined,
-              '--obs-border-width':
-                settings.borderWidth !== null
-                  ? `${settings.borderWidth}px`
-                  : undefined,
-              '--obs-border-color': settings.borderColor || undefined,
-              '--obs-speed':
-                settings.animationSpeed !== null
-                  ? `${settings.animationSpeed}s`
-                  : undefined,
-              '--obs-scanline-opacity':
-                settings.scanlineOpacity !== null
-                  ? settings.scanlineOpacity
-                  : undefined,
-              '--obs-shine-opacity': settings.showShine
-                ? settings.shineOpacity ?? 0.22
-                : 0,
-              '--obs-shine-state': settings.showShine ? 'running' : 'paused',
-            }"
-          >
-            <p
-              class="text-4xl font-black text-cyan-100 sm:text-6xl drop-shadow-[0_0_20px_rgba(34,211,238,0.85)]"
+        <!-- Typography Section -->
+        <section class="builder-card">
+          <div class="section-heading">
+            <span>02</span>
+            <h3>Typography</h3>
+          </div>
+          <label class="select-control">
+            <span>Font family</span>
+            <select
+              :value="settings.obsFontFamily || 'Geist Sans'"
+              @change="
+                update(
+                  'obsFontFamily',
+                  ($event.target as HTMLSelectElement).value
+                )
+              "
+            >
+              <option value="Geist Sans">Geist Sans</option>
+              <option value="Geist Mono">Geist Mono</option>
+              <option value="sans-serif">Sans Serif</option>
+              <option value="monospace">Monospace</option>
+            </select>
+          </label>
+          <div class="content-controls">
+            <div class="color-control">
+              <span>Title color</span>
+              <div>
+                <input
+                  type="color"
+                  aria-label="Title color"
+                  :value="gameTitleColor || '#e5e2e1'"
+                  @input="
+                    store.setGameTitleColor(
+                      ($event.target as HTMLInputElement).value
+                    )
+                  "
+                />
+              </div>
+            </div>
+            <label class="toggle-control">
+              <span>Show title</span>
+              <input
+                type="checkbox"
+                :checked="settings.showTitle"
+                @change="
+                  update(
+                    'showTitle',
+                    ($event.target as HTMLInputElement).checked
+                  )
+                "
+              />
+            </label>
+            <label class="toggle-control">
+              <span>Show labels</span>
+              <input
+                type="checkbox"
+                :checked="settings.showLabels"
+                @change="
+                  update(
+                    'showLabels',
+                    ($event.target as HTMLInputElement).checked
+                  )
+                "
+              />
+            </label>
+          </div>
+          <div class="control-stack">
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Title size</span>
+                <output>{{ settings.titleSize || 48 }}px</output>
+              </span>
+              <input
+                type="range"
+                min="16"
+                max="120"
+                :value="settings.titleSize || 48"
+                @input="
+                  update(
+                    'titleSize',
+                    parseInt(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Digit size</span>
+                <output>{{ settings.digitSize || 100 }}px</output>
+              </span>
+              <input
+                type="range"
+                min="20"
+                max="200"
+                :value="settings.digitSize || 100"
+                @input="
+                  update(
+                    'digitSize',
+                    parseInt(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Label size</span>
+                <output>{{ settings.labelSize || 14 }}px</output>
+              </span>
+              <input
+                type="range"
+                min="10"
+                max="100"
+                :value="settings.labelSize || 14"
+                @input="
+                  update(
+                    'labelSize',
+                    parseInt(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+          </div>
+        </section>
+
+        <!-- Colors Section -->
+        <section class="builder-card">
+          <div class="section-heading">
+            <span>03</span>
+            <h3>Colors & Glow</h3>
+          </div>
+          <div class="color-grid">
+            <div class="color-control">
+              <span>Digits</span>
+              <div>
+                <input
+                  type="color"
+                  aria-label="Digit color"
+                  :value="settings.digitColor || '#ecfeff'"
+                  @input="
+                    update(
+                      'digitColor',
+                      ($event.target as HTMLInputElement).value
+                    )
+                  "
+                />
+                <button
+                  v-if="settings.digitColor"
+                  type="button"
+                  @click="update('digitColor', null)"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+            <div class="color-control">
+              <span>Labels</span>
+              <div>
+                <input
+                  type="color"
+                  aria-label="Label color"
+                  :value="settings.labelColor || '#22d3ee'"
+                  @input="
+                    update(
+                      'labelColor',
+                      ($event.target as HTMLInputElement).value
+                    )
+                  "
+                />
+                <button
+                  v-if="settings.labelColor"
+                  type="button"
+                  @click="update('labelColor', null)"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+            <div class="color-control">
+              <span>Glow</span>
+              <div>
+                <input
+                  type="color"
+                  aria-label="Glow color"
+                  :value="settings.glowColor || '#22d3ee'"
+                  @input="
+                    update(
+                      'glowColor',
+                      ($event.target as HTMLInputElement).value
+                    )
+                  "
+                />
+                <button
+                  v-if="settings.glowColor"
+                  type="button"
+                  @click="update('glowColor', null)"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+            <div class="color-control">
+              <span>Border</span>
+              <div>
+                <input
+                  type="color"
+                  aria-label="Border color"
+                  :value="settings.borderColor || '#06b6d4'"
+                  @input="
+                    update(
+                      'borderColor',
+                      ($event.target as HTMLInputElement).value
+                    )
+                  "
+                />
+                <button
+                  v-if="settings.borderColor"
+                  type="button"
+                  @click="update('borderColor', null)"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="control-stack">
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Glow intensity</span>
+                <output>{{ settings.glowIntensity || 20 }}px</output>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                :value="settings.glowIntensity || 20"
+                @input="
+                  update(
+                    'glowIntensity',
+                    parseInt(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Glow spread</span>
+                <output>{{ settings.glowSpread || 0 }}px</output>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="40"
+                :value="settings.glowSpread || 0"
+                @input="
+                  update(
+                    'glowSpread',
+                    parseInt(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+          </div>
+        </section>
+
+        <!-- Right Column: Typography, Frame & Backdrop -->
+        <!-- Frame Section -->
+        <section class="builder-card">
+          <div class="section-heading">
+            <span>04</span>
+            <h3>Frame & Backdrop</h3>
+          </div>
+          <div class="control-stack">
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Frame padding</span>
+                <output>{{ settings.framePadding ?? 24 }}px</output>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="64"
+                :value="settings.framePadding ?? 24"
+                @input="
+                  update(
+                    'framePadding',
+                    parseInt(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Segment spacing</span>
+                <output>{{ settings.segmentGap ?? 0 }}px</output>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="48"
+                :value="settings.segmentGap ?? 0"
+                @input="
+                  update(
+                    'segmentGap',
+                    parseInt(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Background opacity</span>
+                <output>{{ Math.round((settings.backgroundOpacity ?? 0.65) * 100) }}%</output>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                :value="settings.backgroundOpacity ?? 0.65"
+                @input="
+                  update(
+                    'backgroundOpacity',
+                    parseFloat(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Backdrop blur</span>
+                <output>{{ settings.bgBlur ?? 12 }}px</output>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="40"
+                :value="settings.bgBlur ?? 12"
+                @input="
+                  update(
+                    'bgBlur',
+                    parseInt(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Border width</span>
+                <output>{{ settings.borderWidth ?? 3 }}px</output>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="12"
+                :value="settings.borderWidth ?? 3"
+                @input="
+                  update(
+                    'borderWidth',
+                    parseInt(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Rotation speed</span>
+                <output>{{ settings.animationSpeed ?? 5 }}s</output>
+              </span>
+              <input
+                type="range"
+                min="1"
+                max="30"
+                step="0.5"
+                :value="settings.animationSpeed ?? 5"
+                @input="
+                  update(
+                    'animationSpeed',
+                    parseFloat(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Scanline intensity</span>
+                <output>{{ Math.round((settings.scanlineOpacity ?? 0.08) * 100) }}%</output>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="0.5"
+                step="0.01"
+                :value="settings.scanlineOpacity ?? 0.08"
+                @input="
+                  update(
+                    'scanlineOpacity',
+                    parseFloat(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+            <label class="range-control">
+              <span class="range-meta">
+                <span>Shine intensity</span>
+                <output>{{ Math.round((settings.shineOpacity ?? 0.22) * 100) }}%</output>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                :value="settings.shineOpacity ?? 0.22"
+                @input="
+                  update(
+                    'shineOpacity',
+                    parseFloat(($event.target as HTMLInputElement).value)
+                  )
+                "
+              />
+            </label>
+          </div>
+          <div class="toggle-stack">
+            <label class="toggle-control">
+              <span>Animated shine</span>
+              <input
+                type="checkbox"
+                :checked="settings.showShine"
+                @change="
+                  update(
+                    'showShine',
+                    ($event.target as HTMLInputElement).checked
+                  )
+                "
+              />
+            </label>
+            <label class="toggle-control">
+              <span>CRT scanlines</span>
+              <input
+                type="checkbox"
+                :checked="settings.showScanlines"
+                @change="
+                  update(
+                    'showScanlines',
+                    ($event.target as HTMLInputElement).checked
+                  )
+                "
+              />
+            </label>
+          </div>
+        </section>
+      </aside>
+
+      <div class="preview-column">
+        <!-- Live Preview -->
+        <section class="preview-shell">
+          <div class="preview-toolbar">
+            <div>
+              <span class="live-dot"></span>
+              Live preview
+            </div>
+            <span>Browser source</span>
+          </div>
+          <div class="preview-container">
+            <!-- Checkerboard background for transparency preview -->
+            <div class="checkerboard"></div>
+            <div
+              class="obs-frame"
+              :class="{ 'with-scanlines': settings.showScanlines }"
               :style="{
-                color: gameTitleColor || undefined,
-                fontSize: settings.titleSize
-                  ? settings.titleSize + 'px'
-                  : undefined,
-                fontFamily: settings.obsFontFamily
-                  ? settings.obsFontFamily
-                  : undefined,
-                textShadow: titleTextShadow,
+                padding:
+                  settings.framePadding !== null
+                    ? `${settings.framePadding}px`
+                    : undefined,
+                '--obs-bg':
+                  settings.backgroundOpacity !== null
+                    ? `rgba(0,0,0,${settings.backgroundOpacity})`
+                    : undefined,
+                '--obs-bg-opacity':
+                  settings.backgroundOpacity !== null
+                    ? settings.backgroundOpacity
+                    : undefined,
+                '--obs-blur':
+                  settings.bgBlur !== null ? `${settings.bgBlur}px` : undefined,
+                '--obs-border-width':
+                  settings.borderWidth !== null
+                    ? `${settings.borderWidth}px`
+                    : undefined,
+                '--obs-border-color': settings.borderColor || undefined,
+                '--obs-speed':
+                  settings.animationSpeed !== null
+                    ? `${settings.animationSpeed}s`
+                    : undefined,
+                '--obs-scanline-opacity':
+                  settings.scanlineOpacity !== null
+                    ? settings.scanlineOpacity
+                    : undefined,
+                '--obs-shine-opacity': settings.showShine
+                  ? settings.shineOpacity ?? 0.22
+                  : 0,
+                '--obs-shine-state': settings.showShine ? 'running' : 'paused',
               }"
             >
-              {{ gameTitle }}
-            </p>
-            <TimerDisplay :is-focus-mode="false" :is-obs-override="true" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Controls -->
-      <div class="flex flex-col gap-4">
-        <div class="glass-panel space-y-8 p-4 sm:p-6">
-          <!-- Actions -->
-          <div class="flex flex-col gap-4 border-b border-cyan-200/10 pb-6">
-            <div class="rounded-xl border border-cyan-400/10 bg-cyan-400/[0.04] px-4 py-3 text-sm text-cyan-100/60">
-              Add Countdown creates a new saved timer for the preview you are styling here, without leaving the OBS setup view.
-            </div>
-            <div class="grid grid-cols-1 gap-4 items-center md:grid-cols-2 xl:grid-cols-4">
-              <button
-                @click="createCustomTimer"
-                class="btn-feature min-h-[4.5rem]"
+              <p
+                v-if="settings.showTitle"
+                class="preview-title"
+                :style="{
+                  color: gameTitleColor || undefined,
+                  fontSize: settings.titleSize
+                    ? settings.titleSize + 'px'
+                    : undefined,
+                  fontFamily: settings.obsFontFamily || undefined,
+                  textShadow: titleTextShadow,
+                }"
               >
-                <span class="inline-flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M12 8v8" />
-                    <path d="M8 12h8" />
-                    <circle cx="12" cy="12" r="9" />
-                  </svg>
-                  Add Countdown
-                </span>
-                <span class="btn-feature-subtitle">
-                  Create a new countdown and keep this preview open.
-                </span>
-              </button>
-              <button
-                @click="randomize"
-                class="group py-4 rounded-xl border-2 border-dashed border-cyan-500/20 text-cyan-400 font-bold transition-all hover:bg-cyan-500/5 hover:border-cyan-500/50 flex items-center justify-center gap-2 active:scale-95"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="group-hover:rotate-12 transition-transform"
-                >
-                  <path
-                    d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"
-                  />
-                  <path d="m18 2 4 4-4 4" />
-                  <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
-                  <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8" />
-                  <path d="m18 14 4 4-4 4" />
-                </svg>
-                Shuffle Everything
-              </button>
-              <button
-                @click="copyFinalLink"
-                class="relative group btn-accent py-4 text-lg font-black shadow-[0_0_30px_rgba(6,182,212,0.2)]"
-              >
-                <span>Copy Final Link</span>
-              </button>
-              <button
-                @click="resetCustomization"
-                class="btn-ghost text-xs text-slate-500 font-bold uppercase tracking-widest hover:text-slate-300 transition-colors"
-              >
-                Reset to Original
-              </button>
+                {{ gameTitle }}
+              </p>
+              <TimerDisplay :is-focus-mode="false" :is-obs-override="true" />
             </div>
           </div>
-          <div
-            class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-8 items-start"
-          >
-            <!-- Left Column: Style Presets, Colors & Glow -->
-            <div class="flex flex-col gap-10">
-              <!-- Style Presets -->
-              <section class="space-y-4">
-                <h4
-                  class="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2"
-                >
-                  <span
-                    class="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]"
-                  ></span>
-                  Style Presets
-                </h4>
-                <div class="grid grid-cols-2 gap-3">
-                  <button
-                    v-for="preset in presets"
-                    :key="preset.name"
-                    @click="applyPreset(preset)"
-                    class="group relative overflow-hidden px-3 py-2.5 rounded-xl bg-slate-900/40 border border-white/5 text-xs font-bold text-slate-300 transition-all hover:border-cyan-500/50 hover:bg-slate-800/60 active:scale-95"
-                  >
-                    <div
-                      class="absolute inset-0 bg-gradient-to-br from-cyan-500/0 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity"
-                    ></div>
-                    {{ preset.name }}
-                  </button>
-                </div>
-              </section>
-
-              <!-- Colors Section -->
-              <section class="space-y-3">
-                <h4
-                  class="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2"
-                >
-                  <span
-                    class="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]"
-                  ></span>
-                  Colors & Glow
-                </h4>
-                <div class="grid grid-cols-2 gap-3">
-                  <div class="space-y-2">
-                    <label
-                      class="text-[10px] font-bold text-slate-500 uppercase"
-                      >Digits</label
-                    >
-                    <div
-                      class="flex items-center gap-2 rounded-xl border border-white/5 bg-black/20 p-2"
-                    >
-                      <input
-                        type="color"
-                        :value="settings.digitColor || '#ecfeff'"
-                        @input="
-                          update(
-                            'digitColor',
-                            ($event.target as HTMLInputElement).value
-                          )
-                        "
-                        class="h-6 w-8 cursor-pointer bg-transparent border-none"
-                      />
-                      <button
-                        v-if="settings.digitColor"
-                        @click="update('digitColor', null)"
-                        class="text-[9px] font-bold text-slate-500 hover:text-slate-300 uppercase"
-                      >
-                        Reset
-                      </button>
-                    </div>
-                  </div>
-                  <div class="space-y-2">
-                    <label
-                      class="text-[10px] font-bold text-slate-500 uppercase"
-                      >Labels</label
-                    >
-                    <div
-                      class="flex items-center gap-2 rounded-xl border border-white/5 bg-black/20 p-2"
-                    >
-                      <input
-                        type="color"
-                        :value="settings.labelColor || '#22d3ee'"
-                        @input="
-                          update(
-                            'labelColor',
-                            ($event.target as HTMLInputElement).value
-                          )
-                        "
-                        class="h-6 w-8 cursor-pointer bg-transparent border-none"
-                      />
-                      <button
-                        v-if="settings.labelColor"
-                        @click="update('labelColor', null)"
-                        class="text-[9px] font-bold text-slate-500 hover:text-slate-300 uppercase"
-                      >
-                        Reset
-                      </button>
-                    </div>
-                  </div>
-                  <div class="space-y-2">
-                    <label
-                      class="text-[10px] font-bold text-slate-500 uppercase"
-                      >Glow</label
-                    >
-                    <div
-                      class="flex items-center gap-2 rounded-xl border border-white/5 bg-black/20 p-2"
-                    >
-                      <input
-                        type="color"
-                        :value="settings.glowColor || '#22d3ee'"
-                        @input="
-                          update(
-                            'glowColor',
-                            ($event.target as HTMLInputElement).value
-                          )
-                        "
-                        class="h-6 w-8 cursor-pointer bg-transparent border-none"
-                      />
-                      <button
-                        v-if="settings.glowColor"
-                        @click="update('glowColor', null)"
-                        class="text-[9px] font-bold text-slate-500 hover:text-slate-300 uppercase"
-                      >
-                        Reset
-                      </button>
-                    </div>
-                  </div>
-                  <div class="space-y-2">
-                    <label
-                      class="text-[10px] font-bold text-slate-500 uppercase"
-                      >Border</label
-                    >
-                    <div
-                      class="flex items-center gap-2 rounded-xl border border-white/5 bg-black/20 p-2"
-                    >
-                      <input
-                        type="color"
-                        :value="settings.borderColor || '#06b6d4'"
-                        @input="
-                          update(
-                            'borderColor',
-                            ($event.target as HTMLInputElement).value
-                          )
-                        "
-                        class="h-6 w-8 cursor-pointer bg-transparent border-none"
-                      />
-                      <button
-                        v-if="settings.borderColor"
-                        @click="update('borderColor', null)"
-                        class="text-[9px] font-bold text-slate-500 hover:text-slate-300 uppercase"
-                      >
-                        Reset
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="space-y-5 pt-2">
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <label class="text-xs font-semibold text-slate-300"
-                        >Glow Intensity</label
-                      >
-                      <span class="text-[10px] font-mono text-cyan-400"
-                        >{{ settings.glowIntensity || 20 }}px</span
-                      >
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      :value="settings.glowIntensity || 20"
-                      @input="
-                        update(
-                          'glowIntensity',
-                          parseInt(($event.target as HTMLInputElement).value)
-                        )
-                      "
-                      class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                    />
-                  </div>
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <label class="text-xs font-semibold text-slate-300"
-                        >Glow Spread</label
-                      >
-                      <span class="text-[10px] font-mono text-cyan-400"
-                        >{{ settings.glowSpread || 0 }}px</span
-                      >
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="40"
-                      :value="settings.glowSpread || 0"
-                      @input="
-                        update(
-                          'glowSpread',
-                          parseInt(($event.target as HTMLInputElement).value)
-                        )
-                      "
-                      class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                    />
-                  </div>
-                </div>
-              </section>
-            </div>
-
-            <!-- Right Column: Typography, Frame & Backdrop -->
-            <div class="flex flex-col gap-10">
-              <!-- Typography Section -->
-              <section class="space-y-3">
-                <h4
-                  class="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2"
-                >
-                  <span
-                    class="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]"
-                  ></span>
-                  Typography
-                </h4>
-                <div class="space-y-3">
-                  <div class="space-y-2">
-                    <label
-                      class="text-[10px] font-bold text-slate-500 uppercase"
-                      >Font Family</label
-                    >
-                    <select
-                      :value="settings.obsFontFamily || 'Geist Sans'"
-                      @change="
-                        update(
-                          'obsFontFamily',
-                          ($event.target as HTMLSelectElement).value
-                        )
-                      "
-                      class="w-full h-9 px-3 rounded-xl bg-slate-900 border border-white/10 text-sm text-slate-300 focus:outline-none focus:border-cyan-500/50 cursor-pointer"
-                    >
-                      <option
-                        value="Geist Sans"
-                        class="bg-slate-900 text-slate-300"
-                      >
-                        Geist Sans
-                      </option>
-                      <option
-                        value="Geist Mono"
-                        class="bg-slate-900 text-slate-300"
-                      >
-                        Geist Mono
-                      </option>
-                      <option
-                        value="sans-serif"
-                        class="bg-slate-900 text-slate-300"
-                      >
-                        Sans Serif
-                      </option>
-                      <option
-                        value="monospace"
-                        class="bg-slate-900 text-slate-300"
-                      >
-                        Monospace
-                      </option>
-                    </select>
-                  </div>
-                  <div class="grid gap-3">
-                    <div class="space-y-2">
-                      <div class="flex items-center justify-between">
-                        <label class="text-xs font-semibold text-slate-300"
-                          >Digit Size</label
-                        >
-                        <span class="text-[10px] font-mono text-cyan-400"
-                          >{{ settings.digitSize || 100 }}px</span
-                        >
-                      </div>
-                      <input
-                        type="range"
-                        min="20"
-                        max="200"
-                        :value="settings.digitSize || 100"
-                        @input="
-                          update(
-                            'digitSize',
-                            parseInt(($event.target as HTMLInputElement).value)
-                          )
-                        "
-                        class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                      />
-                    </div>
-                    <div class="space-y-2">
-                      <div class="flex items-center justify-between">
-                        <label class="text-xs font-semibold text-slate-300"
-                          >Label Size</label
-                        >
-                        <span class="text-[10px] font-mono text-cyan-400"
-                          >{{ settings.labelSize || 36 }}px</span
-                        >
-                      </div>
-                      <input
-                        type="range"
-                        min="10"
-                        max="100"
-                        :value="settings.labelSize || 36"
-                        @input="
-                          update(
-                            'labelSize',
-                            parseInt(($event.target as HTMLInputElement).value)
-                          )
-                        "
-                        class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <!-- Frame Section -->
-              <section class="space-y-3">
-                <h4
-                  class="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2"
-                >
-                  <span
-                    class="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]"
-                  ></span>
-                  Frame & Backdrop
-                </h4>
-                <div class="space-y-3">
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <label class="text-xs font-semibold text-slate-300"
-                        >Background Opacity</label
-                      >
-                      <span class="text-[10px] font-mono text-cyan-400"
-                        >{{
-                          Math.round(
-                            (settings.backgroundOpacity ?? 0.65) * 100
-                          )
-                        }}%</span
-                      >
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.05"
-                      :value="settings.backgroundOpacity ?? 0.65"
-                      @input="
-                        update(
-                          'backgroundOpacity',
-                          parseFloat(($event.target as HTMLInputElement).value)
-                        )
-                      "
-                      class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                    />
-                  </div>
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <label class="text-xs font-semibold text-slate-300"
-                        >Backdrop Blur</label
-                      >
-                      <span class="text-[10px] font-mono text-cyan-400"
-                        >{{ settings.bgBlur ?? 12 }}px</span
-                      >
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="40"
-                      :value="settings.bgBlur ?? 12"
-                      @input="
-                        update(
-                          'bgBlur',
-                          parseInt(($event.target as HTMLInputElement).value)
-                        )
-                      "
-                      class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                    />
-                  </div>
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <label class="text-xs font-semibold text-slate-300"
-                        >Border Width</label
-                      >
-                      <span class="text-[10px] font-mono text-cyan-400"
-                        >{{ settings.borderWidth ?? 3 }}px</span
-                      >
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="12"
-                      :value="settings.borderWidth ?? 3"
-                      @input="
-                        update(
-                          'borderWidth',
-                          parseInt(($event.target as HTMLInputElement).value)
-                        )
-                      "
-                      class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                    />
-                  </div>
-
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <label class="text-xs font-semibold text-slate-300"
-                        >Rotation Speed</label
-                      >
-                      <span class="text-[10px] font-mono text-cyan-400"
-                        >{{ settings.animationSpeed ?? 5 }}s</span
-                      >
-                    </div>
-                    <input
-                      type="range"
-                      min="1"
-                      max="30"
-                      step="0.5"
-                      :value="settings.animationSpeed ?? 5"
-                      @input="
-                        update(
-                          'animationSpeed',
-                          parseFloat(($event.target as HTMLInputElement).value)
-                        )
-                      "
-                      class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                    />
-                  </div>
-
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <label class="text-xs font-semibold text-slate-300"
-                        >Scanline Intensity</label
-                      >
-                      <span class="text-[10px] font-mono text-cyan-400"
-                        >{{
-                          Math.round((settings.scanlineOpacity ?? 0.08) * 100)
-                        }}%</span
-                      >
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="0.5"
-                      step="0.01"
-                      :value="settings.scanlineOpacity ?? 0.08"
-                      @input="
-                        update(
-                          'scanlineOpacity',
-                          parseFloat(($event.target as HTMLInputElement).value)
-                        )
-                      "
-                      class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                    />
-                  </div>
-
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <label class="text-xs font-semibold text-slate-300"
-                        >Shine Intensity</label
-                      >
-                      <span class="text-[10px] font-mono text-cyan-400"
-                        >{{
-                          Math.round((settings.shineOpacity ?? 0.22) * 100)
-                        }}%</span
-                      >
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.01"
-                      :value="settings.shineOpacity ?? 0.22"
-                      @input="
-                        update(
-                          'shineOpacity',
-                          parseFloat(($event.target as HTMLInputElement).value)
-                        )
-                      "
-                      class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                    />
-                  </div>
-
-                  <div class="pt-2 flex flex-col gap-3">
-                    <label
-                      class="group flex cursor-pointer items-center justify-between rounded-xl border border-white/5 bg-black/20 p-3 transition-colors hover:bg-black/40"
-                    >
-                      <span class="text-sm font-medium text-slate-300"
-                        >Animated Shine</span
-                      >
-                      <div
-                        class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200"
-                        :class="
-                          settings.showShine ? 'bg-cyan-500' : 'bg-slate-700'
-                        "
-                      >
-                        <span
-                          class="inline-block h-3 w-3 transform rounded-full bg-white transition duration-200"
-                          :class="
-                            settings.showShine
-                              ? 'translate-x-5'
-                              : 'translate-x-1'
-                          "
-                        ></span>
-                        <input
-                          type="checkbox"
-                          class="sr-only"
-                          :checked="settings.showShine"
-                          @change="
-                            update(
-                              'showShine',
-                              ($event.target as HTMLInputElement).checked
-                            )
-                          "
-                        />
-                      </div>
-                    </label>
-
-                    <label
-                      class="group flex cursor-pointer items-center justify-between rounded-xl border border-white/5 bg-black/20 p-3 transition-colors hover:bg-black/40"
-                    >
-                      <span class="text-sm font-medium text-slate-300"
-                        >CRT Scanlines</span
-                      >
-                      <div
-                        class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200"
-                        :class="
-                          settings.showScanlines
-                            ? 'bg-cyan-500'
-                            : 'bg-slate-700'
-                        "
-                      >
-                        <span
-                          class="inline-block h-3 w-3 transform rounded-full bg-white transition duration-200"
-                          :class="
-                            settings.showScanlines
-                              ? 'translate-x-5'
-                              : 'translate-x-1'
-                          "
-                        ></span>
-                        <input
-                          type="checkbox"
-                          class="sr-only"
-                          :checked="settings.showScanlines"
-                          @change="
-                            update(
-                              'showScanlines',
-                              ($event.target as HTMLInputElement).checked
-                            )
-                          "
-                        />
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              </section>
-            </div>
+          <div class="url-row">
+            <span class="url-value" :title="overlayUrl">{{ overlayUrl }}</span>
+            <button type="button" class="copy-button" @click="copyFinalLink">
+              Copy URL
+            </button>
           </div>
-        </div>
+        </section>
+
+        <!-- Actions -->
+        <section class="builder-card output-card">
+          <div class="output-heading">
+            <div>
+              <p class="builder-eyebrow">Overlay output</p>
+              <h3>Ready for OBS</h3>
+            </div>
+            <span class="status-badge"><span></span> Live</span>
+          </div>
+          <p class="output-description">
+            Add the copied URL as an OBS Browser source. Your current countdown and styling are included automatically.
+          </p>
+          <ol class="setup-steps">
+            <li>
+              <strong>Recommended source size:</strong> around 900–1200 px wide by 200–280 px tall. A 16:9 canvas (e.g. 1280 x 720) with the overlay scaled to ~70% width keeps the text crisp.
+            </li>
+            <li>
+              <strong>Add a Browser source</strong> in OBS → Sources → + → Browser.
+            </li>
+            <li>
+              <strong>Paste the copied URL</strong> into the URL field and set Width to 1280 and Height to 720.
+            </li>
+            <li>
+              Leave <strong>Custom CSS</strong> blank and check <strong>Shutdown source when not visible</strong> for clean scene switching.
+            </li>
+          </ol>
+          <div class="primary-actions">
+            <button type="button" class="add-button" @click="createCustomTimer">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 5v14" />
+                <path d="M5 12h14" />
+              </svg>
+              Add countdown
+            </button>
+            <button type="button" class="shuffle-button" @click="randomize">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
+                <path d="m18 2 4 4-4 4" />
+                <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
+                <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8" />
+                <path d="m18 14 4 4-4 4" />
+              </svg>
+              Shuffle style
+            </button>
+          </div>
+          <div class="secondary-actions">
+            <button type="button" class="final-link-button" @click="copyFinalLink">
+              Copy final link
+            </button>
+            <button type="button" class="reset-button" @click="resetCustomization">
+              Reset styles
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -906,94 +858,551 @@ const titleTextShadow = computed(() => {
 <style scoped>
 .overlay-customizer {
   color: #e5e2e1;
+  padding: 1.5rem 0 3rem;
 }
 
-.overlay-customizer h2,
-.overlay-customizer h3,
-.overlay-customizer h4 {
+.overlay-customizer :deep(.preview-container) .rounded-xl,
+.overlay-customizer .builder-card,
+.overlay-customizer .preview-shell,
+.overlay-customizer .preview-container,
+.overlay-customizer .obs-frame,
+.overlay-customizer .url-value,
+.overlay-customizer .color-control > div,
+.overlay-customizer .select-control select,
+.overlay-customizer button,
+.overlay-customizer input {
+  border-radius: 0.75rem !important;
+}
+
+.builder-header {
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(126, 210, 235, 0.12);
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+.builder-eyebrow {
+  color: rgba(126, 210, 235, 0.72);
   font-family: "Geist Mono", monospace;
-}
-
-.overlay-customizer h2 {
-  letter-spacing: 0.12em;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  margin: 0 0 0.35rem;
   text-transform: uppercase;
 }
 
-.overlay-customizer h4 {
-  color: rgba(126, 210, 235, 0.74) !important;
+.builder-header h2 {
+  font-family: "Geist Mono", monospace;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  margin: 0;
+  text-transform: uppercase;
 }
 
-.overlay-customizer button {
-  border-radius: 0 !important;
+.builder-description {
+  color: rgba(167, 204, 218, 0.58);
+  font-size: 0.8rem;
+  margin: 0.45rem 0 0;
 }
 
-.overlay-customizer .glass-panel button:not(.btn-accent):not(.btn-ghost):not(.btn-feature) {
-  background: rgba(28, 27, 27, 0.96);
-  border: 1px solid rgba(126, 210, 235, 0.12);
+.back-button {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(126, 210, 235, 0.14);
+  color: rgba(229, 226, 225, 0.72);
+  display: inline-flex;
+  flex: none;
+  font-size: 0.68rem;
+  font-weight: 650;
+  gap: 0.45rem;
+  letter-spacing: 0.02em;
+  padding: 0.65rem 0.9rem;
+  text-transform: none;
+  transition: 150ms ease;
+}
+
+.back-button:hover,
+.preset-button:hover,
+.shuffle-button:hover,
+.reset-button:hover {
+  background: rgba(126, 210, 235, 0.06);
+  border-color: rgba(126, 210, 235, 0.3);
   color: #e5e2e1;
 }
 
-.overlay-customizer .glass-panel button:not(.btn-accent):not(.btn-ghost):not(.btn-feature):hover {
-  background: rgba(126, 210, 235, 0.06);
-  border-color: rgba(126, 210, 235, 0.28);
+.builder-grid {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(17.5rem, 20rem) minmax(0, 1fr);
 }
 
-.overlay-customizer select,
-.overlay-customizer input[type="text"],
-.overlay-customizer input[type="number"] {
-  border-radius: 0 !important;
-  border-color: rgba(126, 210, 235, 0.14) !important;
-  background: rgba(28, 27, 27, 0.96) !important;
-  color: #e5e2e1 !important;
+.control-column,
+.preview-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
 }
 
-.overlay-customizer label,
-.overlay-customizer .text-slate-300 {
-  color: #e5e2e1 !important;
+.preview-column {
+  position: sticky;
+  top: 0.75rem;
 }
 
-.overlay-customizer .text-slate-500,
-.overlay-customizer .text-slate-400 {
-  color: rgba(167, 204, 218, 0.58) !important;
+.builder-card,
+.preview-shell {
+  background: rgba(22, 22, 24, 0.98);
+  border: 1px solid rgba(126, 210, 235, 0.08);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 12px 32px rgba(0, 0, 0, 0.28);
 }
 
-.overlay-customizer input[type="range"] {
+.builder-card {
+  padding: 0.9rem;
+}
+
+.section-heading {
+  align-items: center;
+  display: flex;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+.section-heading > span {
+  align-items: center;
+  background: rgba(126, 210, 235, 0.1);
+  border: 1px solid rgba(126, 210, 235, 0.14);
+  border-radius: 999px;
+  color: rgba(126, 210, 235, 0.65);
+  display: inline-flex;
+  font-family: "Geist Mono", monospace;
+  font-size: 0.55rem;
+  height: 1.25rem;
+  justify-content: center;
+  width: 1.25rem;
+}
+
+.section-heading h3,
+.output-heading h3 {
+  color: rgba(229, 226, 225, 0.9);
+  font-family: var(--font-family);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  margin: 0;
+  text-transform: none;
+}
+
+.preset-grid {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.preset-button,
+.shuffle-button,
+.reset-button {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(126, 210, 235, 0.12);
+  color: rgba(229, 226, 225, 0.7);
+  font-size: 0.66rem;
+  font-weight: 650;
+  padding: 0.55rem 0.45rem;
+  transition: 150ms ease;
+}
+
+.select-control {
+  display: block;
+}
+
+.select-control > span,
+.color-control > span {
+  color: rgba(167, 204, 218, 0.58);
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.35rem;
+  text-transform: none;
+}
+
+.select-control select {
+  appearance: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1.5L5 4.5L9 1.5' stroke='%237ed2eb' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") calc(100% - 0.75rem) 50% / 0.6rem no-repeat,
+    rgba(14, 14, 14, 0.72);
+  border: 1px solid rgba(126, 210, 235, 0.12);
+  color: rgba(229, 226, 225, 0.85);
+  cursor: pointer;
+  font-size: 0.72rem;
+  height: 2.15rem;
+  padding: 0 1.9rem 0 0.75rem;
+  width: 100%;
+}
+
+.content-controls {
+  align-items: end;
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  margin-top: 0.65rem;
+}
+
+.content-controls .toggle-control {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.35rem;
+  justify-content: flex-end;
+  min-height: 2.95rem;
+}
+
+.content-controls .toggle-control input {
+  order: 0;
+}
+
+.control-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.8rem;
+}
+
+.range-control {
+  display: block;
+}
+
+.range-meta {
+  align-items: center;
+  color: rgba(229, 226, 225, 0.75);
+  display: flex;
+  font-size: 0.65rem;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.range-meta output {
+  color: #7ed2eb;
+  font-family: "Geist Mono", monospace;
+  font-size: 0.6rem;
+  font-weight: 600;
+}
+
+.range-control input[type="range"] {
   accent-color: #7ed2eb;
+  cursor: pointer;
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.color-grid {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.color-control > div {
+  align-items: center;
+  background: rgba(14, 14, 14, 0.56);
+  border: 1px solid rgba(126, 210, 235, 0.09);
+  display: flex;
+  height: 2.05rem;
+  justify-content: space-between;
+  padding: 0.25rem 0.45rem;
+}
+
+.color-control input[type="color"] {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  height: 1.4rem;
+  padding: 0;
+  width: 1.9rem;
+}
+
+.color-control button {
+  color: rgba(167, 204, 218, 0.5);
+  font-family: "Geist Mono", monospace;
+  font-size: 0.52rem;
+  text-transform: uppercase;
+}
+
+.color-control button:hover {
+  color: #e5e2e1;
+}
+
+.toggle-stack {
+  border-top: 1px solid rgba(126, 210, 235, 0.09);
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+}
+
+.toggle-control {
+  align-items: center;
+  color: rgba(229, 226, 225, 0.7);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.62rem;
+  gap: 0.45rem;
+}
+
+.toggle-control input {
+  accent-color: #7ed2eb;
+  height: 0.85rem;
+  order: -1;
+  width: 0.85rem;
+}
+
+.preview-shell {
+  overflow: hidden;
+}
+
+.preview-toolbar {
+  align-items: center;
+  border-bottom: 1px solid rgba(126, 210, 235, 0.08);
+  color: rgba(167, 204, 218, 0.5);
+  display: flex;
+  font-size: 0.6rem;
+  font-weight: 600;
+  justify-content: space-between;
+  letter-spacing: 0.04em;
+  padding: 0.7rem 0.85rem;
+  text-transform: none;
+}
+
+.preview-toolbar > div {
+  align-items: center;
+  color: rgba(229, 226, 225, 0.75);
+  display: flex;
+  gap: 0.45rem;
+}
+
+.live-dot,
+.status-badge > span {
+  background: #58c7e3;
+  box-shadow: 0 0 8px rgba(88, 199, 227, 0.75);
+  display: inline-block;
+  height: 0.35rem;
+  width: 0.35rem;
 }
 
 .preview-container {
-  background-image: radial-gradient(
-      circle at 50% 50%,
-      rgba(126, 210, 235, 0.08) 0%,
-      transparent 100%
-    ),
-    linear-gradient(180deg, rgba(19, 19, 19, 0.88) 0%, rgba(14, 14, 14, 0.82) 100%);
+  align-items: center;
+  aspect-ratio: 16 / 9;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(126, 210, 235, 0.08), transparent 55%),
+    #101112;
+  display: flex;
+  justify-content: center;
+  min-height: 22rem;
+  overflow: hidden;
+  padding: clamp(1rem, 3vw, 2.25rem);
+  position: relative;
+}
+
+.checkerboard {
+  background-image:
+    linear-gradient(45deg, rgba(229, 226, 225, 0.035) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(229, 226, 225, 0.035) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(229, 226, 225, 0.035) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(229, 226, 225, 0.035) 75%);
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-size: 16px 16px;
+  inset: 0;
+  position: absolute;
+}
+
+.obs-frame {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-width: 100%;
+  padding: clamp(1rem, 3vw, 2rem);
+  position: relative;
+  width: 100%;
+  z-index: 1;
+}
+
+.preview-title {
+  color: #e5e2e1;
+  font-family: "Geist Mono", monospace;
+  font-size: clamp(1.2rem, 3vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
+  text-wrap: balance;
 }
 
 .preview-container :deep(.glass-section),
 .preview-container :deep(.glass-panel) {
   background: transparent !important;
-  box-shadow: none !important;
   border: none !important;
+  box-shadow: none !important;
 }
 
-.checkerboard {
-  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
-    linear-gradient(-45deg, #ccc 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #ccc 75%),
-    linear-gradient(-45deg, transparent 75%, #ccc 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+.preview-container :deep(.rounded-xl) {
+  border-radius: 1rem !important;
+}
+
+.preview-container :deep(.mx-auto) {
+  gap: 0.5rem;
+}
+
+.preview-container :deep(.rounded-xl) {
+  padding-bottom: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.url-row {
+  align-items: center;
+  background: rgba(14, 14, 14, 0.78);
+  border-top: 1px solid rgba(126, 210, 235, 0.1);
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.55rem;
+}
+
+.url-value {
+  background: rgba(28, 27, 27, 0.9);
+  border: 1px solid rgba(126, 210, 235, 0.09);
+  color: rgba(167, 204, 218, 0.58);
+  flex: 1;
+  font-family: "Geist Mono", monospace;
+  font-size: 0.58rem;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.65rem 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-button,
+.add-button,
+.final-link-button {
+  background: linear-gradient(90deg, #7ed2eb, #439cb3);
+  border: 0;
+  color: #0f1415;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.6rem 0.85rem;
+  text-transform: none;
+  transition: 150ms ease;
+}
+
+.copy-button:hover,
+.add-button:hover,
+.final-link-button:hover {
+  box-shadow: 0 0 18px rgba(126, 210, 235, 0.22);
+  filter: brightness(1.04);
+}
+
+.output-card {
+  padding: 1rem;
+}
+
+.output-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.status-badge {
+  align-items: center;
+  border: 1px solid rgba(88, 199, 227, 0.18);
+  color: rgba(126, 210, 235, 0.72);
+  display: inline-flex;
+  font-family: "Geist Mono", monospace;
+  font-size: 0.55rem;
+  gap: 0.4rem;
+  letter-spacing: 0.1em;
+  padding: 0.35rem 0.45rem;
+  text-transform: uppercase;
+}
+
+.output-description {
+  color: rgba(167, 204, 218, 0.55);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  margin: 0.65rem 0 0.85rem;
+  max-width: 42rem;
+}
+
+.setup-steps {
+  color: rgba(167, 204, 218, 0.6);
+  display: flex;
+  flex-direction: column;
+  font-size: 0.68rem;
+  gap: 0.5rem;
+  line-height: 1.55;
+  list-style-position: outside;
+  margin: 0 0 0.9rem;
+  padding-left: 1.15rem;
+}
+
+.setup-steps li {
+  padding-left: 0.2rem;
+}
+
+.setup-steps strong {
+  color: rgba(229, 226, 225, 0.78);
+  font-weight: 700;
+}
+
+.primary-actions,
+.secondary-actions {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.primary-actions {
+  margin-bottom: 0.5rem;
+}
+
+.add-button,
+.shuffle-button,
+.final-link-button,
+.reset-button {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  min-height: 2.45rem;
+}
+
+.add-button,
+.shuffle-button {
+  gap: 0.45rem;
+}
+
+.final-link-button {
+  grid-column: span 1;
 }
 
 /* Scanlines overlay - uses a separate visual layer, not ::after, to avoid conflicting with the shine animation */
 .with-scanlines {
   position: relative;
 }
+
 .with-scanlines > * {
   position: relative;
   z-index: 1;
 }
+
 .obs-frame.with-scanlines::after {
   /* Inherit the shine animation, but add scanlines to the background */
   background:
@@ -1005,58 +1414,89 @@ const titleTextShadow = computed(() => {
       rgba(34, 211, 238, calc(var(--obs-shine-opacity, 0.22) * 0.3)) 88%,
       transparent 100%
     ),
-    /* Sweep B (counter) */
-      linear-gradient(
-        -70deg,
-        transparent 0%,
-        rgba(255, 255, 255, calc(var(--obs-shine-opacity, 0.22) * 0.4)) 12%,
-        rgba(34, 211, 238, calc(var(--obs-shine-opacity, 0.22) * 0.8)) 18%,
-        transparent 28%
-      ),
-    /* Base inner glow */
-      radial-gradient(
-        900px 420px at 50% 120%,
-        rgba(34, 211, 238, 0.14),
-        transparent 65%
-      ),
-    /* Scanlines - more visible when enabled */
-      repeating-linear-gradient(
-        to bottom,
-        rgba(14, 165, 233, var(--obs-scanline-opacity, 0.08)),
-        rgba(14, 165, 233, var(--obs-scanline-opacity, 0.08)) 1px,
-        transparent 1px,
-        transparent 3px
-      );
+    /* Sweep B (counter) */ linear-gradient(
+      -70deg,
+      transparent 0%,
+      rgba(255, 255, 255, calc(var(--obs-shine-opacity, 0.22) * 0.4)) 12%,
+      rgba(34, 211, 238, calc(var(--obs-shine-opacity, 0.22) * 0.8)) 18%,
+      transparent 28%
+    ),
+    /* Base inner glow */ radial-gradient(
+      900px 420px at 50% 120%,
+      rgba(34, 211, 238, 0.14),
+      transparent 65%
+    ),
+    /* Scanlines - more visible when enabled */ repeating-linear-gradient(
+      to bottom,
+      rgba(14, 165, 233, var(--obs-scanline-opacity, 0.08)),
+      rgba(14, 165, 233, var(--obs-scanline-opacity, 0.08)) 1px,
+      transparent 1px,
+      transparent 3px
+    );
   background-size: 320% 100%, 280% 100%, 100% 100%, 100% 100%;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(126, 210, 235, 0.16);
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(126, 210, 235, 0.28);
+@media (max-width: 900px) {
+  .builder-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-column {
+    order: -1;
+    position: static;
+  }
+
+  .control-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-.btn-accent {
-  @apply relative flex items-center justify-center gap-2 border bg-transparent px-6 py-2.5 font-bold uppercase tracking-[0.14em] text-[#0f1415] transition-all active:scale-[0.98];
-  background: linear-gradient(90deg, #7ed2eb, #439cb3);
-  border-color: rgba(126, 210, 235, 0.4);
-}
+@media (max-width: 620px) {
+  .overlay-customizer {
+    padding-top: 1rem;
+  }
 
-.btn-ghost {
-  @apply flex items-center gap-2 border border-transparent px-4 py-2 text-sm font-semibold uppercase tracking-[0.12em] text-cyan-100/70 transition-all hover:bg-cyan-200/[0.05] hover:text-[#e5e2e1];
-}
+  .builder-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
 
-.glass-panel {
-  background: rgba(32, 31, 31, 0.94);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(126, 210, 235, 0.14);
-  box-shadow: 0 0 32px rgba(126, 210, 235, 0.05);
+  .back-button {
+    justify-content: center;
+  }
+
+  .control-column {
+    display: flex;
+  }
+
+  .preview-container {
+    aspect-ratio: auto;
+    min-height: 18rem;
+    padding: 0.6rem;
+  }
+
+  .obs-frame {
+    padding: 0.75rem;
+  }
+
+  .preview-container :deep(.tabular-nums) {
+    font-size: clamp(2.7rem, 15vw, 4.25rem) !important;
+  }
+
+  .preview-container :deep(.obs-label) {
+    font-size: clamp(0.65rem, 3vw, 0.95rem) !important;
+  }
+
+  .url-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .primary-actions,
+  .secondary-actions {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

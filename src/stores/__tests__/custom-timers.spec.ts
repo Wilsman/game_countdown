@@ -161,4 +161,37 @@ describe("custom timer persistence", () => {
       1,
     );
   });
+
+  it("preserves layout controls in the OBS overlay URL", () => {
+    const storage = createStorageMock();
+    installBrowserMocks(storage);
+
+    const store = useTimerStore();
+    store.updateSettings({
+      titleSize: 64,
+      showTitle: false,
+      showLabels: false,
+      framePadding: 36,
+      segmentGap: 18,
+    });
+
+    const overlayUrl = new URL(store.getObsOverlayUrl());
+    expect(overlayUrl.searchParams.get("tsize")).toBe("64");
+    expect(overlayUrl.searchParams.get("showtitle")).toBe("0");
+    expect(overlayUrl.searchParams.get("showlabels")).toBe("0");
+    expect(overlayUrl.searchParams.get("padding")).toBe("36");
+    expect(overlayUrl.searchParams.get("gap")).toBe("18");
+
+    setActivePinia(createPinia());
+    installBrowserMocks(storage, overlayUrl.toString());
+
+    const restoredStore = useTimerStore();
+    restoredStore.handleUrlParams();
+
+    expect(restoredStore.settings.titleSize).toBe(64);
+    expect(restoredStore.settings.showTitle).toBe(false);
+    expect(restoredStore.settings.showLabels).toBe(false);
+    expect(restoredStore.settings.framePadding).toBe(36);
+    expect(restoredStore.settings.segmentGap).toBe(18);
+  });
 });

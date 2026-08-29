@@ -271,6 +271,12 @@ onUnmounted(() => {
       <div
         class="mt-4 grid gap-x-8 gap-y-6 sm:flex sm:flex-wrap sm:items-end sm:justify-center"
         :class="isObs ? 'obs-time-segments sm:gap-x-0' : 'sm:gap-x-10'"
+        :style="{
+          columnGap:
+            isObs && store.settings.segmentGap !== null
+              ? `${store.settings.segmentGap}px`
+              : undefined,
+        }"
       >
         <div
           v-for="segment in timeSegments"
@@ -311,6 +317,7 @@ onUnmounted(() => {
           </span>
 
           <span
+            v-if="!isObs || store.settings.showLabels"
             class="font-mono text-sm font-medium uppercase tracking-[0.14em] text-cyan-100/45 transition-all duration-300"
             :class="isObs ? 'obs-label' : ''"
             :style="{

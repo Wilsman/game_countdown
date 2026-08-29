@@ -235,6 +235,10 @@ watch(
                   'marathon-panel': isMarathonDuoTheme,
                 }"
                 :style="{
+                  padding:
+                    isObsMode && settings.framePadding !== null
+                      ? `${settings.framePadding}px`
+                      : undefined,
                   '--obs-bg':
                     isObsMode && settings.backgroundOpacity !== null
                       ? `rgba(0,0,0,${settings.backgroundOpacity})`
@@ -279,13 +283,14 @@ watch(
                 </div>
 
                 <p
-                  v-else
+                  v-else-if="settings.showTitle"
                   class="countdown-obs-title"
                   :style="{
                     color: gameTitleColor || undefined,
                     fontSize: settings.titleSize
                       ? settings.titleSize + 'px'
                       : undefined,
+                    fontFamily: settings.obsFontFamily || undefined,
                     textShadow: titleTextShadow,
                   }"
                 >

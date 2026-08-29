@@ -73,7 +73,6 @@ button,
 input,
 select,
 textarea,
-[class*="rounded-"],
 .glass-panel,
 .glass-section,
 .dialog-panel,
@@ -85,6 +84,25 @@ textarea,
 .event-chip,
 .preview-container,
 .obs-frame {
+  border-radius: 0.75rem;
+}
+
+.background-mesh.obs-mode button,
+.background-mesh.obs-mode input,
+.background-mesh.obs-mode select,
+.background-mesh.obs-mode textarea,
+.background-mesh.obs-mode .glass-panel,
+.background-mesh.obs-mode .glass-section,
+.background-mesh.obs-mode .dialog-panel,
+.background-mesh.obs-mode .countdown-stage,
+.background-mesh.obs-mode .countdown-title-input,
+.background-mesh.obs-mode .calendar-cell,
+.background-mesh.obs-mode .agenda-panel,
+.background-mesh.obs-mode .agenda-item,
+.background-mesh.obs-mode .event-chip,
+.background-mesh.obs-mode .preview-container,
+.background-mesh.obs-mode .obs-frame,
+.background-mesh.obs-mode [class*="rounded-"] {
   border-radius: 0 !important;
 }
 

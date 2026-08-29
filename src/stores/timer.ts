@@ -21,6 +21,10 @@ interface TimerSettings {
   digitSize: number | null;
   labelSize: number | null;
   titleSize: number | null;
+  showTitle: boolean;
+  showLabels: boolean;
+  framePadding: number | null;
+  segmentGap: number | null;
   glowColor: string | null;
   glowIntensity: number | null;
   glowSpread: number | null;
@@ -169,6 +173,10 @@ export const useTimerStore = defineStore("timer", () => {
     const dSize = params.get("dsize");
     const lSize = params.get("lsize");
     const tSize = params.get("tsize");
+    const showTitle = params.get("showtitle");
+    const showLabels = params.get("showlabels");
+    const framePadding = params.get("padding");
+    const segmentGap = params.get("gap");
     const gColor = params.get("gcolor");
     const gIntensity = params.get("gintensity");
     const gSpread = params.get("gspread");
@@ -233,6 +241,10 @@ export const useTimerStore = defineStore("timer", () => {
     if (dSize) customizations.digitSize = parseInt(dSize);
     if (lSize) customizations.labelSize = parseInt(lSize);
     if (tSize) customizations.titleSize = parseInt(tSize);
+    if (showTitle !== null) customizations.showTitle = showTitle === "1";
+    if (showLabels !== null) customizations.showLabels = showLabels === "1";
+    if (framePadding) customizations.framePadding = parseInt(framePadding);
+    if (segmentGap) customizations.segmentGap = parseInt(segmentGap);
     if (gColor) customizations.glowColor = `#${gColor}`;
     if (gIntensity) customizations.glowIntensity = parseFloat(gIntensity);
     if (gSpread) customizations.glowSpread = parseFloat(gSpread);
@@ -1691,7 +1703,11 @@ export const useTimerStore = defineStore("timer", () => {
     labelColor: null,
     digitSize: 100,
     labelSize: null,
-    titleSize: null,
+    titleSize: 48,
+    showTitle: true,
+    showLabels: true,
+    framePadding: 24,
+    segmentGap: 0,
     glowColor: null,
     glowIntensity: null,
     glowSpread: null,
@@ -2223,6 +2239,12 @@ export const useTimerStore = defineStore("timer", () => {
       url.searchParams.set("lsize", settings.value.labelSize.toString());
     if (settings.value.titleSize)
       url.searchParams.set("tsize", settings.value.titleSize.toString());
+    url.searchParams.set("showtitle", settings.value.showTitle ? "1" : "0");
+    url.searchParams.set("showlabels", settings.value.showLabels ? "1" : "0");
+    if (settings.value.framePadding !== null)
+      url.searchParams.set("padding", settings.value.framePadding.toString());
+    if (settings.value.segmentGap !== null)
+      url.searchParams.set("gap", settings.value.segmentGap.toString());
     if (settings.value.glowColor)
       url.searchParams.set("gcolor", settings.value.glowColor.replace("#", ""));
     if (settings.value.glowIntensity !== null)
