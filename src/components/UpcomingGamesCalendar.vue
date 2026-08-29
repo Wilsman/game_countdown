@@ -328,7 +328,6 @@ onUnmounted(() => {
                 v-for="event in cell.events.slice(0, 2)"
                 :key="event.id"
                 class="event-chip"
-                :style="{ '--event-color': event.titleColor || '#f59e0b' }"
               >
                 <span class="event-title">{{ event.title }}</span>
               </span>
@@ -471,14 +470,12 @@ onUnmounted(() => {
 
 .event-chip {
   display: block;
-  border-left: 2px solid var(--event-color);
   background: rgba(14, 14, 14, 0.72);
   color: #e5e2e1;
   padding: 0.28rem 0.4rem;
 }
 
 .event-chip-more {
-  border-left-color: rgba(126, 210, 235, 0.16);
   color: rgba(167, 204, 218, 0.7);
 }
 
