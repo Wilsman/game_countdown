@@ -1,32 +1,111 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { toast } from "vue-sonner";
 
+import {
+  formatLocalDateTime,
+  formatTimezoneOption,
+  resolveLocalDateTime,
+  timezones,
+} from "../lib/timezones";
 import { useTimerStore } from "../stores/timer";
 import TimerDisplay from "./TimerDisplay.vue";
 
 const emit = defineEmits<{
   (e: "close"): void;
-  (e: "create-timer"): void;
 }>();
 
 const store = useTimerStore();
-const { settings, gameTitle, gameTitleColor } = storeToRefs(store);
+const { activeGame, settings, gameTitle, gameTitleColor } = storeToRefs(store);
+const quickTitle = ref("");
+const quickDateTime = ref("");
+const quickTimezone = ref("");
+const quickDateResolution = computed(() =>
+  quickDateTime.value
+    ? resolveLocalDateTime(quickDateTime.value, quickTimezone.value)
+    : null,
+);
+const quickDateFeedback = computed(() => {
+  switch (quickDateResolution.value?.status) {
+    case "ambiguous":
+      return "This time occurs twice. The earlier occurrence is used.";
+    case "nonexistent":
+      return "This time does not exist in the active timezone.";
+    case "malformed":
+      return "Enter a valid date and time.";
+    case "unsupported-zone":
+      return "The active timezone is not supported by this browser.";
+    default:
+      return "";
+  }
+});
+const hasQuickDateError = computed(() =>
+  ["malformed", "nonexistent", "unsupported-zone"].includes(
+    quickDateResolution.value?.status ?? "",
+  ),
+);
+const quickTimezoneReferenceDate = computed(() => {
+  const resolution = quickDateResolution.value;
+  if (resolution?.status === "exact" || resolution?.status === "ambiguous") {
+    return resolution.date;
+  }
+
+  return new Date(activeGame.value.targetDate);
+});
+
+watch(
+  activeGame,
+  (game) => {
+    quickTitle.value = game.title;
+    quickDateTime.value = formatLocalDateTime(
+      new Date(game.targetDate),
+      game.targetTimezone,
+    );
+    quickTimezone.value = game.targetTimezone;
+  },
+  { immediate: true, deep: true },
+);
+
+function updateQuickTitle() {
+  if (quickTitle.value.trim()) store.setGameTitle(quickTitle.value);
+}
+
+function normalizeQuickTitle() {
+  const trimmedTitle = quickTitle.value.trim();
+  if (!trimmedTitle) {
+    quickTitle.value = gameTitle.value;
+    return;
+  }
+
+  quickTitle.value = trimmedTitle;
+  store.setGameTitle(trimmedTitle);
+}
+
+function updateQuickDateTime() {
+  const resolution = quickDateResolution.value;
+  if (resolution?.status !== "exact" && resolution?.status !== "ambiguous") return;
+
+  store.setTargetDate(resolution.date, quickTimezone.value);
+}
+
+function updateQuickTimezone() {
+  updateQuickDateTime();
+}
 
 const close = () => {
   emit("close");
 };
 
-const createCustomTimer = () => {
-  emit("create-timer");
-};
-
 const overlayUrl = computed(() => store.getObsOverlayUrl());
 
-const copyFinalLink = () => {
-  navigator.clipboard.writeText(overlayUrl.value);
-  toast.success("Customized OBS link copied!");
+const copyFinalLink = async () => {
+  try {
+    await navigator.clipboard.writeText(overlayUrl.value);
+    toast.success("Customized OBS link copied!");
+  } catch {
+    toast.error("Couldn't copy the OBS link");
+  }
 };
 
 const resetCustomization = () => {
@@ -329,6 +408,31 @@ const titleTextShadow = computed(() => {
               @click="applyPreset(preset)"
             >
               {{ preset.name }}
+            </button>
+            <button
+              type="button"
+              class="shuffle-button"
+              style="grid-column: 1 / -1"
+              @click="randomize"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
+                <path d="m18 2 4 4-4 4" />
+                <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
+                <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8" />
+                <path d="m18 14 4 4-4 4" />
+              </svg>
+              Shuffle style
             </button>
           </div>
         </section>
@@ -795,6 +899,85 @@ const titleTextShadow = computed(() => {
             </div>
             <span>Browser source</span>
           </div>
+          <div class="quick-editor">
+            <div class="quick-editor-heading">
+              <span>Countdown</span>
+              <span class="quick-editor-status">
+                <span></span>
+                Updates live
+              </span>
+            </div>
+            <label class="quick-field">
+              <span>Title</span>
+              <input
+                v-model="quickTitle"
+                type="text"
+                aria-label="Countdown title"
+                placeholder="Stream starts soon"
+                @input="updateQuickTitle"
+                @blur="normalizeQuickTitle"
+              />
+            </label>
+            <label class="quick-field">
+              <span>Ends at</span>
+              <input
+                v-model="quickDateTime"
+                type="datetime-local"
+                aria-label="Countdown end date and time"
+                :aria-invalid="hasQuickDateError"
+                :aria-describedby="
+                  quickDateFeedback ? 'quick-date-feedback' : undefined
+                "
+                @input="updateQuickDateTime"
+              />
+            </label>
+            <label class="quick-field quick-timezone-field">
+              <span>Time zone</span>
+              <span class="quick-timezone-control">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M3 12h18" />
+                  <path d="M12 3a15 15 0 0 1 0 18" />
+                  <path d="M12 3a15 15 0 0 0 0 18" />
+                </svg>
+                <select
+                  v-model="quickTimezone"
+                  aria-label="Countdown time zone"
+                  @change="updateQuickTimezone"
+                >
+                  <option
+                    v-for="timezone in timezones"
+                    :key="timezone.id"
+                    :value="timezone.id"
+                  >
+                    {{
+                      formatTimezoneOption(
+                        timezone.id,
+                        quickTimezoneReferenceDate,
+                      )
+                    }} - {{ timezone.name }}
+                  </option>
+                </select>
+              </span>
+            </label>
+            <p
+              v-if="quickDateFeedback"
+              id="quick-date-feedback"
+              class="quick-date-feedback"
+              :class="{ 'has-error': hasQuickDateError }"
+              aria-live="polite"
+            >
+              {{ quickDateFeedback }}
+            </p>
+          </div>
           <div class="preview-container">
             <!-- Checkerboard background for transparency preview -->
             <div class="checkerboard"></div>
@@ -886,49 +1069,7 @@ const titleTextShadow = computed(() => {
               Leave <strong>Custom CSS</strong> blank and check <strong>Shutdown source when not visible</strong> for clean scene switching.
             </li>
           </ol>
-          <div class="primary-actions">
-            <button type="button" class="add-button" @click="createCustomTimer">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M12 5v14" />
-                <path d="M5 12h14" />
-              </svg>
-              Add countdown
-            </button>
-            <button type="button" class="shuffle-button" @click="randomize">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
-                <path d="m18 2 4 4-4 4" />
-                <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
-                <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8" />
-                <path d="m18 14 4 4-4 4" />
-              </svg>
-              Shuffle style
-            </button>
-          </div>
           <div class="secondary-actions">
-            <button type="button" class="final-link-button" @click="copyFinalLink">
-              Copy final link
-            </button>
             <button type="button" class="reset-button" @click="resetCustomization">
               Reset styles
             </button>
@@ -953,6 +1094,7 @@ const titleTextShadow = computed(() => {
 .overlay-customizer .url-value,
 .overlay-customizer .color-control > div,
 .overlay-customizer .select-control select,
+.overlay-customizer .quick-timezone-control,
 .overlay-customizer button,
 .overlay-customizer input {
   border-radius: 0.75rem !important;
@@ -1251,6 +1393,172 @@ const titleTextShadow = computed(() => {
   overflow: hidden;
 }
 
+.quick-editor {
+  background: rgba(14, 14, 14, 0.88);
+  border-bottom: 1px solid rgba(126, 210, 235, 0.08);
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.9fr);
+  padding: 0.7rem 0.85rem 0.8rem;
+}
+
+.quick-editor-heading {
+  align-items: center;
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: space-between;
+}
+
+.quick-editor-heading > span:first-child {
+  color: rgba(229, 226, 225, 0.8);
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.quick-editor-status {
+  align-items: center;
+  color: rgba(167, 204, 218, 0.52);
+  display: inline-flex;
+  font-family: "Geist Mono", monospace;
+  font-size: 0.5rem;
+  gap: 0.35rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.quick-editor-status > span {
+  background: #58c7e3;
+  box-shadow: 0 0 7px rgba(88, 199, 227, 0.7);
+  display: inline-block;
+  height: 0.3rem;
+  width: 0.3rem;
+}
+
+.quick-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.quick-field > span:first-child {
+  color: rgba(167, 204, 218, 0.54);
+  font-size: 0.54rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.quick-field input {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(126, 210, 235, 0.12);
+  color: rgba(229, 226, 225, 0.92);
+  font-family: "Geist Sans", sans-serif;
+  font-size: 0.72rem;
+  height: 2.25rem;
+  min-width: 0;
+  padding: 0 0.7rem;
+  transition: 150ms ease;
+  width: 100%;
+}
+
+.quick-field input:hover {
+  border-color: rgba(126, 210, 235, 0.24);
+}
+
+.quick-field input:focus {
+  background: rgba(126, 210, 235, 0.045);
+  border-color: rgba(126, 210, 235, 0.55);
+  box-shadow: 0 0 0 3px rgba(126, 210, 235, 0.08);
+  outline: none;
+}
+
+.quick-field input[aria-invalid="true"] {
+  border-color: rgba(255, 186, 61, 0.55);
+}
+
+.quick-timezone-control {
+  align-items: center;
+  background:
+    linear-gradient(135deg, rgba(126, 210, 235, 0.07), transparent 52%),
+    rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(126, 210, 235, 0.14);
+  display: flex;
+  height: 2.25rem;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  transition: 150ms ease;
+}
+
+.quick-timezone-control:hover {
+  border-color: rgba(126, 210, 235, 0.28);
+}
+
+.quick-timezone-control:focus-within {
+  background:
+    linear-gradient(135deg, rgba(126, 210, 235, 0.11), transparent 52%),
+    rgba(126, 210, 235, 0.045);
+  border-color: rgba(126, 210, 235, 0.55);
+  box-shadow: 0 0 0 3px rgba(126, 210, 235, 0.08);
+}
+
+.quick-timezone-control svg {
+  color: rgba(126, 210, 235, 0.72);
+  height: 0.9rem;
+  left: 0.7rem;
+  pointer-events: none;
+  position: absolute;
+  width: 0.9rem;
+}
+
+.quick-timezone-control::after {
+  border-bottom: 1.5px solid rgba(126, 210, 235, 0.75);
+  border-right: 1.5px solid rgba(126, 210, 235, 0.75);
+  content: "";
+  height: 0.38rem;
+  pointer-events: none;
+  position: absolute;
+  right: 0.8rem;
+  top: 0.78rem;
+  transform: rotate(45deg);
+  width: 0.38rem;
+}
+
+.quick-timezone-control select {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: rgba(229, 226, 225, 0.92);
+  cursor: pointer;
+  font-family: "Geist Sans", sans-serif;
+  font-size: 0.68rem;
+  height: 100%;
+  min-width: 0;
+  outline: none;
+  overflow: hidden;
+  padding: 0 2rem 0 2rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.quick-timezone-control option {
+  background: #161618;
+  color: #e5e2e1;
+}
+
+.quick-date-feedback {
+  color: rgba(167, 204, 218, 0.62);
+  font-size: 0.58rem;
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.quick-date-feedback.has-error {
+  color: rgba(255, 186, 61, 0.85);
+}
+
 .preview-toolbar {
   align-items: center;
   border-bottom: 1px solid rgba(126, 210, 235, 0.08);
@@ -1375,7 +1683,6 @@ const titleTextShadow = computed(() => {
 }
 
 .copy-button,
-.add-button,
 .final-link-button {
   background: linear-gradient(90deg, #7ed2eb, #439cb3);
   border: 0;
@@ -1389,7 +1696,6 @@ const titleTextShadow = computed(() => {
 }
 
 .copy-button:hover,
-.add-button:hover,
 .final-link-button:hover {
   box-shadow: 0 0 18px rgba(126, 210, 235, 0.22);
   filter: brightness(1.04);
@@ -1458,7 +1764,6 @@ const titleTextShadow = computed(() => {
   margin-bottom: 0.5rem;
 }
 
-.add-button,
 .shuffle-button,
 .final-link-button,
 .reset-button {
@@ -1468,7 +1773,6 @@ const titleTextShadow = computed(() => {
   min-height: 2.45rem;
 }
 
-.add-button,
 .shuffle-button {
   gap: 0.45rem;
 }
@@ -1553,6 +1857,10 @@ const titleTextShadow = computed(() => {
 
   .control-column {
     display: flex;
+  }
+
+  .quick-editor {
+    grid-template-columns: 1fr;
   }
 
   .preview-container {

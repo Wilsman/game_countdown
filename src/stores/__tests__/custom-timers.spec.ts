@@ -162,6 +162,76 @@ describe("custom timer persistence", () => {
     );
   });
 
+  it("uses the shared title when a saved custom timer already exists", () => {
+    const storage = createStorageMock();
+    installBrowserMocks(storage);
+
+    const firstStore = useTimerStore();
+    const savedTimer = firstStore.addCustomTimer(
+      "Old title",
+      new Date("2026-09-01T18:00:00Z"),
+      "UTC",
+      "custom-shared-title",
+    );
+    const overlayUrl = new URL(firstStore.getObsOverlayUrl());
+    overlayUrl.searchParams.set("game", savedTimer.id);
+    overlayUrl.searchParams.set("title", "Updated title");
+
+    setActivePinia(createPinia());
+    installBrowserMocks(storage, overlayUrl.toString());
+
+    const restoredStore = useTimerStore();
+    restoredStore.handleUrlParams();
+
+    expect(restoredStore.activeGame.id).toBe(savedTimer.id);
+    expect(restoredStore.gameTitle).toBe("Updated title");
+  });
+
+  it("persists live title and date changes in the OBS overlay URL", () => {
+    const storage = createStorageMock();
+    installBrowserMocks(storage);
+
+    const store = useTimerStore();
+    store.addCustomTimer(
+      "Starting soon",
+      new Date("2026-09-01T18:00:00Z"),
+      "UTC",
+    );
+
+    store.setGameTitle("Friday stream");
+    store.setTargetDate(
+      new Date("2026-09-04T19:30:00Z"),
+      "Europe/London",
+    );
+
+    const overlayUrl = new URL(store.getObsOverlayUrl());
+    expect(overlayUrl.searchParams.get("game")).toBeNull();
+    expect(overlayUrl.searchParams.get("title")).toBe("Friday stream");
+    expect(overlayUrl.searchParams.get("date")).toBe(
+      "2026-09-04T19:30:00.000Z",
+    );
+    expect(overlayUrl.searchParams.get("timezone")).toBe("Europe/London");
+
+    setActivePinia(createPinia());
+    installBrowserMocks(createStorageMock(), overlayUrl.toString());
+
+    const restoredStore = useTimerStore();
+    restoredStore.handleUrlParams();
+
+    expect(restoredStore.gameTitle).toBe("Friday stream");
+    expect(restoredStore.targetDate.toISOString()).toBe(
+      "2026-09-04T19:30:00.000Z",
+    );
+    expect(restoredStore.targetTimezone).toBe("Europe/London");
+
+    const persistedTimers = JSON.parse(
+      storage.getItem(CUSTOM_GAMES_STORAGE_KEY) ?? "[]",
+    );
+    expect(persistedTimers[0].title).toBe("Friday stream");
+    expect(persistedTimers[0].targetDate).toBe("2026-09-04T19:30:00.000Z");
+    expect(persistedTimers[0].targetTimezone).toBe("Europe/London");
+  });
+
   it("preserves layout controls in the OBS overlay URL", () => {
     const storage = createStorageMock();
     installBrowserMocks(storage);

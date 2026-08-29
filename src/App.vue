@@ -223,7 +223,6 @@ watch(
           <OverlayCustomizer
             v-if="isCustomizing"
             @close="toggleCustomizing"
-            @create-timer="openCreateCountdownDialog"
           />
 
           <template v-else>

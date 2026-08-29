@@ -228,6 +228,7 @@ export const useTimerStore = defineStore("timer", () => {
       const gameIndex = games.value.findIndex((g) => g.id === gameId);
       if (gameIndex !== -1) {
         setActiveGameIndex(gameIndex);
+        if (titleParam !== null) setGameTitle(titleParam);
 
         // Update the game's date and timezone if provided
         if (dateStr) {
@@ -253,6 +254,18 @@ export const useTimerStore = defineStore("timer", () => {
           // Apply color if provided
           if (colorHex) setGameTitleColor(colorHex);
         }
+      }
+    } else if (dateStr) {
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        addGame(
+          titleParam || "Custom Timer",
+          date,
+          timezone || userTimezone,
+          "game",
+          "shared-overlay",
+        );
+        if (color) setGameTitleColor(`#${color.replace(/^#/, "")}`);
       }
     }
 
@@ -2329,6 +2342,7 @@ export const useTimerStore = defineStore("timer", () => {
     if (!shareableUrl) return "";
 
     const url = new URL(shareableUrl);
+    url.searchParams.delete("game");
     url.searchParams.set("obs", "1");
     url.searchParams.set("bg", "0");
 
