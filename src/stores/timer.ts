@@ -73,6 +73,7 @@ type GameBase = Omit<Game, "source" | "createdAt">;
 export const useTimerStore = defineStore("timer", () => {
   const CUSTOM_GAMES_STORAGE_KEY = "game-countdown.custom-games";
   const ACTIVE_CUSTOM_GAME_STORAGE_KEY = "game-countdown.active-custom-game-id";
+  const SETTINGS_STORAGE_KEY = "game-countdown.settings";
 
   // Get user's current timezone
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -154,6 +155,37 @@ export const useTimerStore = defineStore("timer", () => {
     }
   };
 
+  const loadPersistedSettings = (): Partial<TimerSettings> | null => {
+    if (typeof window === "undefined") return null;
+
+    try {
+      const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+      if (!raw) return null;
+
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return null;
+      }
+
+      return parsed as Partial<TimerSettings>;
+    } catch {
+      return null;
+    }
+  };
+
+  const persistSettings = (): void => {
+    if (typeof window === "undefined") return;
+
+    try {
+      window.localStorage.setItem(
+        SETTINGS_STORAGE_KEY,
+        JSON.stringify(settings.value),
+      );
+    } catch {
+      // Ignore storage failures so the timer keeps working.
+    }
+  };
+
   // Function to handle URL parameters
   const handleUrlParams = () => {
     if (typeof window === "undefined") return;
@@ -226,7 +258,7 @@ export const useTimerStore = defineStore("timer", () => {
 
     // Update background setting if provided
     if (bgEnabled !== null) {
-      updateSettings({ enableGameBackground: bgEnabled === "1" });
+      updateSettings({ enableGameBackground: bgEnabled === "1" }, false);
     }
 
     // Set OBS mode if parameter is present
@@ -260,7 +292,7 @@ export const useTimerStore = defineStore("timer", () => {
     if (shineOpactiy) customizations.shineOpacity = parseFloat(shineOpactiy);
 
     if (Object.keys(customizations).length > 0) {
-      updateSettings(customizations);
+      updateSettings(customizations, false);
     }
   };
 
@@ -1688,6 +1720,7 @@ export const useTimerStore = defineStore("timer", () => {
   const pendingRegionalReleaseGameId = ref<string | null>(null);
   const isEditMode = ref(false);
   const isObsMode = ref(false);
+  const persistedSettings = loadPersistedSettings();
   const settings: Ref<TimerSettings> = ref({
     fontFamily: "Geist Sans",
     textColor: "#ffffff",
@@ -1721,6 +1754,7 @@ export const useTimerStore = defineStore("timer", () => {
     scanlineOpacity: null,
     showShine: true,
     shineOpacity: null,
+    ...persistedSettings,
   });
 
   const hasReachedZero = ref(false);
@@ -2165,7 +2199,10 @@ export const useTimerStore = defineStore("timer", () => {
     isEditMode.value = !isEditMode.value;
   }
 
-  const updateSettings = (newSettings: Partial<TimerSettings>): void => {
+  const updateSettings = (
+    newSettings: Partial<TimerSettings>,
+    persist = true,
+  ): void => {
     settings.value = { ...settings.value, ...newSettings };
 
     // Apply font family to document if running in browser
@@ -2183,6 +2220,8 @@ export const useTimerStore = defineStore("timer", () => {
         `${newSettings.fontSize}px`,
       );
     }
+
+    if (persist) persistSettings();
   };
 
   function restartCountdown(id: string) {
