@@ -1700,6 +1700,14 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "wardogs-firing-range",
+      title: "WARDOGS Firing Range",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-09-02T17:00:00Z"), // September 2, 2026 - 5:00 PM UTC
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "delta-force-season-11-reorientation",
       title: "Delta Force Season 11: Reorientation",
       titleColor: "#ffffff",
