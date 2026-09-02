@@ -40,6 +40,7 @@ const animatingSegments = ref({
 const currentTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const shareMenuOpen = ref(false);
 const shareMenuRef = ref<HTMLElement | null>(null);
+const regionalTimesOpen = ref(false);
 const canRestartActiveGame = computed(() => {
   const activeGame = store.activeGame;
   return (
@@ -340,6 +341,53 @@ onUnmounted(() => {
 
     <div
       v-if="!isFocusMode && !isObs"
+      class="regional-times-panel w-full overflow-hidden rounded-xl border border-cyan-200/10 bg-[#171717]/90"
+    >
+      <button
+        type="button"
+        class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition duration-200 hover:bg-cyan-200/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200/60 sm:px-5"
+        :aria-expanded="regionalTimesOpen"
+        aria-controls="regional-times-content"
+        @click="regionalTimesOpen = !regionalTimesOpen"
+      >
+        <span class="flex min-w-0 items-center gap-2.5">
+          <span class="regional-times-pulse h-1.5 w-1.5 rounded-full bg-cyan-200/80" aria-hidden="true"></span>
+          <span class="font-mono text-xs font-medium uppercase tracking-[0.18em] text-cyan-100/65 sm:text-sm">
+            Regional times
+          </span>
+          <span class="hidden text-[0.65rem] uppercase tracking-[0.14em] text-cyan-100/30 sm:inline">
+            launch zones
+          </span>
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 shrink-0 text-cyan-100/60 transition-transform duration-300"
+          :class="{ 'rotate-180': regionalTimesOpen }"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+
+      <Transition name="regional-times">
+        <div
+          v-show="regionalTimesOpen"
+          id="regional-times-content"
+          class="regional-times-content border-t border-cyan-200/10 px-4 pb-4 pt-3 sm:px-5"
+        >
+          <TimeZonePreview />
+        </div>
+      </Transition>
+    </div>
+
+    <div
+      v-if="!isFocusMode && !isObs"
       class="flex w-full flex-col gap-6 border border-cyan-200/10 bg-[#1c1b1b] px-4 py-5 sm:px-6"
     >
       <div class="grid w-full gap-3">
@@ -524,8 +572,6 @@ onUnmounted(() => {
           </button>
         </div>
       </div>
-
-      <TimeZonePreview />
     </div>
   </div>
 </template>
@@ -544,5 +590,50 @@ onUnmounted(() => {
 .obs-time-segments .tabular-nums {
   transform: scale(1.12);
   transform-origin: center bottom;
+}
+
+.regional-times-pulse {
+  box-shadow: 0 0 0 0 rgba(126, 210, 235, 0.35);
+  animation: regional-pulse 2.8s ease-out infinite;
+}
+
+.regional-times-enter-active,
+.regional-times-leave-active {
+  max-height: 24rem;
+  overflow: hidden;
+  transition:
+    max-height 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease,
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.regional-times-enter-from,
+.regional-times-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-0.4rem);
+}
+
+@keyframes regional-pulse {
+  0%,
+  55%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(126, 210, 235, 0);
+  }
+
+  20% {
+    box-shadow: 0 0 0 4px rgba(126, 210, 235, 0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .regional-times-pulse {
+    animation: none;
+  }
+
+  .regional-times-enter-active,
+  .regional-times-leave-active {
+    transition: opacity 150ms ease;
+  }
 }
 </style>

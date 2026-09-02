@@ -50,10 +50,6 @@ const timeZonePreviews = computed(() => {
 
 <template>
   <div class="space-y-3">
-    <h3 class="font-mono text-sm font-medium uppercase tracking-[0.16em] text-cyan-200/75">
-      Regional times
-    </h3>
-
     <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       <div
         v-for="zone in timeZonePreviews"

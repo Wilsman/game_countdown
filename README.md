@@ -24,6 +24,47 @@ A sleek and modern countdown timer for game releases, featuring real-time update
   - Configurable animations
   - Theme preferences
 - **Share Feature**: Generate shareable URLs with preset configurations
+- **IGDB Release Feed**: Browse upcoming PC releases with cover art and turn any
+  exact-day listing into a saved countdown
+
+## IGDB setup
+
+Upcoming releases are fetched server-side by the Cloudflare Pages Function at
+`/api/igdb/releases`. It uses Twitch application credentials to obtain an IGDB
+app-access token; the client secret is never included in the Vue bundle.
+
+Set these encrypted secrets for both Preview and Production in Cloudflare Pages
+under **Settings → Variables and Secrets**, then redeploy:
+
+```text
+TWITCH_CLIENT_ID
+TWITCH_CLIENT_SECRET
+```
+
+The same values already used by `F:\tmp\TwitchCultistBot` can be reused. The
+bot's `TWITCH_OAUTH` user token is not required by IGDB.
+
+For local Pages Functions development, place the two values in an untracked
+`.dev.vars` file and serve the built site with Wrangler:
+
+```text
+TWITCH_CLIENT_ID="..."
+TWITCH_CLIENT_SECRET="..."
+```
+
+```bash
+npm run build
+npx wrangler pages dev dist
+```
+
+Normal Vite development also serves `/api/igdb/releases` locally, so `bun dev`
+on port 5173 works without starting Wrangler. It reads `.dev.vars` first and
+falls back to the existing `F:\tmp\TwitchCultistBot\.env` when that sibling
+checkout is present; the credentials stay server-side.
+
+IGDB records used by the app have day precision (`YYYYMMDD`) but generally do
+not include a publisher-confirmed launch hour. Countdown targets therefore use
+the source UTC date boundary and the UI labels these records as **Date only**.
 
 ## 🚀 Quick Start
 
