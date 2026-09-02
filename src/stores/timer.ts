@@ -1708,6 +1708,22 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
     },
     {
+      id: "wardogs-second-closed-beta-start",
+      title: "WARDOGS Second Closed Beta Starts",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-09-03T18:00:00Z"), // September 3, 2026 - 6:00 PM UTC
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "wardogs-second-closed-beta-end",
+      title: "WARDOGS Second Closed Beta Ends",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-09-06T08:00:00Z"), // September 6, 2026 - 8:00 AM UTC
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "delta-force-season-11-reorientation",
       title: "Delta Force Season 11: Reorientation",
       titleColor: "#ffffff",
