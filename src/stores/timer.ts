@@ -1711,7 +1711,7 @@ export const useTimerStore = defineStore("timer", () => {
       id: "wardogs-second-closed-beta-start",
       title: "WARDOGS Second Closed Beta Starts",
       titleColor: "#ffd700",
-      targetDate: new Date("2026-09-03T18:00:00Z"), // September 3, 2026 - 6:00 PM UTC
+      targetDate: new Date("2026-09-03T19:00:00Z"), // September 3, 2026 - 7:00 PM UTC / 8:00 PM BST
       targetTimezone: "UTC",
       type: "game",
     },
