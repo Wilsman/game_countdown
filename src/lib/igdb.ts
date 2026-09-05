@@ -14,6 +14,7 @@ export interface IgdbRelease {
   coverUrl: string | null;
   heroUrl: string | null;
   igdbUrl: string;
+  steamUrl: string | null;
 }
 
 interface IgdbReleaseResponse {

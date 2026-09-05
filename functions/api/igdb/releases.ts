@@ -19,6 +19,10 @@ interface IgdbCompany {
   publisher?: boolean;
 }
 
+interface IgdbWebsite {
+  url?: string;
+}
+
 interface IgdbReleaseDate {
   id?: number;
   date?: number;
@@ -34,6 +38,7 @@ interface IgdbReleaseDate {
     artworks?: IgdbImage[];
     screenshots?: IgdbImage[];
     involved_companies?: IgdbCompany[];
+    websites?: IgdbWebsite[];
   };
 }
 
@@ -53,6 +58,7 @@ export interface NormalizedIgdbRelease {
   coverUrl: string | null;
   heroUrl: string | null;
   igdbUrl: string;
+  steamUrl: string | null;
 }
 
 const IGDB_RELEASE_DATES_URL = "https://api.igdb.com/v4/release_dates";
@@ -100,6 +106,13 @@ function addUtcDays(date: Date, days: number): Date {
 function imageUrl(imageId: string | undefined, size: string): string | null {
   if (!imageId) return null;
   return `https://images.igdb.com/igdb/image/upload/t_${size}/${imageId}.jpg`;
+}
+
+function steamUrl(websites: IgdbWebsite[] | undefined): string | null {
+  const url = websites?.find((website) =>
+    website.url?.startsWith("https://store.steampowered.com/"),
+  )?.url;
+  return url ?? null;
 }
 
 function companyName(
@@ -161,6 +174,7 @@ export function normalizeReleaseDates(
       coverUrl: imageUrl(coverId, "cover_big_2x"),
       heroUrl: imageUrl(artworkId ?? screenshotId, "720p"),
       igdbUrl: `https://www.igdb.com/games/${encodeURIComponent(slug)}`,
+      steamUrl: steamUrl(game.websites),
     });
   }
 
@@ -262,7 +276,8 @@ export async function onRequestGet(context: {
       "game.id,game.name,game.slug,game.hypes,game.cover.image_id,",
       "game.artworks.image_id,game.screenshots.image_id,",
       "game.involved_companies.company.name,",
-      "game.involved_companies.developer,game.involved_companies.publisher;",
+      "game.involved_companies.developer,game.involved_companies.publisher,",
+      "game.websites.url;",
       `where platform = ${PC_PLATFORM_ID}`,
       search
         ? ` & date >= ${startUnix}`

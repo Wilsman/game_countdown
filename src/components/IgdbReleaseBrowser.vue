@@ -457,8 +457,26 @@ onBeforeUnmount(() => {
             <div class="release-artwork-fallback" aria-hidden="true">
               {{ release.name.slice(0, 2).toUpperCase() }}
             </div>
+            <a
+              v-if="artworkUrl(release) && release.steamUrl"
+              class="release-artwork-link"
+              :href="release.steamUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              :aria-label="`Open ${release.name} on Steam`"
+            >
+              <img
+                class="release-artwork-image"
+                :src="artworkUrl(release) ?? undefined"
+                :alt="`${release.name} artwork`"
+                loading="lazy"
+                decoding="async"
+                @error="hideBrokenImage"
+              />
+            </a>
             <img
-              v-if="artworkUrl(release)"
+              v-else-if="artworkUrl(release)"
+              class="release-artwork-image"
               :src="artworkUrl(release) ?? undefined"
               :alt="`${release.name} artwork`"
               loading="lazy"
@@ -476,8 +494,25 @@ onBeforeUnmount(() => {
 
             <span class="precision-badge">Date only</span>
 
+            <a
+              v-if="release.heroUrl && release.coverUrl && release.steamUrl"
+              class="release-cover-link"
+              :href="release.steamUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              :aria-label="`Open ${release.name} on Steam`"
+            >
+              <img
+                class="release-cover-image"
+                :src="release.coverUrl"
+                :alt="`${release.name} cover`"
+                loading="lazy"
+                decoding="async"
+                @error="hideBrokenImage"
+              />
+            </a>
             <img
-              v-if="release.heroUrl && release.coverUrl"
+              v-else-if="release.heroUrl && release.coverUrl"
               class="release-cover"
               :src="release.coverUrl"
               :alt="`${release.name} cover`"
@@ -488,10 +523,12 @@ onBeforeUnmount(() => {
 
             <a
               class="igdb-link"
-              :href="release.igdbUrl"
+              :href="release.steamUrl ?? release.igdbUrl"
               target="_blank"
               rel="noopener noreferrer"
-              :aria-label="`Open ${release.name} on IGDB`"
+              :aria-label="release.steamUrl
+                ? `Open ${release.name} on Steam`
+                : `Open ${release.name} on IGDB`"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M14 5h5v5M19 5l-8 8" />
@@ -1078,7 +1115,13 @@ onBeforeUnmount(() => {
   background: #090909;
 }
 
-.release-artwork > img:not(.release-cover) {
+.release-artwork-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.release-artwork-image {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -1087,7 +1130,7 @@ onBeforeUnmount(() => {
   transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.release-card:hover .release-artwork > img:not(.release-cover) {
+.release-card:hover .release-artwork-image {
   transform: scale(1.035);
 }
 
@@ -1110,6 +1153,7 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.18), transparent 45%, rgba(0, 0, 0, 0.72));
+  pointer-events: none;
 }
 
 .platform-badge,
@@ -1129,6 +1173,7 @@ onBeforeUnmount(() => {
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  pointer-events: none;
 }
 
 .platform-badge {
@@ -1167,7 +1212,8 @@ onBeforeUnmount(() => {
   border-color: rgba(126, 210, 235, 0.55);
 }
 
-.release-cover {
+.release-cover,
+.release-cover-link {
   position: absolute;
   left: 0.85rem;
   bottom: 0.75rem;
@@ -1177,6 +1223,23 @@ onBeforeUnmount(() => {
   border-radius: 0.35rem;
   object-fit: cover;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55);
+}
+
+.release-cover-link {
+  display: block;
+  overflow: hidden;
+  transition: border-color 160ms ease;
+}
+
+.release-cover-link:hover {
+  border-color: rgba(126, 210, 235, 0.65);
+}
+
+.release-cover-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .release-card-body {
@@ -1482,7 +1545,7 @@ a:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   .release-card,
-  .release-artwork > img,
+  .release-artwork-image,
   .release-nav-button,
   .release-today-button,
   .release-retry-button {

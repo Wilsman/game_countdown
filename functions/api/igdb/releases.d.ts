@@ -12,6 +12,9 @@ interface IgdbCompany {
     developer?: boolean;
     publisher?: boolean;
 }
+interface IgdbWebsite {
+    url?: string;
+}
 interface IgdbReleaseDate {
     id?: number;
     date?: number;
@@ -29,6 +32,7 @@ interface IgdbReleaseDate {
         artworks?: IgdbImage[];
         screenshots?: IgdbImage[];
         involved_companies?: IgdbCompany[];
+        websites?: IgdbWebsite[];
     };
 }
 export interface NormalizedIgdbRelease {
@@ -47,6 +51,7 @@ export interface NormalizedIgdbRelease {
     coverUrl: string | null;
     heroUrl: string | null;
     igdbUrl: string;
+    steamUrl: string | null;
 }
 export declare function normalizeReleaseDates(rawReleases: IgdbReleaseDate[]): NormalizedIgdbRelease[];
 export declare function onRequestGet(context: {
