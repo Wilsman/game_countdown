@@ -253,6 +253,30 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
+      id: "eft-patch-1-1-5-0-start",
+      title: "Escape from Tarkov Patch 1.1.5.0 Maintenance Start",
+      titleColor: "#ff8c00",
+      targetDate: new Date("2026-09-08T07:00:00Z"), // September 8, 2026 - 8:00 AM BST / 3:00 AM EDT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "eft-patch-1-1-5-0-early-end",
+      title: "Escape from Tarkov Patch 1.1.5.0 Earliest End (5hr)",
+      titleColor: "#ff8c00",
+      targetDate: new Date("2026-09-08T12:00:00Z"), // September 8, 2026 - 1:00 PM BST / 8:00 AM EDT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "eft-patch-1-1-5-0-late-end",
+      title: "Escape from Tarkov Patch 1.1.5.0 Latest End (7hr)",
+      titleColor: "#ff8c00",
+      targetDate: new Date("2026-09-08T14:00:00Z"), // September 8, 2026 - 3:00 PM BST / 10:00 AM EDT
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "delta-force-season-11-reorientation",
       title: "Delta Force Season 11: Reorientation",
       titleColor: "#ffffff",
