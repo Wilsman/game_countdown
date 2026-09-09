@@ -232,7 +232,7 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       id: "wardogs-early-access",
       title: "WARDOGS Steam Early Access",
       titleColor: "#ffd700",
-      targetDate: new Date("2026-09-10T00:00:00Z"), // September 10, 2026 (time not announced)
+      targetDate: new Date("2026-09-10T16:00:00Z"), // Sept 10, 2026 09:00 PDT / 12:00 EDT / 13:00 BRT / 17:00 BST / 18:00 CEST / 19:00 MSK / 00:00 SGT+1 / 01:00 JST+1 / 02:00 AEST+1
       targetTimezone: "UTC",
       type: "game",
     },

@@ -19,7 +19,7 @@
 
 ## Coding Style & Naming Conventions
 
-- TypeScript strict mode enabled; fix all type errors before PR.
+- TypeScript strict mode is enabled. Fix type errors caused by the requested change; report unrelated failures without expanding scope.
 - Indentation: 2 spaces; keep lines focused and readable.
 - Vue 3 + `<script setup>` and Composition API preferred.
 - Components: PascalCase filenames (e.g., `TimerDisplay.vue`); props/events camelCase in code, kebab-case in templates.
@@ -36,8 +36,8 @@
 
 ## Error Handling & Validation
 
-- Always handle Date objects with UTC methods for timezone consistency
-- Validate game release dates using ISO 8601 format (`YYYY-MM-DDTHH:mm:ssZ`)
+- Store absolute instants consistently in UTC. Use `src/lib/timezones.ts` for local release-time interpretation and display; preserve timezone and DST semantics.
+- Validate stored absolute release instants as ISO 8601 UTC values; convert local date/time input with the existing timezone helpers.
 - Use type guards for runtime type checking in stores and components
 
 ## Commit & Pull Request Guidelines
@@ -47,7 +47,7 @@
 - PRs must include:
   - Clear description, linked issues (e.g., `Closes #123`).
   - Screenshots/GIFs for UI changes (before/after).
-  - Check that `npm run build` and type-check pass.
+  - Run `npm run build` when a build is warranted; it already performs type checking. For a narrower check, use the relevant Bun tests or type checker without duplicating a successful build check.
 
 ## Security & Configuration Tips
 
@@ -57,6 +57,6 @@
 ## Agent-Specific Instructions
 
 - Keep changes minimal and focused; avoid repo-wide reformatting.
-- Do not alter directory layout or build outputs without discussion.
+- Preserve the existing directory layout unless the task requires a change. Do not hand-edit generated build outputs; producing them with the documented build is expected. Commit outputs only if the established workflow requires it.
 - Update docs when commands/behaviors change.
-- Prefer small, well-scoped patches that pass type-check and build.
+- Complete the requested change and relevant verification with a small, focused patch; continue authorized reversible work without repeated approval.
