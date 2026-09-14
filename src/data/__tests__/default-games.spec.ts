@@ -16,7 +16,7 @@ describe("default games", () => {
 
   it("holds only future-dated game countdowns plus relative utility timers", () => {
     const games = createDefaultGameBases("UTC");
-    const reference = new Date("2026-09-03T00:00:00Z");
+    const reference = new Date("2026-09-14T00:00:00Z");
 
     for (const game of games) {
       if (game.type === "utility") continue;

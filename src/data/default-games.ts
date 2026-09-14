@@ -8,7 +8,7 @@ function minutesFromNow(minutes: number): Date {
 
 // Default countdowns shipped with the app.
 //
-// Past events are pruned (reference: 2026-09-03). Utility timers are relative
+// Past events are pruned (reference: 2026-09-14). Utility timers are relative
 // to "now", so they are built fresh on every call via the userTimezone param.
 export function createDefaultGameBases(userTimezone: string): GameBase[] {
   return [
@@ -77,10 +77,18 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
-      id: "marathon-season-3",
-      title: "Marathon: Season 3 ",
+      id: "marathon-nightfall-refresh",
+      title: "Marathon: Nightfall Refresh",
       titleColor: "#00ff00",
-      targetDate: new Date("2026-09-22T15:00:00Z"), // September 22, 2026 at 4:00 PM BST (usual update time)
+      targetDate: new Date("2026-10-06T15:00:00Z"), // October 6, 2026 at 4:00 PM BST (usual update time)
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "marathon-symbiosis",
+      title: "Marathon: Symbiosis",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-12-08T15:00:00Z"), // December 8, 2026 at 3:00 PM GMT (usual update time)
       targetTimezone: "Europe/London",
       type: "game",
     },
@@ -105,14 +113,6 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       title: "Judas",
       titleColor: "#daa520",
       targetDate: new Date("2026-12-01T00:00:00Z"), // 2026 placeholder (date not announced)
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "the-blood-of-dawnwalker",
-      title: "The Blood of Dawnwalker",
-      titleColor: "#8b0000",
-      targetDate: new Date("2026-09-03T00:00:00Z"), // September 3, 2026 (time not announced)
       targetTimezone: "UTC",
       type: "game",
     },
@@ -217,70 +217,6 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       title: "The Division 3",
       titleColor: "#ff8c00",
       targetDate: new Date("2027-09-01T00:00:00Z"), // Est 2027
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "fps-games-show-2026",
-      title: "FPS Games Show",
-      titleColor: "#ffffff",
-      targetDate: new Date("2026-09-03T18:00:00Z"), // September 3, 2026 - 2:00 PM EDT / 7:00 PM BST
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "wardogs-early-access",
-      title: "WARDOGS Steam Early Access",
-      titleColor: "#ffd700",
-      targetDate: new Date("2026-09-10T16:00:00Z"), // Sept 10, 2026 09:00 PDT / 12:00 EDT / 13:00 BRT / 17:00 BST / 18:00 CEST / 19:00 MSK / 00:00 SGT+1 / 01:00 JST+1 / 02:00 AEST+1
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "wardogs-second-closed-beta-start",
-      title: "WARDOGS Second Closed Beta Starts",
-      titleColor: "#ffd700",
-      targetDate: new Date("2026-09-03T19:00:00Z"), // September 3, 2026 - 7:00 PM UTC / 8:00 PM BST
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "wardogs-second-closed-beta-end",
-      title: "WARDOGS Second Closed Beta Ends",
-      titleColor: "#ffd700",
-      targetDate: new Date("2026-09-06T08:00:00Z"), // September 6, 2026 - 8:00 AM UTC
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
-      id: "eft-patch-1-1-5-0-start",
-      title: "Escape from Tarkov Patch 1.1.5.0 Maintenance Start",
-      titleColor: "#ff8c00",
-      targetDate: new Date("2026-09-08T07:00:00Z"), // September 8, 2026 - 8:00 AM BST / 3:00 AM EDT
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "eft-patch-1-1-5-0-early-end",
-      title: "Escape from Tarkov Patch 1.1.5.0 Earliest End (5hr)",
-      titleColor: "#ff8c00",
-      targetDate: new Date("2026-09-08T12:00:00Z"), // September 8, 2026 - 1:00 PM BST / 8:00 AM EDT
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "eft-patch-1-1-5-0-late-end",
-      title: "Escape from Tarkov Patch 1.1.5.0 Latest End (7hr)",
-      titleColor: "#ff8c00",
-      targetDate: new Date("2026-09-08T14:00:00Z"), // September 8, 2026 - 3:00 PM BST / 10:00 AM EDT
-      targetTimezone: "Europe/London",
-      type: "game",
-    },
-    {
-      id: "delta-force-season-11-reorientation",
-      title: "Delta Force Season 11: Reorientation",
-      titleColor: "#ffffff",
-      targetDate: new Date("2026-09-08T00:00:00Z"), // September 8, 2026 (time not announced)
       targetTimezone: "UTC",
       type: "game",
     },
