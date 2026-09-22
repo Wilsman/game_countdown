@@ -229,6 +229,14 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
+      id: "wardogs-season-2",
+      title: "WARDOGS Season 2",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-10-15T00:00:00Z"), // October 15, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "tokyo-game-show-2026",
       title: "Tokyo Game Show 2026",
       titleColor: "#ffffff",
