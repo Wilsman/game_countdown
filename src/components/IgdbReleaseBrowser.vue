@@ -8,6 +8,46 @@ const INITIAL_VISIBLE_COUNT = 12;
 const LOAD_MORE_COUNT = 12;
 const DAY_MS = 24 * 60 * 60 * 1000;
 type ReleaseSort = "soonest" | "hype" | "hype-soon";
+type ReleaseScope = "month" | "next-3" | "next-6" | "next-12";
+
+const SCOPE_MONTHS: Record<ReleaseScope, number> = {
+  month: 1,
+  "next-3": 3,
+  "next-6": 6,
+  "next-12": 12,
+};
+
+const RELEASE_PREFS_STORAGE_KEY = "game-countdown.igdb-release-prefs";
+
+const RELEASE_SORTS: ReleaseSort[] = ["soonest", "hype", "hype-soon"];
+const RELEASE_SCOPES: ReleaseScope[] = ["month", "next-3", "next-6", "next-12"];
+
+interface ReleasePrefs {
+  sort: ReleaseSort;
+  scope: ReleaseScope;
+}
+
+function loadReleasePrefs(): ReleasePrefs {
+  const fallback: ReleasePrefs = { sort: "hype-soon", scope: "month" };
+  if (typeof window === "undefined") return fallback;
+
+  try {
+    const raw = window.localStorage.getItem(RELEASE_PREFS_STORAGE_KEY);
+    if (!raw) return fallback;
+
+    const parsed = JSON.parse(raw) as Partial<ReleasePrefs>;
+    return {
+      sort: RELEASE_SORTS.includes(parsed.sort as ReleaseSort)
+        ? (parsed.sort as ReleaseSort)
+        : fallback.sort,
+      scope: RELEASE_SCOPES.includes(parsed.scope as ReleaseScope)
+        ? (parsed.scope as ReleaseScope)
+        : fallback.scope,
+    };
+  } catch {
+    return fallback;
+  }
+}
 
 const store = useTimerStore();
 const today = startOfUtcDay(new Date());
@@ -19,7 +59,9 @@ const truncated = ref(false);
 const visibleCount = ref(INITIAL_VISIBLE_COUNT);
 const searchQuery = ref("");
 const activeSearch = ref("");
-const releaseSort = ref<ReleaseSort>("hype-soon");
+const releasePrefs = loadReleasePrefs();
+const releaseSort = ref<ReleaseSort>(releasePrefs.sort);
+const releaseScope = ref<ReleaseScope>(releasePrefs.scope);
 const searchFocused = ref(false);
 const searchInput = ref<HTMLInputElement | null>(null);
 const loadMoreSentinel = ref<HTMLElement | null>(null);
@@ -52,6 +94,53 @@ const monthLabel = computed(() =>
     timeZone: "UTC",
   }).format(displayedMonth.value),
 );
+
+const scopeMonths = computed(() => SCOPE_MONTHS[releaseScope.value]);
+
+const isAllScope = computed(() => releaseScope.value !== "month");
+
+const allScopeEndMonth = computed(() =>
+  new Date(
+    Date.UTC(
+      today.getUTCFullYear(),
+      today.getUTCMonth() + scopeMonths.value - 1,
+      1,
+    ),
+  ),
+);
+
+const allScopeEndLabel = computed(() =>
+  new Intl.DateTimeFormat("en-GB", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(allScopeEndMonth.value),
+);
+
+const headerTitle = computed(() => {
+  if (activeSearch.value) return "Search results";
+  if (releaseScope.value === "month") return monthLabel.value;
+  return `Next ${scopeMonths.value} months`;
+});
+
+const headerSubtitle = computed(() => {
+  if (activeSearch.value) {
+    return `Matches for “${activeSearch.value}” across all upcoming months.`;
+  }
+  if (isAllScope.value) {
+    return `Every dated PC release from today through ${allScopeEndLabel.value}. Sorts apply across all months.`;
+  }
+  return "Exact release day from IGDB. Storefront launch times can vary by region.";
+});
+
+const scopeRangeLabel = computed(() => {
+  const shortMonth = new Intl.DateTimeFormat("en-GB", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  return `${shortMonth.format(today)} – ${shortMonth.format(allScopeEndMonth.value)}`;
+});
 
 function daysUntilRelease(release: IgdbRelease): number {
   const releaseDay = startOfUtcDay(new Date(release.releaseAt));
@@ -163,6 +252,38 @@ function hideBrokenImage(event: Event): void {
   if (image instanceof HTMLImageElement) image.hidden = true;
 }
 
+function setReleaseScope(scope: ReleaseScope): void {
+  if (releaseScope.value === scope) return;
+  releaseScope.value = scope;
+}
+
+function persistReleasePrefs(): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    const prefs: ReleasePrefs = {
+      sort: releaseSort.value,
+      scope: releaseScope.value,
+    };
+    window.localStorage.setItem(
+      RELEASE_PREFS_STORAGE_KEY,
+      JSON.stringify(prefs),
+    );
+  } catch {
+    // Ignore storage failures so the feed keeps working.
+  }
+}
+
+function monthRange(offset: number): { start: Date; end: Date } {
+  const start = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + offset, 1),
+  );
+  const end = new Date(
+    Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1),
+  );
+  return { start, end };
+}
+
 async function loadReleases(search = searchQuery.value.trim()): Promise<void> {
   activeRequest?.abort();
   activeRequest = new AbortController();
@@ -171,19 +292,62 @@ async function loadReleases(search = searchQuery.value.trim()): Promise<void> {
   visibleCount.value = INITIAL_VISIBLE_COUNT;
   activeSearch.value = search;
 
-  const monthStart = displayedMonth.value;
-  const nextMonth = new Date(
-    Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth() + 1, 1),
-  );
-  const rangeStart = monthStart.getTime() === currentMonth.getTime()
-    ? today
-    : monthStart;
+  const signal = activeRequest.signal;
 
   try {
+    if (search) {
+      const monthStart = displayedMonth.value;
+      const nextMonth = new Date(
+        Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth() + 1, 1),
+      );
+      const response = await fetchIgdbReleases(
+        toUtcDateKey(monthStart),
+        toUtcDateKey(nextMonth),
+        signal,
+        search,
+      );
+      releases.value = response.releases;
+      truncated.value = response.truncated;
+      return;
+    }
+
+    if (isAllScope.value) {
+      // The API caps a single range at 62 days, so fan out one request per
+      // month and merge. Each month stays well under the 200-result limit.
+      const responses = await Promise.all(
+        Array.from({ length: scopeMonths.value }, (_, offset) => {
+          const { start, end } = monthRange(offset);
+          const rangeStart = offset === 0 ? today : start;
+          return fetchIgdbReleases(
+            toUtcDateKey(rangeStart),
+            toUtcDateKey(end),
+            signal,
+          );
+        }),
+      );
+      const merged = new Map<string, IgdbRelease>();
+      for (const response of responses) {
+        for (const release of response.releases) {
+          merged.set(`${release.gameId}:${release.releaseAt}`, release);
+        }
+      }
+      releases.value = [...merged.values()];
+      truncated.value = responses.some((response) => response.truncated);
+      return;
+    }
+
+    const monthStart = displayedMonth.value;
+    const nextMonth = new Date(
+      Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth() + 1, 1),
+    );
+    const rangeStart = monthStart.getTime() === currentMonth.getTime()
+      ? today
+      : monthStart;
+
     const response = await fetchIgdbReleases(
       toUtcDateKey(rangeStart),
       toUtcDateKey(nextMonth),
-      activeRequest.signal,
+      signal,
       search,
     );
     releases.value = response.releases;
@@ -199,7 +363,9 @@ async function loadReleases(search = searchQuery.value.trim()): Promise<void> {
   }
 }
 
-watch(displayedMonth, () => loadReleases(), { immediate: true });
+watch([displayedMonth, releaseScope], () => loadReleases(), { immediate: true });
+
+watch([releaseSort, releaseScope], () => persistReleasePrefs());
 
 watch(searchQuery, (value) => {
   if (searchDebounce) clearTimeout(searchDebounce);
@@ -246,16 +412,14 @@ onBeforeUnmount(() => {
           IGDB release feed
         </div>
         <div class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h2 class="release-heading">{{ activeSearch ? "Search results" : monthLabel }}</h2>
+          <h2 class="release-heading">{{ headerTitle }}</h2>
           <span v-if="!loading && !errorMessage" class="release-count">
             {{ orderedReleases.length }} upcoming PC
             {{ orderedReleases.length === 1 ? "release" : "releases" }}
           </span>
         </div>
         <p class="release-subtitle">
-          {{ activeSearch
-            ? `Matches for “${activeSearch}” across all upcoming months.`
-            : "Exact release day from IGDB. Storefront launch times can vary by region." }}
+          {{ headerSubtitle }}
         </p>
       </div>
 
@@ -341,7 +505,7 @@ onBeforeUnmount(() => {
         <div class="release-sort-bar">
           <div class="release-sort-heading">
             <span class="release-sort-label">Sort by</span>
-            <span class="release-sort-hint">Prioritize what matters most</span>
+            <span class="release-sort-hint">{{ isAllScope && !activeSearch ? "Applies across all months" : "Prioritize what matters most" }}</span>
           </div>
           <div class="release-sort-options" role="group" aria-label="Sort release cards by">
             <button
@@ -383,30 +547,75 @@ onBeforeUnmount(() => {
       </div>
 
       <nav class="release-nav" aria-label="Release month">
-        <button
-          type="button"
-          class="release-nav-button"
-          :disabled="!canGoPrevious"
-          aria-label="Previous month"
-          @click="shiftMonth(-1)"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m15 18-6-6 6-6" />
-          </svg>
-        </button>
-        <button type="button" class="release-today-button" @click="jumpToCurrentMonth">
-          This month
-        </button>
-        <button
-          type="button"
-          class="release-nav-button"
-          aria-label="Next month"
-          @click="shiftMonth(1)"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m9 18 6-6-6-6" />
-          </svg>
-        </button>
+        <div class="release-scope-options" role="group" aria-label="Release scope">
+          <button
+            type="button"
+            class="release-scope-button"
+            :class="{ 'release-scope-button-active': releaseScope === 'month' }"
+            :aria-pressed="releaseScope === 'month'"
+            title="Browse one month at a time"
+            @click="setReleaseScope('month')"
+          >
+            Per month
+          </button>
+          <button
+            type="button"
+            class="release-scope-button"
+            :class="{ 'release-scope-button-active': releaseScope === 'next-3' }"
+            :aria-pressed="releaseScope === 'next-3'"
+            title="All dated releases across the next 3 months — sorts apply to everything"
+            @click="setReleaseScope('next-3')"
+          >
+            Next 3
+          </button>
+          <button
+            type="button"
+            class="release-scope-button"
+            :class="{ 'release-scope-button-active': releaseScope === 'next-6' }"
+            :aria-pressed="releaseScope === 'next-6'"
+            title="All dated releases across the next 6 months — sorts apply to everything"
+            @click="setReleaseScope('next-6')"
+          >
+            Next 6
+          </button>
+          <button
+            type="button"
+            class="release-scope-button"
+            :class="{ 'release-scope-button-active': releaseScope === 'next-12' }"
+            :aria-pressed="releaseScope === 'next-12'"
+            title="All dated releases across the next 12 months — sorts apply to everything"
+            @click="setReleaseScope('next-12')"
+          >
+            Next 12
+          </button>
+        </div>
+        <template v-if="releaseScope === 'month'">
+          <button
+            type="button"
+            class="release-nav-button"
+            :disabled="!canGoPrevious"
+            aria-label="Previous month"
+            @click="shiftMonth(-1)"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
+          <button type="button" class="release-today-button" @click="jumpToCurrentMonth">
+            This month
+          </button>
+          <button
+            type="button"
+            class="release-nav-button"
+            aria-label="Next month"
+            @click="shiftMonth(1)"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+        </template>
+        <span v-else class="release-scope-range">{{ scopeRangeLabel }}</span>
       </nav>
     </header>
 
@@ -437,7 +646,9 @@ onBeforeUnmount(() => {
         <div class="release-state-icon" aria-hidden="true">0</div>
         <div>
           <h3>No dated PC releases found</h3>
-          <p>IGDB does not currently list an exact release day for this month.</p>
+          <p>{{ isAllScope && !activeSearch
+            ? `IGDB does not currently list an exact release day in the next ${scopeMonths} months.`
+            : "IGDB does not currently list an exact release day for this month." }}</p>
         </div>
       </div>
 
@@ -737,6 +948,9 @@ onBeforeUnmount(() => {
   font-size: 0.92rem;
   font-weight: 520;
   letter-spacing: -0.01em;
+  /* Kerning off: with kerning enabled, Chrome paints a phantom kerned
+     fragment (a stray dot) next to the caret in the empty field. */
+  font-kerning: none;
 }
 
 .release-search-box input::placeholder {
@@ -988,6 +1202,69 @@ onBeforeUnmount(() => {
   grid-column: 2;
   grid-row: 1;
   flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.release-scope-options {
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 0.2rem;
+  margin-right: 0.25rem;
+  border: 1px solid rgba(126, 210, 235, 0.22);
+  border-radius: 0.7rem;
+  background: rgba(5, 7, 8, 0.46);
+}
+
+.release-scope-button {
+  display: inline-flex;
+  min-height: 2.15rem;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  color: rgba(167, 204, 218, 0.6);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+.release-scope-button svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.release-scope-button:hover {
+  color: rgba(210, 235, 243, 0.85);
+}
+
+.release-scope-button-active {
+  border-color: rgba(126, 210, 235, 0.35);
+  background: rgba(126, 210, 235, 0.14);
+  color: var(--text-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.release-scope-range {
+  display: inline-flex;
+  min-height: 2.55rem;
+  align-items: center;
+  padding: 0 0.9rem;
+  border: 1px solid var(--border-2);
+  border-radius: 0.7rem;
+  background: rgba(14, 14, 14, 0.72);
+  color: var(--text-muted);
+  font-family: var(--font-family-mono);
+  font-size: 0.72rem;
+  font-weight: 650;
+  white-space: nowrap;
 }
 
 .release-nav-button,
@@ -1497,6 +1774,17 @@ a:focus-visible {
 
   .release-nav {
     justify-content: space-between;
+  }
+
+  .release-scope-options {
+    flex: 1 1 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .release-scope-button {
+    justify-content: center;
+    padding: 0 0.35rem;
   }
 
   .release-search-wrap {

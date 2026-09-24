@@ -173,14 +173,6 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
-      id: "forever-winter-1",
-      title: "The Forever Winter 1.0",
-      titleColor: "#add8e6",
-      targetDate: new Date("2026-11-01T00:00:00Z"), // Est Late 2026
-      targetTimezone: "UTC",
-      type: "game",
-    },
-    {
       id: "beautiful-light",
       title: "Beautiful Light",
       titleColor: "#ff00ff",
@@ -217,6 +209,22 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       title: "The Division 3",
       titleColor: "#ff8c00",
       targetDate: new Date("2027-09-01T00:00:00Z"), // Est 2027
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "arc-raiders-pve-toggle-beta",
+      title: "ARC Raiders: PvE Toggle Beta",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-10-13T00:00:00Z"), // October 13-20, 2026 test (start; time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "arc-raiders-pve-toggle-beta-end",
+      title: "ARC Raiders: PvE Toggle Beta Ends",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-10-20T00:00:00Z"), // October 13-20, 2026 test (end; time not announced)
       targetTimezone: "UTC",
       type: "game",
     },
