@@ -245,6 +245,14 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
+      id: "tarkov-season-2",
+      title: "Tarkov Season 2",
+      titleColor: "#ff7a00",
+      targetDate: new Date("2026-12-07T08:00:00Z"), // December 7, 2026 at 8:00 AM UK (GMT)
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "tokyo-game-show-2026",
       title: "Tokyo Game Show 2026",
       titleColor: "#ffffff",
