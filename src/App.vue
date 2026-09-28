@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { Toaster, toast } from "vue-sonner";
 
@@ -8,9 +8,7 @@ import ControlPanel from "./components/ControlPanel.vue";
 import GameSelector from "./components/GameSelector.vue";
 import IgdbReleaseBrowser from "./components/IgdbReleaseBrowser.vue";
 import OverlayCustomizer from "./components/OverlayCustomizer.vue";
-import PcCatalog from "./components/PcCatalog.vue";
 import RegionalReleasePicker from "./components/RegionalReleasePicker.vue";
-import SparkleToggle from "./components/SparkleToggle.vue";
 import TimerDisplay from "./components/TimerDisplay.vue";
 import { useTimerStore } from "./stores/timer";
 
@@ -35,38 +33,6 @@ const countdownDialogGameId = ref<string | null>(null);
 const showChrome = computed(
   () => !isFocusMode.value && !isObsMode.value && !isCustomizing.value,
 );
-
-const currentView = ref<"home" | "pc">("home");
-const isPcView = computed(() => currentView.value === "pc");
-
-function syncViewFromHash(): void {
-  const next = window.location.hash === "#/pc" ? "pc" : "home";
-  currentView.value = next;
-  if (!isClient) return;
-  if (next === "pc") {
-    document.title = "PC Game Countdowns";
-  } else {
-    updateMetaTags();
-  }
-}
-
-function setView(view: "home" | "pc"): void {
-  if (!isClient) return;
-  currentView.value = view;
-
-  if (view === "pc") {
-    window.location.hash = "#/pc";
-    document.title = "PC Game Countdowns";
-    return;
-  }
-
-  const url = new URL(window.location.href);
-  url.hash = "";
-  history.replaceState(null, "", url.toString());
-  updateMetaTags();
-}
-
-let hashChangeHandler: (() => void) | null = null;
 
 const toggleCustomizing = () => {
   isCustomizing.value = !isCustomizing.value;
@@ -139,17 +105,7 @@ const exitFocusMode = () => {
 
 onMounted(() => {
   if (!isClient) return;
-  syncViewFromHash();
-  hashChangeHandler = syncViewFromHash;
-  window.addEventListener("hashchange", hashChangeHandler);
   timerStore.handleUrlParams();
-});
-
-onUnmounted(() => {
-  if (hashChangeHandler && isClient) {
-    window.removeEventListener("hashchange", hashChangeHandler);
-    hashChangeHandler = null;
-  }
 });
 
 const titleTextShadow = computed(() => {
@@ -231,16 +187,16 @@ watch(
   <div
     class="relative min-h-screen"
     :class="[
-      isPcView ? 'pc-background' : 'background-mesh',
+      'background-mesh',
       {
-        'with-game-background': hasGameBackground && !isPcView,
-        'obs-mode': isObsMode && !isCustomizing && !isPcView,
+        'with-game-background': hasGameBackground,
+        'obs-mode': isObsMode && !isCustomizing,
         'marathon-duo-theme': isMarathonDuoTheme,
       },
     ]"
   >
     <div
-      v-if="gameBackground && settings.enableGameBackground && !isPcView"
+      v-if="gameBackground && settings.enableGameBackground"
       class="pointer-events-none absolute inset-0 -z-10"
     >
       <div
@@ -250,7 +206,7 @@ watch(
       <div :class="['absolute inset-0', gameBackground.overlay]"></div>
     </div>
 
-    <template v-if="!isPcView">
+    <template>
       <main class="relative z-0">
       <div
         class="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8"
@@ -264,10 +220,6 @@ watch(
           >
             Game Countdown
           </p>
-          <SparkleToggle
-            class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            @click="setView('pc')"
-          />
           <ControlPanel />
         </header>
 
@@ -392,17 +344,14 @@ watch(
         </button>
       </div>
     </template>
-
-    <PcCatalog v-else @back="setView('home')" />
   </div>
   <CountdownEditorDialog
-    v-if="!isPcView"
     :is-open="countdownDialogMode !== null"
     :mode="countdownDialogMode ?? 'create'"
     :initial-game-id="countdownDialogGameId"
     @close="closeCountdownDialog"
   />
-  <RegionalReleasePicker v-if="!isPcView" />
+  <RegionalReleasePicker />
   <Toaster position="bottom-center" />
 </template>
 
@@ -507,10 +456,5 @@ watch(
   text-align: center;
   text-wrap: balance;
   overflow-wrap: anywhere;
-}
-
-.pc-background {
-  position: relative;
-  background-color: #0a0a0a;
 }
 </style>
