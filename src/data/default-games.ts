@@ -85,6 +85,102 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
+      id: "planet-zoo-2",
+      title: "Planet Zoo 2",
+      titleColor: "#7cfc00",
+      targetDate: new Date("2026-10-13T00:00:00Z"), // October 13, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "boltgun-2",
+      title: "Warhammer 40,000: Boltgun 2",
+      titleColor: "#b22222",
+      targetDate: new Date("2026-10-14T00:00:00Z"), // October 14, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "stranger-than-heaven",
+      title: "Stranger Than Heaven",
+      titleColor: "#dc143c",
+      targetDate: new Date("2027-01-15T00:00:00Z"), // January 15, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "metroid-ravenous",
+      title: "Metroid Ravenous",
+      titleColor: "#ff4500",
+      targetDate: new Date("2027-01-28T00:00:00Z"), // January 28, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "tomb-raider-legacy-of-atlantis",
+      title: "Tomb Raider: Legacy of Atlantis",
+      titleColor: "#20b2aa",
+      targetDate: new Date("2027-02-12T00:00:00Z"), // February 12, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "fable",
+      title: "Fable",
+      titleColor: "#32cd32",
+      targetDate: new Date("2027-02-18T00:00:00Z"), // February 18, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "persona-4-revival",
+      title: "Persona 4 Revival",
+      titleColor: "#ffd700",
+      targetDate: new Date("2027-02-18T00:00:00Z"), // February 18, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "atelier-karia",
+      title: "Atelier Karia",
+      titleColor: "#ffb6c1",
+      targetDate: new Date("2027-02-25T00:00:00Z"), // February 25, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "hyrule-warriors-age-of-calamity-de",
+      title: "Hyrule Warriors: Age of Calamity - Definitive Edition",
+      titleColor: "#1e90ff",
+      targetDate: new Date("2027-02-25T00:00:00Z"), // February 25, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "wo-long-2",
+      title: "Wo Long 2",
+      titleColor: "#8b0000",
+      targetDate: new Date("2027-03-04T00:00:00Z"), // March 4, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "trine-6",
+      title: "Trine 6",
+      titleColor: "#9370db",
+      targetDate: new Date("2027-03-04T00:00:00Z"), // March 4, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "eternal-anima",
+      title: "Eternal Anima",
+      titleColor: "#40e0d0",
+      targetDate: new Date("2027-03-04T00:00:00Z"), // March 4, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "starcitizen-42",
       title: "Star Citizen: Squadron 42",
       titleColor: "#ffffff",
