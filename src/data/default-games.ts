@@ -77,6 +77,14 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
+      id: "gta-6",
+      title: "Grand Theft Auto VI",
+      titleColor: "#ff69b4",
+      targetDate: new Date("2026-11-19T00:00:00Z"), // November 19, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "starcitizen-42",
       title: "Star Citizen: Squadron 42",
       titleColor: "#ffffff",
