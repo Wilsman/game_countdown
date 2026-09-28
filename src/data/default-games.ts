@@ -181,6 +181,22 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
+      id: "dragon-quest-monsters-withered-world",
+      title: "Dragon Quest Monsters: The Withered World",
+      titleColor: "#4169e1",
+      targetDate: new Date("2026-12-03T00:00:00Z"), // December 3, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "rayman-legends-retold",
+      title: "Rayman Legends Retold",
+      titleColor: "#ff8c00",
+      targetDate: new Date("2026-12-03T00:00:00Z"), // December 3, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
       id: "starcitizen-42",
       title: "Star Citizen: Squadron 42",
       titleColor: "#ffffff",
