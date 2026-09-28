@@ -69,6 +69,14 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "utility",
     },
     {
+      id: "witcher-3-remastered",
+      title: "The Witcher 3: Wild Hunt - Remastered",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-09-29T10:00:00Z"), // September 29, 2026 at 6:00 AM ET / 3:00 AM PT
+      targetTimezone: "America/New_York",
+      type: "game",
+    },
+    {
       id: "starcitizen-42",
       title: "Star Citizen: Squadron 42",
       titleColor: "#ffffff",
