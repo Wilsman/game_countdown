@@ -206,7 +206,6 @@ watch(
       <div :class="['absolute inset-0', gameBackground.overlay]"></div>
     </div>
 
-    <template>
       <main class="relative z-0">
       <div
         class="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8"
@@ -343,7 +342,6 @@ watch(
           Exit focus mode
         </button>
       </div>
-    </template>
   </div>
   <CountdownEditorDialog
     :is-open="countdownDialogMode !== null"
