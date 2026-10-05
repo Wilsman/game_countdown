@@ -365,6 +365,14 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
+      id: "hunger-closed-beta-end",
+      title: "HUNGER: Closed Beta Ends",
+      titleColor: "#f5f0e6",
+      targetDate: new Date("2026-10-26T09:00:00Z"), // October 26, 2026 at 9:00 AM GMT (TBC)
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "arc-raiders-frozen-trail",
       title: "ARC Raiders: Frozen Trail",
       titleColor: "#ffffff",
