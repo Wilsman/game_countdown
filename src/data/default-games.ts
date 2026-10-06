@@ -400,7 +400,7 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       id: "tarkov-patch-1-2-0-0-end-5",
       title: "EFT: Patch 1.2.0.0 (Est. 5hrs, May Be Extended)",
       titleColor: "#ff7a00",
-      targetDate: new Date("2026-10-06T14:00:00Z"), // Estimated window: 1:00 PM BST / 8:00–10:00 AM EDT; countdown uses 7 hours.
+      targetDate: new Date("2026-10-06T12:00:00Z"), // Estimated window: 1:00 PM BST
       targetTimezone: "Europe/London",
       type: "game",
     },
@@ -408,7 +408,7 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       id: "tarkov-patch-1-2-0-0-end-7",
       title: "EFT: Patch 1.2.0.0 (Est. 7hrs)",
       titleColor: "#ff7a00",
-      targetDate: new Date("2026-10-06T17:00:00Z"), // Estimated window: 3:00 PM BST / 8:00–10:00 AM EDT; countdown uses 7 hours.
+      targetDate: new Date("2026-10-06T13:00:00Z"), // Estimated window: 3:00 PM BST
       targetTimezone: "Europe/London",
       type: "game",
     },
