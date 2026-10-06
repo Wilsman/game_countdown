@@ -205,11 +205,43 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
-      id: "marathon-nightfall-refresh",
-      title: "Marathon: Nightfall Refresh",
+      id: "marathon-1-1-9-signon-closed",
+      title: "Marathon: Sign-on Closed",
       titleColor: "#00ff00",
-      targetDate: new Date("2026-10-06T15:00:00Z"), // October 6, 2026 at 4:00 PM BST (usual update time)
-      targetTimezone: "Europe/London",
+      targetDate: new Date("2026-10-06T15:00:00Z"), // October 6, 2026 at 8:00 AM PDT / 4:00 PM BST
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-1-1-9-offline",
+      title: "Marathon: Servers Offline",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-10-06T15:15:00Z"), // October 6, 2026 at 8:15 AM PDT / 4:15 PM BST
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-nightfall-refresh",
+      title: "Marathon: Nightfall Refresh (1.1.9)",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-10-06T16:00:00Z"), // October 6, 2026 at 9:00 AM PDT / 5:00 PM BST (update available)
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-1-1-9-login",
+      title: "Marathon: Login Opens",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-10-06T17:00:00Z"), // October 6, 2026 at 10:00 AM PDT / 6:00 PM BST
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "marathon-1-1-9-maintenance-end",
+      title: "Marathon: Maintenance Ends",
+      titleColor: "#00ff00",
+      targetDate: new Date("2026-10-06T18:00:00Z"), // October 6, 2026 at 11:00 AM PDT / 7:00 PM BST
+      targetTimezone: "America/Los_Angeles",
       type: "game",
     },
     {
