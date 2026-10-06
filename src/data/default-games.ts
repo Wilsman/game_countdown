@@ -408,7 +408,7 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       id: "tarkov-patch-1-2-0-0-end-7",
       title: "EFT: Patch 1.2.0.0 (Est. 7hrs)",
       titleColor: "#ff7a00",
-      targetDate: new Date("2026-10-06T13:00:00Z"), // Estimated window: 3:00 PM BST
+      targetDate: new Date("2026-10-06T14:00:00Z"), // Estimated window: 3:00 PM BST
       targetTimezone: "Europe/London",
       type: "game",
     },
