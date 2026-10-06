@@ -25,8 +25,3 @@ dist-ssr
 *.sw?
 .env
 .dev.vars*
-
-# Declarations emitted by tsconfig.node.json for files shared with vite.config.ts
-src/data/default-games.d.ts
-src/lib/liveCountdowns.d.ts
-src/types/game.d.ts

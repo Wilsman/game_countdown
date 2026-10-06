@@ -1,13 +1,11 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
-import { loadEnv, type Plugin, type ViteDevServer } from 'vite'
+import { createServer, loadEnv, type Plugin, type ViteDevServer } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 
 import { onRequestGet } from './functions/api/igdb/releases'
-import { createDefaultGameBases } from './src/data/default-games'
-import { LIVE_COUNTDOWNS_PATH, serializeDefaultGames } from './src/lib/liveCountdowns'
 
 function readDevVars(): Record<string, string> {
   const filePaths = [
@@ -77,6 +75,19 @@ function igdbDevApi(mode: string): Plugin {
   }
 }
 
+// Must match LIVE_COUNTDOWNS_PATH in src/lib/liveCountdowns.ts.
+const LIVE_COUNTDOWNS_FILE = 'countdowns.json'
+
+// App modules are loaded through Vite at runtime rather than imported here, so
+// they stay out of the tsconfig.node.json project.
+async function renderLiveCountdowns(
+  loadModule: (url: string) => Promise<Record<string, any>>,
+): Promise<string> {
+  const data = await loadModule('/src/data/default-games.ts')
+  const feed = await loadModule('/src/lib/liveCountdowns.ts')
+  return JSON.stringify(feed.serializeDefaultGames(data.createDefaultGameBases('UTC')))
+}
+
 // Publishes the built-in countdowns as /countdowns.json so open pages and OBS
 // overlays can pick up edits after a deploy without reloading.
 function liveCountdowns(): Plugin {
@@ -84,29 +95,40 @@ function liveCountdowns(): Plugin {
     name: 'live-countdowns',
     configureServer(server: ViteDevServer) {
       server.middlewares.use(async (request, response, next) => {
-        if (request.method !== 'GET' || request.url?.split('?')[0] !== LIVE_COUNTDOWNS_PATH) {
+        if (request.method !== 'GET' || request.url?.split('?')[0] !== `/${LIVE_COUNTDOWNS_FILE}`) {
           next()
           return
         }
 
         try {
-          // Load through Vite so edits to the data file show up immediately.
-          const data = await server.ssrLoadModule('/src/data/default-games.ts')
-          const payload = serializeDefaultGames(data.createDefaultGameBases('UTC'))
+          // Loaded per request so edits to the data file show up immediately.
+          const source = await renderLiveCountdowns((url) => server.ssrLoadModule(url))
           response.setHeader('Content-Type', 'application/json; charset=utf-8')
           response.setHeader('Cache-Control', 'no-cache')
-          response.end(JSON.stringify(payload))
+          response.end(source)
         } catch (error) {
           next(error)
         }
       })
     },
-    generateBundle() {
-      this.emitFile({
-        type: 'asset',
-        fileName: LIVE_COUNTDOWNS_PATH.slice(1),
-        source: JSON.stringify(serializeDefaultGames(createDefaultGameBases('UTC'))),
+    async generateBundle() {
+      const loader = await createServer({
+        configFile: false,
+        logLevel: 'error',
+        appType: 'custom',
+        optimizeDeps: { noDiscovery: true, include: [] },
+        server: { middlewareMode: true, hmr: false, watch: null },
       })
+
+      try {
+        this.emitFile({
+          type: 'asset',
+          fileName: LIVE_COUNTDOWNS_FILE,
+          source: await renderLiveCountdowns((url) => loader.ssrLoadModule(url)),
+        })
+      } finally {
+        await loader.close()
+      }
     },
   }
 }
