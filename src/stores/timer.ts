@@ -4,6 +4,7 @@ import type { Ref } from "vue";
 import { differenceInSeconds } from "date-fns";
 import confetti from "canvas-confetti";
 import { createDefaultGameBases } from "../data/default-games";
+import { getGameBaseSignature } from "../lib/liveCountdowns";
 import type { Game, GameBase, RegionalReleaseTime } from "../types/game";
 
 export type { Game, GameBase, GameSource, RegionalReleaseTime } from "../types/game";
@@ -202,16 +203,23 @@ export const useTimerStore = defineStore("timer", () => {
     const sopacity = params.get("sopacity");
     const shine = params.get("shine");
     const shineOpactiy = params.get("shopacity");
+    const overrideParam = params.get("override");
 
     // Find the game by ID
     if (gameId) {
       const gameIndex = games.value.findIndex((g) => g.id === gameId);
       if (gameIndex !== -1) {
+        const game = games.value[gameIndex];
+        // Built-in countdowns follow the published data (so overlays pick up
+        // edits) unless the link was copied after the user changed them.
+        const followsPublished =
+          isPublishedGame(game) && overrideParam !== "1";
+
         setActiveGameIndex(gameIndex);
-        if (titleParam !== null) setGameTitle(titleParam);
+        if (titleParam !== null && !followsPublished) setGameTitle(titleParam);
 
         // Update the game's date and timezone if provided
-        if (dateStr) {
+        if (dateStr && !followsPublished) {
           const date = new Date(dateStr);
           if (!isNaN(date.getTime())) {
             setTargetDate(date, timezone || userTimezone);
@@ -312,8 +320,29 @@ export const useTimerStore = defineStore("timer", () => {
     return null;
   };
 
-  const createDefaultGames = (): Game[] =>
-    createDefaultGameBases(userTimezone).map(toDefaultGame);
+  const isPublishedGame = (game: Game): boolean =>
+    game.source === "default" && game.type === "game";
+
+  // Latest built-in countdowns received from the live feed, if any. Utility
+  // timers are relative to "now", so they always come from the bundle.
+  let latestPublishedGames: GameBase[] | null = null;
+
+  const createDefaultGames = (): Game[] => {
+    const bundled = createDefaultGameBases(userTimezone);
+    if (!latestPublishedGames) return bundled.map(toDefaultGame);
+
+    return [
+      ...bundled.filter((game) => game.type === "utility"),
+      ...latestPublishedGames,
+    ].map(toDefaultGame);
+  };
+
+  const createPublishedSignatures = (): Map<string, string> =>
+    new Map(
+      createDefaultGames()
+        .filter(isPublishedGame)
+        .map((game) => [game.id, getGameBaseSignature(game)]),
+    );
 
   const persistCustomGames = () => {
     if (typeof window === "undefined") return;
@@ -357,6 +386,11 @@ export const useTimerStore = defineStore("timer", () => {
   ]);
   // Will be set to the soonest ending game by findAndSetNextUpcomingGame
   const activeGameIndex = ref(0);
+  // Last published version of each built-in countdown, used to apply only the
+  // entries that actually changed upstream.
+  let publishedSignatures = createPublishedSignatures();
+  // Built-in countdowns the user edited on this page; live updates skip them.
+  const overriddenPublishedIds = ref(new Set<string>());
   const persistedActiveCustomGameId = ref(loadPersistedActiveCustomGameId());
   const pendingRegionalReleaseGameId = ref<string | null>(null);
   const isEditMode = ref(false);
@@ -613,10 +647,78 @@ export const useTimerStore = defineStore("timer", () => {
     }
   };
 
+  const markPublishedOverride = (game: Game | undefined) => {
+    if (game && isPublishedGame(game)) {
+      overriddenPublishedIds.value.add(game.id);
+    }
+  };
+
+  // Merge the latest published built-in countdowns into the open page without
+  // a reload. Returns true when anything visible changed.
+  const syncPublishedGames = (bases: GameBase[]): boolean => {
+    latestPublishedGames = bases;
+
+    const activeId = activeGame.value?.id;
+    const incomingIds = new Set(bases.map((base) => base.id));
+    let changed = false;
+
+    // Drop countdowns that were unpublished, but never yank the one on screen.
+    const nextGames = games.value.filter((game) => {
+      if (
+        !isPublishedGame(game) ||
+        !publishedSignatures.has(game.id) ||
+        incomingIds.has(game.id) ||
+        game.id === activeId
+      ) {
+        return true;
+      }
+      changed = true;
+      return false;
+    });
+    for (const id of publishedSignatures.keys()) {
+      if (!incomingIds.has(id)) publishedSignatures.delete(id);
+    }
+
+    for (const base of bases) {
+      const signature = getGameBaseSignature(base);
+      if (publishedSignatures.get(base.id) === signature) continue;
+      publishedSignatures.set(base.id, signature);
+
+      const existingIndex = nextGames.findIndex(
+        (game) => game.id === base.id && game.source === "default",
+      );
+      if (existingIndex === -1) {
+        // Keep built-ins ahead of custom timers so id lookups prefer them.
+        const firstCustomIndex = nextGames.findIndex(
+          (game) => game.source === "custom",
+        );
+        nextGames.splice(
+          firstCustomIndex === -1 ? nextGames.length : firstCustomIndex,
+          0,
+          toDefaultGame(base),
+        );
+        changed = true;
+        continue;
+      }
+
+      if (overriddenPublishedIds.value.has(base.id)) continue;
+      nextGames[existingIndex] = toDefaultGame(base);
+      changed = true;
+    }
+
+    if (!changed) return false;
+
+    games.value = nextGames;
+    const nextActiveIndex = nextGames.findIndex((game) => game.id === activeId);
+    activeGameIndex.value = nextActiveIndex === -1 ? 0 : nextActiveIndex;
+    return true;
+  };
+
   const setTargetDate = (date: Date, timezone: string = userTimezone): void => {
     if (games.value[activeGameIndex.value]) {
       games.value[activeGameIndex.value].targetDate = date;
       games.value[activeGameIndex.value].targetTimezone = timezone;
+      markPublishedOverride(games.value[activeGameIndex.value]);
       syncCustomGamePersistence(games.value[activeGameIndex.value].id);
     }
   };
@@ -658,6 +760,7 @@ export const useTimerStore = defineStore("timer", () => {
   const setGameTitle = (title: string): void => {
     if (games.value[activeGameIndex.value]) {
       games.value[activeGameIndex.value].title = title;
+      markPublishedOverride(games.value[activeGameIndex.value]);
       syncCustomGamePersistence(games.value[activeGameIndex.value].id);
     }
   };
@@ -829,6 +932,8 @@ export const useTimerStore = defineStore("timer", () => {
       .map(toCustomGame);
 
     games.value = [...createDefaultGames(), ...customGames];
+    publishedSignatures = createPublishedSignatures();
+    overriddenPublishedIds.value.clear();
     persistedActiveCustomGameId.value = null;
     setPersistedActiveCustomGameId(null);
     activeGameIndex.value = 0;
@@ -893,6 +998,10 @@ export const useTimerStore = defineStore("timer", () => {
     url.searchParams.set("date", game.targetDate.toISOString());
     url.searchParams.set("timezone", game.targetTimezone);
     url.searchParams.set("title", game.title);
+    // Built-ins follow live updates by id; flag links that carry user edits.
+    if (overriddenPublishedIds.value.has(game.id)) {
+      url.searchParams.set("override", "1");
+    }
 
     // Add the current game title color to the URL
     if (game.titleColor) {
@@ -970,7 +1079,10 @@ export const useTimerStore = defineStore("timer", () => {
     if (!shareableUrl) return "";
 
     const url = new URL(shareableUrl);
-    url.searchParams.delete("game");
+    // Keep the id for built-in countdowns so the overlay follows live updates.
+    if (!isPublishedGame(activeGame.value)) {
+      url.searchParams.delete("game");
+    }
     url.searchParams.set("obs", "1");
     url.searchParams.set("bg", "0");
 
@@ -1031,5 +1143,6 @@ export const useTimerStore = defineStore("timer", () => {
     addCustomTimer,
     updateCustomTimer,
     removeCustomTimer,
+    syncPublishedGames,
   };
 });

@@ -124,6 +124,13 @@ Example:
 https://[your-domain]/?target=2024-12-25T00:00:00Z&theme=dark&title=My%20Awesome%20Game
 ```
 
+### Live updates for built-in countdowns
+The build publishes the built-in countdowns from `src/data/default-games.ts` as `/countdowns.json`. Open pages, including OBS browser sources, check it every 60 seconds and when the tab becomes visible, then apply edits, additions, and removals without a refresh.
+
+- Share and OBS links for built-in countdowns keep the `game` id, so they follow the published title and date. A stale `date`/`title` in the link is ignored.
+- If someone edits a built-in countdown's title or date, their links get `override=1` and keep their values. Live updates skip that countdown on their page.
+- Custom timers are unaffected.
+
 ## 📱 Mobile Support
 
 The app is fully responsive and works seamlessly on:

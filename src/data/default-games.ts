@@ -397,10 +397,18 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
-      id: "tarkov-patch-1-2-0-0-end",
-      title: "Escape from Tarkov: Patch 1.2.0.0 Installation Ends (Estimated 5–7 Hours, May Be Extended)",
+      id: "tarkov-patch-1-2-0-0-end-5",
+      title: "EFT: Patch 1.2.0.0 (Est. 5 Hours, May Be Extended)",
       titleColor: "#ff7a00",
-      targetDate: new Date("2026-10-06T14:00:00Z"), // Estimated window: 1:00–3:00 PM BST / 8:00–10:00 AM EDT; countdown uses 7 hours.
+      targetDate: new Date("2026-10-06T14:00:00Z"), // Estimated window: 1:00 PM BST / 8:00–10:00 AM EDT; countdown uses 7 hours.
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
+      id: "tarkov-patch-1-2-0-0-end-7",
+      title: "EFT: Patch 1.2.0.0 (Est. 7 Hours)",
+      titleColor: "#ff7a00",
+      targetDate: new Date("2026-10-06T17:00:00Z"), // Estimated window: 3:00 PM BST / 8:00–10:00 AM EDT; countdown uses 7 hours.
       targetTimezone: "Europe/London",
       type: "game",
     },

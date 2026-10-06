@@ -20,5 +20,11 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "functions/api/igdb/releases.ts"]
+  "include": [
+    "vite.config.ts",
+    "functions/api/igdb/releases.ts",
+    "src/data/default-games.ts",
+    "src/lib/liveCountdowns.ts",
+    "src/types/game.ts"
+  ]
 }

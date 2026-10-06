@@ -6,6 +6,8 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 
 import { onRequestGet } from './functions/api/igdb/releases'
+import { createDefaultGameBases } from './src/data/default-games'
+import { LIVE_COUNTDOWNS_PATH, serializeDefaultGames } from './src/lib/liveCountdowns'
 
 function readDevVars(): Record<string, string> {
   const filePaths = [
@@ -75,10 +77,45 @@ function igdbDevApi(mode: string): Plugin {
   }
 }
 
+// Publishes the built-in countdowns as /countdowns.json so open pages and OBS
+// overlays can pick up edits after a deploy without reloading.
+function liveCountdowns(): Plugin {
+  return {
+    name: 'live-countdowns',
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use(async (request, response, next) => {
+        if (request.method !== 'GET' || request.url?.split('?')[0] !== LIVE_COUNTDOWNS_PATH) {
+          next()
+          return
+        }
+
+        try {
+          // Load through Vite so edits to the data file show up immediately.
+          const data = await server.ssrLoadModule('/src/data/default-games.ts')
+          const payload = serializeDefaultGames(data.createDefaultGameBases('UTC'))
+          response.setHeader('Content-Type', 'application/json; charset=utf-8')
+          response.setHeader('Cache-Control', 'no-cache')
+          response.end(JSON.stringify(payload))
+        } catch (error) {
+          next(error)
+        }
+      })
+    },
+    generateBundle() {
+      this.emitFile({
+        type: 'asset',
+        fileName: LIVE_COUNTDOWNS_PATH.slice(1),
+        source: JSON.stringify(serializeDefaultGames(createDefaultGameBases('UTC'))),
+      })
+    },
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     igdbDevApi(process.env.NODE_ENV ?? 'development'),
+    liveCountdowns(),
     vue(),
     vueJsx()
   ],

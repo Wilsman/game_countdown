@@ -10,6 +10,7 @@ import IgdbReleaseBrowser from "./components/IgdbReleaseBrowser.vue";
 import OverlayCustomizer from "./components/OverlayCustomizer.vue";
 import RegionalReleasePicker from "./components/RegionalReleasePicker.vue";
 import TimerDisplay from "./components/TimerDisplay.vue";
+import { useLiveCountdowns } from "./hooks/useLiveCountdowns";
 import { useTimerStore } from "./stores/timer";
 
 interface GameBackgroundMeta {
@@ -107,6 +108,8 @@ onMounted(() => {
   if (!isClient) return;
   timerStore.handleUrlParams();
 });
+
+useLiveCountdowns();
 
 const titleTextShadow = computed(() => {
   if (!settings.value.glowColor) return undefined;

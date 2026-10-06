@@ -265,3 +265,112 @@ describe("custom timer persistence", () => {
     expect(restoredStore.settings.segmentGap).toBe(18);
   });
 });
+
+describe("live built-in countdown updates", () => {
+  const publishedWith = (
+    store: ReturnType<typeof useTimerStore>,
+    id: string,
+    changes: { title?: string; targetDate?: Date },
+  ) =>
+    store.games
+      .filter((game) => game.source === "default" && game.type === "game")
+      .map((game) => ({
+        id: game.id,
+        title: game.id === id ? changes.title ?? game.title : game.title,
+        titleColor: game.titleColor,
+        targetDate:
+          game.id === id ? changes.targetDate ?? game.targetDate : game.targetDate,
+        targetTimezone: game.targetTimezone,
+        type: "game" as const,
+      }));
+
+  it("updates an open built-in overlay when the published date changes", () => {
+    installBrowserMocks(createStorageMock());
+    const store = useTimerStore();
+    store.selectGameById("gamescom-2027");
+
+    const overlayUrl = new URL(store.getObsOverlayUrl());
+    expect(overlayUrl.searchParams.get("game")).toBe("gamescom-2027");
+    expect(overlayUrl.searchParams.get("override")).toBeNull();
+
+    setActivePinia(createPinia());
+    installBrowserMocks(createStorageMock(), overlayUrl.toString());
+    const overlayStore = useTimerStore();
+    overlayStore.handleUrlParams();
+
+    const newDate = new Date("2027-08-24T10:00:00Z");
+    expect(
+      overlayStore.syncPublishedGames(
+        publishedWith(overlayStore, "gamescom-2027", {
+          title: "gamescom 2027 ONL",
+          targetDate: newDate,
+        }),
+      ),
+    ).toBe(true);
+
+    expect(overlayStore.activeGame.id).toBe("gamescom-2027");
+    expect(overlayStore.gameTitle).toBe("gamescom 2027 ONL");
+    expect(overlayStore.targetDate.toISOString()).toBe(newDate.toISOString());
+  });
+
+  it("follows published data over a stale date in a built-in link", () => {
+    installBrowserMocks(
+      createStorageMock(),
+      "https://example.com/?game=gamescom-2027&date=2027-01-01T00:00:00.000Z&timezone=UTC&title=Old&obs=1",
+    );
+    const store = useTimerStore();
+    store.handleUrlParams();
+
+    expect(store.gameTitle).toBe("gamescom 2027");
+    expect(store.targetDate.toISOString()).toBe("2027-08-23T00:00:00.000Z");
+  });
+
+  it("keeps user edits to a built-in countdown when updates arrive", () => {
+    installBrowserMocks(createStorageMock());
+    const store = useTimerStore();
+    store.selectGameById("gamescom-2027");
+    store.setTargetDate(new Date("2027-08-25T12:00:00Z"), "Europe/Berlin");
+
+    const overlayUrl = new URL(store.getObsOverlayUrl());
+    expect(overlayUrl.searchParams.get("override")).toBe("1");
+
+    store.syncPublishedGames(
+      publishedWith(store, "gamescom-2027", {
+        targetDate: new Date("2027-08-24T10:00:00Z"),
+      }),
+    );
+    expect(store.targetDate.toISOString()).toBe("2027-08-25T12:00:00.000Z");
+
+    setActivePinia(createPinia());
+    installBrowserMocks(createStorageMock(), overlayUrl.toString());
+    const restoredStore = useTimerStore();
+    restoredStore.handleUrlParams();
+    expect(restoredStore.targetDate.toISOString()).toBe(
+      "2027-08-25T12:00:00.000Z",
+    );
+  });
+
+  it("adds new and drops unpublished built-ins without moving the active one", () => {
+    installBrowserMocks(createStorageMock());
+    const store = useTimerStore();
+    store.selectGameById("gamescom-2027");
+
+    const published = publishedWith(store, "", {}).filter(
+      (game) => game.id !== "tarkov-season-2",
+    );
+    published.push({
+      id: "brand-new",
+      title: "Brand New",
+      titleColor: "#ffffff",
+      targetDate: new Date("2027-01-01T00:00:00Z"),
+      targetTimezone: "UTC",
+      type: "game",
+    });
+
+    expect(store.syncPublishedGames(published)).toBe(true);
+    expect(store.games.some((game) => game.id === "tarkov-season-2")).toBe(false);
+    expect(store.games.some((game) => game.id === "brand-new")).toBe(true);
+    expect(store.activeGame.id).toBe("gamescom-2027");
+    expect(store.syncPublishedGames(published)).toBe(false);
+  });
+});
