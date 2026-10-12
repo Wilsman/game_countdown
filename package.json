@@ -22,7 +22,7 @@
     "baseline-browser-mapping": "^2.11.28",
     "caniuse-lite": "^1.0.30001815",
     "canvas-confetti": "^1.9.4",
-    "date-fns": "^3.3.1",
+    "date-fns": "^4.4.0",
     "pinia": "^2.1.7",
     "vue": "^3.5.43",
     "vue-sonner": "^2.0.9"
