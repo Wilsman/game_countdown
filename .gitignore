@@ -25,3 +25,14 @@ dist-ssr
 *.sw?
 .env
 .dev.vars*
+
+# TypeScript build artifacts (emitted by `vue-tsc -b`)
+*.tsbuildinfo
+/vite.config.d.ts
+/functions/**/*.d.ts
+
+# npm is the canonical package manager; package-lock.json is the lockfile
+bun.lock
+bun.lockb
+pnpm-lock.yaml
+yarn.lock
