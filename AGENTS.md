@@ -1,62 +1,79 @@
-# Repository Guidelines
+# AGENTS.md
 
-## Project Structure & Module Organization
+Instructions for AI coding agents working in this repo. Humans should start
+with [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
-- `src/` – application code.
-  - `components/` (Vue SFCs, PascalCase filenames), `stores/` (Pinia, e.g., `timer.ts`), `hooks/` (composables, `use*.ts`), `lib/`, `types/`, `assets/`, `App.vue`, `main.ts`, `style.css`.
-- `public/` – static files served as-is.
-- `scripts/` – local utilities and one-off tasks.
-- `dist/` – production build output (generated).
-- Root: `index.html`, Vite/Tailwind/TS configs.
+## Project
 
-## Build, Test, and Development Commands
+A Vue 3 + TypeScript single-page app of game release countdowns, deployed on
+Cloudflare Pages with Pages Functions. There is no backend besides `functions/`.
 
-- `npm run dev` – start Vite dev server with HMR.
-- `npm run build` – type-check (`vue-tsc -b`) then build to `dist/`.
-- `npm run preview` – serve the built app locally.
-- Type-check only: `npx vue-tsc --noEmit`.
-- You may use `pnpm`/`bun` equivalents (e.g., `pnpm dev`, `bun run build`).
+## Commands
 
-## Coding Style & Naming Conventions
+- Install: `npm install`. npm is the only package manager. Don't commit
+  `bun.lock`, `pnpm-lock.yaml` or `yarn.lock`.
+- Dev server: `npm run dev` (port 5173).
+- Tests: `npm test`, which runs `bun test`. Run a single file with
+  `bun test src/lib/__tests__/timezones.spec.ts`. Tests import from `bun:test`.
+- Type-check: `npm run typecheck`.
+- Before finishing: `npm run check` (tests + type-check + build). This is what
+  CI runs, and it must pass.
 
-- TypeScript strict mode is enabled. Fix type errors caused by the requested change; report unrelated failures without expanding scope.
-- Indentation: 2 spaces; keep lines focused and readable.
-- Vue 3 + `<script setup>` and Composition API preferred.
-- Components: PascalCase filenames (e.g., `TimerDisplay.vue`); props/events camelCase in code, kebab-case in templates.
-- Composables in `hooks/`: `useThing.ts` naming; Pinia stores: `useThingStore` in `stores/`.
-- Styling: Tailwind CSS; shared styles in `src/style.css`.
-- Imports: Group external libs first, then internal modules; use type-only imports when possible.
+## Layout
 
-## Testing Guidelines
+- `src/data/default-games.ts`: the built-in countdown list. Most changes land here.
+- `src/stores/timer.ts`: Pinia store for the active timer, custom timers
+  (localStorage) and URL/share-link state.
+- `src/lib/`: framework-free logic (`timezones`, `loopingCountdown`,
+  `liveCountdowns`, `igdb`). Put new pure logic here, with tests in
+  `src/lib/__tests__/`.
+- `src/components/`: Vue SFCs with PascalCase filenames. `src/hooks/`: `use*.ts` composables.
+- `functions/`: Cloudflare Pages Functions. `index.ts` rewrites OG tags for
+  share links, `api/og.ts` renders the OG image, and `api/igdb/releases.ts`
+  proxies IGDB. `vite.config.ts` mounts the IGDB handler in dev and emits
+  `/countdowns.json` at build time.
+- Generated files (do not edit or commit): `dist/`, `*.tsbuildinfo`,
+  `vite.config.d.ts`, `functions/**/*.d.ts`.
 
-- Tests use Bun test framework (`bun:test`).
-- Run single test: `bun test src/stores/__tests__/timer.spec.ts`
-- Run all tests: `bun test`
-- Location: `src/**/__tests__/*.spec.ts` or co-located `*.spec.ts`.
+## Rules that are easy to get wrong
 
-## Error Handling & Validation
+- **Time is UTC.** Store absolute instants as `new Date("YYYY-MM-DDTHH:mm:ssZ")`.
+  Never use `new Date(year, monthIndex, ...)`, because it uses the viewer's
+  local timezone and different users would see different countdowns. Convert
+  local wall-clock input and format display with `src/lib/timezones.ts`, which
+  handles DST.
+- **Countdown ids are public API.** Share and OBS links reference `game=<id>`.
+  Don't rename or reuse ids. Remove an entry only once its event has passed.
+- **No launch hour announced:** use `T00:00:00Z`, `targetTimezone: "UTC"`
+  and a `// time not announced` comment. Otherwise comment the announced local
+  time.
+- **URL params are user input.** Validate them with type guards in the store,
+  and escape anything a Function writes into HTML.
+- **Secrets** (`TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`) are only read
+  server-side in `functions/` or the Vite dev middleware. Never import them into
+  `src/`, and never use a `VITE_` prefix for them.
+- `LIVE_COUNTDOWNS_PATH` in `src/lib/liveCountdowns.ts` must match the
+  filename in `vite.config.ts`.
 
-- Store absolute instants consistently in UTC. Use `src/lib/timezones.ts` for local release-time interpretation and display; preserve timezone and DST semantics.
-- Validate stored absolute release instants as ISO 8601 UTC values; convert local date/time input with the existing timezone helpers.
-- Use type guards for runtime type checking in stores and components
+## Style
 
-## Commit & Pull Request Guidelines
+- `<script setup lang="ts">` with the Composition API. Strict TypeScript. Avoid `any` in new code.
+- 2-space indent. Imports go external first, then internal, using `import type`
+  where possible.
+- Tailwind for styling, with shared styles in `src/style.css`. UI must follow
+  [DESIGN.md](DESIGN.md) and [docs/uncodixfy.md](docs/uncodixfy.md): plain,
+  functional, no decorative gradients or gimmicks.
+- Match the surrounding code's naming and comment density.
 
-- Follow Conventional Commits (seen in history): `feat(scope): summary`, `chore: …`, `style(Component): …`.
-- Commit messages: short imperative subject; additional detail in body if needed.
-- PRs must include:
-  - Clear description, linked issues (e.g., `Closes #123`).
-  - Screenshots/GIFs for UI changes (before/after).
-  - Run `npm run build` when a build is warranted; it already performs type checking. For a narrower check, use the relevant Bun tests or type checker without duplicating a successful build check.
+## Scope and git
 
-## Security & Configuration Tips
-
-- Do not commit secrets. Anything in `public/` is publicly served.
-- Use Vite env vars with `VITE_` prefix in `.env.local` (gitignored).
-
-## Agent-Specific Instructions
-
-- Keep changes minimal and focused; avoid repo-wide reformatting.
-- Preserve the existing directory layout unless the task requires a change. Do not hand-edit generated build outputs; producing them with the documented build is expected. Commit outputs only if the established workflow requires it.
-- Update docs when commands/behaviors change.
-- Complete the requested change and relevant verification with a small, focused patch; continue authorized reversible work without repeated approval.
+- Keep changes minimal and focused. No repo-wide reformatting, no unrequested
+  refactors, no new dependencies unless the task needs them.
+- Fix type errors your change causes. Report unrelated failures instead of
+  expanding scope.
+- Don't add summary or notes markdown files. Update README.md or this file when
+  commands or behaviour change.
+- Use Conventional Commits, e.g. `feat(countdowns): add X release`. Branch off
+  `main`. Don't push to `main` directly.
+- PRs: fill in `.github/pull_request_template.md`, link issues (`Closes #123`)
+  and attach screenshots for UI changes.

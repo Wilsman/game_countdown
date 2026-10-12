@@ -1,0 +1,25 @@
+name: Countdown request or correction
+description: Add a built-in countdown or fix a date/time
+title: "countdown: "
+labels: [countdown]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Game or event
+    validations:
+      required: true
+  - type: input
+    id: when
+    attributes:
+      label: Date and time, with timezone
+      placeholder: "2027-03-01 10:00 PT, or 'date only'"
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source link
+      description: Publisher post, store page or official social account.
+    validations:
+      required: true

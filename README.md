@@ -1,164 +1,159 @@
-# 🎮 Game Countdown Timer
+# Game Countdown
 
-A sleek and modern countdown timer for game releases, featuring real-time updates and global timezone support. Perfect for game developers and publishers to create excitement around their upcoming game launches.
+Countdown timers for game launches, betas, wipes and maintenance windows.
+Every timer shows the same absolute moment for everyone, with local times for
+the major release regions, and any timer can be dropped into OBS as a
+browser-source overlay.
 
-![Game Countdown Demo](demo.gif)
+**Live site:** <https://game-countdown.pages.dev>
 
-## ✨ Features
+![Game Countdown showing a Grand Theft Auto VI countdown](docs/screenshot.png)
 
-- **Real-time Countdown**: Dynamic countdown display showing days, hours, minutes, and seconds
-- **Global Timezone Support**: Instant time conversion for major gaming regions:
-  - 🇰🇷 Seoul (South Korea)
-  - 🇬🇧 London (UK)
-  - 🇺🇸 New York & Los Angeles (US)
-  - 🇷🇺 Moscow (Russia)
-  - 🇯🇵 Tokyo (Japan)
-- **Modern UI/UX**:
-  - Responsive design for all devices
-  - Smooth animations and transitions
-  - Dark/Light theme support
-  - Glass-morphism design elements
-- **Customization Options**:
-  - Custom game title
-  - Adjustable fonts and colors
-  - Configurable animations
-  - Theme preferences
-- **Share Feature**: Generate shareable URLs with preset configurations
-- **IGDB Release Feed**: Browse upcoming PC releases with cover art and turn any
-  exact-day listing into a saved countdown
-- **Looping Countdowns**: Pick a name, a reset time, and a length (1h, 6h, 12h,
-  24h, 7 days, or custom) to get an OBS overlay link that resets on its own
-  forever, e.g. for daily Twitch drops. The link carries the reset time as
-  `date` and the cycle length in minutes as `loop`
+## Features
 
-## IGDB setup
+- **Built-in countdowns** for upcoming releases and events, maintained in
+  [`src/data/default-games.ts`](src/data/default-games.ts).
+- **Live updates.** The build publishes the built-in list as `/countdowns.json`.
+  Open pages, including OBS sources, re-check it every 60 seconds and pick up
+  date changes without a refresh.
+- **Custom countdowns** saved in your browser, with a timezone-aware date picker.
+- **Looping countdowns** that reset on a fixed cycle (1h, 6h, 12h, 24h, 7 days
+  or custom), for things like daily Twitch drops.
+- **Regional times** for each launch, plus DST-aware timezone handling.
+- **OBS overlay mode** with a customiser for fonts, colours, background, border
+  and glow. The settings are encoded in the link.
+- **IGDB release feed** of upcoming PC games. Any listing with an exact day can
+  be turned into a countdown.
+- **Share links with previews.** A Cloudflare Pages Function rewrites the Open
+  Graph tags so Discord and social embeds show the game and time remaining.
 
-Upcoming releases are fetched server-side by the Cloudflare Pages Function at
-`/api/igdb/releases`. It uses Twitch application credentials to obtain an IGDB
-app-access token; the client secret is never included in the Vue bundle.
+## Quick start
 
-Set these encrypted secrets for both Preview and Production in Cloudflare Pages
-under **Settings → Variables and Secrets**, then redeploy:
-
-```text
-TWITCH_CLIENT_ID
-TWITCH_CLIENT_SECRET
-```
-
-The same values already used by `F:\tmp\TwitchCultistBot` can be reused. The
-bot's `TWITCH_OAUTH` user token is not required by IGDB.
-
-For local Pages Functions development, place the two values in an untracked
-`.dev.vars` file and serve the built site with Wrangler:
-
-```text
-TWITCH_CLIENT_ID="..."
-TWITCH_CLIENT_SECRET="..."
-```
+Requirements: [Node.js](https://nodejs.org) 20+ and [Bun](https://bun.sh)
+(Bun is only used to run tests).
 
 ```bash
-npm run build
-npx wrangler pages dev dist
-```
-
-Normal Vite development also serves `/api/igdb/releases` locally, so `bun dev`
-on port 5173 works without starting Wrangler. It reads `.dev.vars` first and
-falls back to the existing `F:\tmp\TwitchCultistBot\.env` when that sibling
-checkout is present; the credentials stay server-side.
-
-IGDB records used by the app have day precision (`YYYYMMDD`) but generally do
-not include a publisher-confirmed launch hour. Countdown targets therefore use
-the source UTC date boundary and the UI labels these records as **Date only**.
-
-## 🚀 Quick Start
-
-1. Clone the repository:
-```bash
-git clone https://github.com/wilsman/game_countdown.git
+git clone https://github.com/Wilsman/game_countdown.git
 cd game_countdown
-```
-
-2. Install dependencies:
-```bash
 npm install
+npm run dev        # http://localhost:5173
 ```
 
-3. Run the development server:
-```bash
-npm run dev
+The app works without any secrets. Only the IGDB release feed needs
+credentials (see [IGDB feed](#igdb-feed)); without them that panel shows an
+error and the rest of the app works normally.
+
+## Scripts
+
+| Command             | What it does                                       |
+| ------------------- | -------------------------------------------------- |
+| `npm run dev`       | Vite dev server with HMR, including the local IGDB API |
+| `npm test`          | Run the test suite (`bun test`)                    |
+| `npm run typecheck` | Type-check the app, config and Functions           |
+| `npm run build`     | Type-check, then build to `dist/`                  |
+| `npm run preview`   | Serve the production build locally                 |
+| `npm run check`     | Tests + build. This is what CI runs                |
+
+## Project layout
+
+```text
+src/
+  App.vue               Page shell, theme and layout
+  components/           Vue SFCs (TimerDisplay, ControlPanel, dialogs, ...)
+  data/default-games.ts Built-in countdowns (most contributions land here)
+  stores/timer.ts       Pinia store: active timer, custom timers, URL state
+  lib/                  Framework-free logic: timezones, looping, IGDB, live sync
+  hooks/                Composables (useNow, useLiveCountdowns)
+  types/                Shared TypeScript types
+functions/              Cloudflare Pages Functions (OG tags, OG image, IGDB proxy)
+public/                 Static assets served as-is
+scripts/                One-off utilities (e.g. image conversion)
+docs/                   Screenshots and UI guidelines
 ```
 
-4. Build for production:
-```bash
-npm run build
-```
+## Adding or updating a countdown
 
-## 🛠️ Technologies
+Edit [`src/data/default-games.ts`](src/data/default-games.ts) and add an entry:
 
-- Vue 3 with Composition API
-- TypeScript
-- Vite
-- Pinia for state management
-- Modern CSS with Flexbox/Grid
-- Date-fns for time manipulation
-
-## 🎨 Customization
-
-### Theme Configuration
-```typescript
+```ts
 {
-  fontFamily: 'Inter',
-  textColor: '#ffffff',
-  backgroundColor: '#1a1a1a',
-  fontSize: 48,
-  enableAnimation: true,
-  enableSound: false,
-  theme: 'dark'
-}
+  id: "my-game-release",             // unique, stable, kebab-case. Used in share links.
+  title: "My Game",
+  titleColor: "#7ed2eb",
+  targetDate: new Date("2027-03-01T17:00:00Z"), // always UTC with a trailing Z
+  targetTimezone: "America/Los_Angeles",        // zone the publisher announced in
+  type: "game",
+},
 ```
 
-### URL Parameters
-Share your countdown with custom settings:
-- `target`: Target date/time (ISO string)
-- `theme`: Color theme preference
-- `title`: Custom game title
+- Write `targetDate` as an ISO 8601 UTC string. Don't use
+  `new Date(year, month, ...)`, because that is interpreted in the viewer's
+  local timezone.
+- Add a comment with the announced local time and a source if possible.
+- If no launch hour has been announced, use `T00:00:00Z` with `targetTimezone: "UTC"`
+  and say "time not announced" in the comment.
+- Don't rename an existing `id`. Existing share and OBS links depend on it.
+- Remove entries once the event has passed.
 
-Example:
-```
-https://[your-domain]/?target=2024-12-25T00:00:00Z&theme=dark&title=My%20Awesome%20Game
-```
+`npm test` checks that ids are unique and that no entry predates the last prune
+reference date in `src/data/__tests__/default-games.spec.ts`.
 
-### Live updates for built-in countdowns
-The build publishes the built-in countdowns from `src/data/default-games.ts` as `/countdowns.json`. Open pages, including OBS browser sources, check it every 60 seconds and when the tab becomes visible, then apply edits, additions, and removals without a refresh.
+## Share and overlay links
 
-- Share and OBS links for built-in countdowns keep the `game` id, so they follow the published title and date. A stale `date`/`title` in the link is ignored.
-- If someone edits a built-in countdown's title or date, their links get `override=1` and keep their values. Live updates skip that countdown on their page.
-- Custom timers are unaffected.
+Links carry their state in the query string:
 
-## 📱 Mobile Support
+| Param      | Meaning                                                   |
+| ---------- | --------------------------------------------------------- |
+| `game`     | Built-in countdown id. Follows live updates to that entry |
+| `date`     | Target instant (ISO 8601 UTC) for custom timers           |
+| `title`    | Custom title                                              |
+| `timezone` | IANA timezone used for display                            |
+| `loop`     | Cycle length in minutes. `date` is then the reset anchor  |
+| `obs=1`    | Overlay mode: hides the page chrome for OBS browser sources |
+| `override=1` | Keep this link's `date`/`title` instead of live updates |
 
-The app is fully responsive and works seamlessly on:
-- 📱 Mobile phones
-- 📱 Tablets
-- 💻 Desktops
-- 🖥️ Large displays
+The overlay customiser adds styling params (`font`, `color`, `bg`, `tsize`, ...).
+Use **OBS Overlay setup** in the app to generate them instead of writing them by hand.
 
-## 🤝 Contributing
+## IGDB feed
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Upcoming releases come from the Pages Function at `/api/igdb/releases`. It
+exchanges Twitch application credentials for an IGDB app token, so the secret
+never reaches the browser.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Create an app at <https://dev.twitch.tv/console/apps>.
+2. Put the credentials in an untracked `.dev.vars` file in the repo root:
 
-## 📝 License
+   ```text
+   TWITCH_CLIENT_ID="..."
+   TWITCH_CLIENT_SECRET="..."
+   ```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+3. Run `npm run dev`. The Vite dev server serves `/api/igdb/releases` itself.
+   To run the real Pages runtime instead, use `npm run build` and then
+   `npx wrangler pages dev dist`.
 
-## 🙏 Acknowledgments
+IGDB dates have day precision only, so countdowns created from the feed target
+the UTC start of that day and are labelled **Date only**.
 
-- Inspired by modern game release countdowns
-- Built with Vue.js and the amazing Vue community
-- Icons and emojis from [Emoji One](https://emojione.com/)
+## Deployment
+
+The site is deployed with Cloudflare Pages from the `main` branch. The build
+command is `npm run build`, the output directory is `dist`, and Functions are
+loaded from `functions/`. Each pull request gets a preview deployment. In
+production, set `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET` as encrypted
+variables under **Settings → Variables and Secrets**.
+
+## Contributing
+
+Contributions are welcome, and AI coding agents are fine to use. Please read
+[CONTRIBUTING.md](CONTRIBUTING.md). Agents should also read [AGENTS.md](AGENTS.md).
+
+## Tech stack
+
+Vue 3 (`<script setup>`), TypeScript (strict), Vite, Pinia, Tailwind CSS,
+date-fns, Bun test runner, Cloudflare Pages + Functions.
+
+## License
+
+[MIT](LICENSE)
