@@ -7,6 +7,7 @@ import CountdownEditorDialog from "./components/CountdownEditorDialog.vue";
 import ControlPanel from "./components/ControlPanel.vue";
 import GameSelector from "./components/GameSelector.vue";
 import IgdbReleaseBrowser from "./components/IgdbReleaseBrowser.vue";
+import LoopingCountdownDialog from "./components/LoopingCountdownDialog.vue";
 import OverlayCustomizer from "./components/OverlayCustomizer.vue";
 import RegionalReleasePicker from "./components/RegionalReleasePicker.vue";
 import TimerDisplay from "./components/TimerDisplay.vue";
@@ -30,6 +31,7 @@ const isFocusMode = ref(false);
 const isCustomizing = ref(false);
 const countdownDialogMode = ref<"create" | "edit" | null>(null);
 const countdownDialogGameId = ref<string | null>(null);
+const isLoopDialogOpen = ref(false);
 
 const showChrome = computed(
   () => !isFocusMode.value && !isObsMode.value && !isCustomizing.value,
@@ -310,6 +312,7 @@ watch(
                   @customize="toggleCustomizing"
                   @open-create="openCreateCountdownDialog"
                   @open-edit="openEditCountdownDialog"
+                  @open-loop="isLoopDialogOpen = true"
                 />
               </div>
             </div>
@@ -351,6 +354,10 @@ watch(
     :mode="countdownDialogMode ?? 'create'"
     :initial-game-id="countdownDialogGameId"
     @close="closeCountdownDialog"
+  />
+  <LoopingCountdownDialog
+    :is-open="isLoopDialogOpen"
+    @close="isLoopDialogOpen = false"
   />
   <RegionalReleasePicker />
   <Toaster position="bottom-center" />

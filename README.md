@@ -26,6 +26,10 @@ A sleek and modern countdown timer for game releases, featuring real-time update
 - **Share Feature**: Generate shareable URLs with preset configurations
 - **IGDB Release Feed**: Browse upcoming PC releases with cover art and turn any
   exact-day listing into a saved countdown
+- **Looping Countdowns**: Pick a name, a reset time, and a length (1h, 6h, 12h,
+  24h, 7 days, or custom) to get an OBS overlay link that resets on its own
+  forever, e.g. for daily Twitch drops. The link carries the reset time as
+  `date` and the cycle length in minutes as `loop`
 
 ## IGDB setup
 

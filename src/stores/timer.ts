@@ -5,6 +5,11 @@ import { differenceInSeconds } from "date-fns";
 import confetti from "canvas-confetti";
 import { createDefaultGameBases } from "../data/default-games";
 import { getGameBaseSignature } from "../lib/liveCountdowns";
+import {
+  getNextLoopReset,
+  isValidLoopIntervalMinutes,
+  parseLoopIntervalMinutes,
+} from "../lib/loopingCountdown";
 import type { Game, GameBase, RegionalReleaseTime } from "../types/game";
 
 export type { Game, GameBase, GameSource, RegionalReleaseTime } from "../types/game";
@@ -100,7 +105,9 @@ export const useTimerStore = defineStore("timer", () => {
       game.type === "game" &&
       game.source === "custom" &&
       !Number.isNaN(parsedTargetDate.getTime()) &&
-      !Number.isNaN(parsedCreatedAt.getTime())
+      !Number.isNaN(parsedCreatedAt.getTime()) &&
+      (game.loopIntervalMinutes === undefined ||
+        isValidLoopIntervalMinutes(game.loopIntervalMinutes))
     );
   };
 
@@ -204,6 +211,7 @@ export const useTimerStore = defineStore("timer", () => {
     const shine = params.get("shine");
     const shineOpactiy = params.get("shopacity");
     const overrideParam = params.get("override");
+    const loopIntervalMinutes = parseLoopIntervalMinutes(params.get("loop"));
 
     // Find the game by ID
     if (gameId) {
@@ -238,7 +246,7 @@ export const useTimerStore = defineStore("timer", () => {
           const tz = timezone || userTimezone;
           const colorHex = color ? `#${color.replace(/^#/, "")}` : undefined;
           // Create with the provided id so subsequent shares are stable
-          addCustomTimer(newTitle, date, tz, gameId);
+          addCustomTimer(newTitle, date, tz, gameId, loopIntervalMinutes);
           // Apply color if provided
           if (colorHex) setGameTitleColor(colorHex);
         }
@@ -252,6 +260,7 @@ export const useTimerStore = defineStore("timer", () => {
           timezone || userTimezone,
           "game",
           "shared-overlay",
+          loopIntervalMinutes,
         );
         if (color) setGameTitleColor(`#${color.replace(/^#/, "")}`);
       }
@@ -461,9 +470,14 @@ export const useTimerStore = defineStore("timer", () => {
   });
   const gameTitle = computed(() => activeGame.value.title);
   const gameTitleColor = computed(() => activeGame.value.titleColor);
+  const isLooping = computed(() =>
+    isValidLoopIntervalMinutes(activeGame.value.loopIntervalMinutes),
+  );
   const targetDate = computed(() => {
     const { date } = getTargetDateForTimezone(activeGame.value);
-    return date;
+    const loopIntervalMinutes = activeGame.value.loopIntervalMinutes;
+    if (!isValidLoopIntervalMinutes(loopIntervalMinutes)) return date;
+    return getNextLoopReset(date, loopIntervalMinutes, currentTime.value);
   });
   const targetTimezone = computed(() => {
     const { timezone } = getTargetDateForTimezone(activeGame.value);
@@ -473,8 +487,13 @@ export const useTimerStore = defineStore("timer", () => {
   const timeRemaining = computed<TimeRemaining>(() => {
     const diff = differenceInSeconds(targetDate.value, currentTime.value);
 
-    // Check if timer just reached zero
-    if (diff <= 0 && !hasReachedZero.value) {
+    // Looping timers roll over to the next cycle instead of finishing.
+    if (isLooping.value) {
+      if (hasReachedZero.value) {
+        hasReachedZero.value = false;
+        stopCelebration();
+      }
+    } else if (diff <= 0 && !hasReachedZero.value) {
       hasReachedZero.value = true;
       startCelebration();
 
@@ -830,6 +849,7 @@ export const useTimerStore = defineStore("timer", () => {
     timezone: string = userTimezone,
     type: "game" | "utility" = "game",
     idOverride?: string,
+    loopIntervalMinutes?: number | null,
   ): void => {
     const id = idOverride || `game-${Date.now()}`;
     games.value.push({
@@ -841,6 +861,7 @@ export const useTimerStore = defineStore("timer", () => {
       type,
       source: "default",
       createdAt: null,
+      ...(loopIntervalMinutes ? { loopIntervalMinutes } : {}),
     });
     // Set the newly added game as active
     setActiveGameIndex(games.value.length - 1);
@@ -851,6 +872,7 @@ export const useTimerStore = defineStore("timer", () => {
     date: Date,
     timezone: string = userTimezone,
     idOverride?: string,
+    loopIntervalMinutes?: number | null,
   ): Game => {
     const id = idOverride || `custom-${Date.now()}`;
     const customGame: Game = {
@@ -862,6 +884,7 @@ export const useTimerStore = defineStore("timer", () => {
       type: "game",
       source: "custom",
       createdAt: new Date(),
+      ...(loopIntervalMinutes ? { loopIntervalMinutes } : {}),
     };
 
     const existingIndex = games.value.findIndex((game) => game.id === id);
@@ -998,6 +1021,9 @@ export const useTimerStore = defineStore("timer", () => {
     url.searchParams.set("date", game.targetDate.toISOString());
     url.searchParams.set("timezone", game.targetTimezone);
     url.searchParams.set("title", game.title);
+    if (isValidLoopIntervalMinutes(game.loopIntervalMinutes)) {
+      url.searchParams.set("loop", game.loopIntervalMinutes.toString());
+    }
     // Built-ins follow live updates by id; flag links that carry user edits.
     if (overriddenPublishedIds.value.has(game.id)) {
       url.searchParams.set("override", "1");
@@ -1113,6 +1139,7 @@ export const useTimerStore = defineStore("timer", () => {
     handleUrlParams,
     targetDate,
     targetTimezone,
+    isLooping,
     isEditMode,
     isObsMode,
     settings,

@@ -4,6 +4,7 @@ import { toast } from "vue-sonner";
 
 import type { Game } from "../stores/timer";
 import { useTimerStore } from "../stores/timer";
+import { writeToClipboard } from "../lib/clipboard";
 import {
   formatLocalDateTime,
   formatTimezoneOption,
@@ -173,35 +174,6 @@ watch(
     }
   },
 );
-
-const copyWithExecCommand = (value: string) => {
-  const textArea = document.createElement("textarea");
-  textArea.value = value;
-  textArea.setAttribute("readonly", "");
-  textArea.style.position = "fixed";
-  textArea.style.top = "-9999px";
-  textArea.style.left = "-9999px";
-  document.body.appendChild(textArea);
-  textArea.select();
-  const copied = document.execCommand("copy");
-  document.body.removeChild(textArea);
-  if (!copied) {
-    throw new Error("document.execCommand('copy') returned false");
-  }
-};
-
-const writeToClipboard = async (value: string) => {
-  try {
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(value);
-      return;
-    }
-  } catch {
-    // Fall through to the legacy copy path when Clipboard API is blocked.
-  }
-
-  copyWithExecCommand(value);
-};
 
 const persistCountdown = (showToast: boolean = true) => {
   const trimmedTitle = title.value.trim();

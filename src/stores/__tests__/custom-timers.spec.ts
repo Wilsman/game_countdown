@@ -374,3 +374,42 @@ describe("live built-in countdown updates", () => {
     expect(store.syncPublishedGames(published)).toBe(false);
   });
 });
+
+describe("looping countdowns", () => {
+  it("persists the loop interval and rolls the target to the next reset", () => {
+    const storage = createStorageMock();
+    installBrowserMocks(storage);
+
+    const store = useTimerStore();
+    const anchor = new Date(Date.now() - 90 * 60 * 1000);
+    store.addCustomTimer("Drops reset", anchor, "UTC", undefined, 60);
+
+    expect(store.isLooping).toBe(true);
+    expect(store.targetDate.getTime()).toBe(anchor.getTime() + 2 * 60 * 60 * 1000);
+
+    const persisted = JSON.parse(storage.getItem(CUSTOM_GAMES_STORAGE_KEY) ?? "[]");
+    expect(persisted[0].loopIntervalMinutes).toBe(60);
+
+    const overlayUrl = new URL(store.getObsOverlayUrl());
+    expect(overlayUrl.searchParams.get("loop")).toBe("60");
+    expect(overlayUrl.searchParams.get("date")).toBe(anchor.toISOString());
+  });
+
+  it("restores a looping timer from an OBS overlay link", () => {
+    const storage = createStorageMock();
+    const anchor = new Date(Date.now() - 25 * 60 * 60 * 1000);
+    installBrowserMocks(
+      storage,
+      `https://example.com/?date=${encodeURIComponent(anchor.toISOString())}&title=Drops&loop=1440&obs=1`,
+    );
+
+    const store = useTimerStore();
+    store.handleUrlParams();
+
+    expect(store.gameTitle).toBe("Drops");
+    expect(store.isLooping).toBe(true);
+    expect(store.targetDate.getTime()).toBe(
+      anchor.getTime() + 2 * 24 * 60 * 60 * 1000,
+    );
+  });
+});

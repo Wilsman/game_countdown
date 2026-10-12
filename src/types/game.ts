@@ -17,6 +17,8 @@ export interface Game {
   source: GameSource;
   createdAt: Date | null;
   regionalReleaseTimes?: RegionalReleaseTime[];
+  // When set, targetDate is the anchor and the countdown resets on this cycle.
+  loopIntervalMinutes?: number;
 }
 
 export type GameBase = Omit<Game, "source" | "createdAt">;
