@@ -397,6 +397,14 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
+      id: "scourge-incursion-end",
+      title: "Scourge Event Ends",
+      titleColor: "#f5f0e6",
+      targetDate: new Date("2026-10-26T07:00:00Z"), // Mon, Oct 26, 7:00 AM GMT+0 Europe/London
+      targetTimezone: "Europe/London",
+      type: "game",
+    },
+    {
       id: "hunger-closed-beta-end",
       title: "HUNGER: Closed Beta Ends",
       titleColor: "#f5f0e6",
