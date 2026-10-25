@@ -1,11 +1,26 @@
 import { onMounted, onUnmounted } from "vue";
-import { LIVE_COUNTDOWNS_PATH, parseLiveCountdowns } from "../lib/liveCountdowns";
+import {
+  LIVE_COUNTDOWNS_API_PATH,
+  LIVE_COUNTDOWNS_PATH,
+  parseLiveCountdowns,
+} from "../lib/liveCountdowns";
 import { useTimerStore } from "../stores/timer";
 
 const POLL_INTERVAL_MS = 60_000;
 
-// Keeps built-in countdowns in sync with the deployed /countdowns.json so
-// long-lived pages (OBS overlays especially) see edits without a refresh.
+async function fetchCountdowns(path: string) {
+  try {
+    // no-cache revalidates (cheap 304 when nothing changed).
+    const response = await fetch(path, { cache: "no-cache" });
+    if (!response.ok) return null;
+    return parseLiveCountdowns(await response.json());
+  } catch {
+    return null;
+  }
+}
+
+// Keeps countdowns in sync with the deployed list plus mod edits so
+// long-lived pages (OBS overlays especially) see changes without a refresh.
 export function useLiveCountdowns(): void {
   const store = useTimerStore();
   let intervalId: number | null = null;
@@ -16,11 +31,11 @@ export function useLiveCountdowns(): void {
     inFlight = true;
 
     try {
-      // no-cache revalidates with the CDN (cheap 304 when nothing changed).
-      const response = await fetch(LIVE_COUNTDOWNS_PATH, { cache: "no-cache" });
-      if (!response.ok) return;
-
-      const games = parseLiveCountdowns(await response.json());
+      // Prefer the Function (built-ins plus mod edits). Fall back to the static
+      // build output if it is unavailable, e.g. under `vite preview`.
+      const games =
+        (await fetchCountdowns(LIVE_COUNTDOWNS_API_PATH)) ??
+        (await fetchCountdowns(LIVE_COUNTDOWNS_PATH));
       if (games) store.syncPublishedGames(games);
     } catch {
       // Offline or mid-deploy; keep showing what we have.

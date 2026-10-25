@@ -373,6 +373,83 @@ describe("live built-in countdown updates", () => {
     expect(store.activeGame.id).toBe("gamescom-2027");
     expect(store.syncPublishedGames(published)).toBe(false);
   });
+
+  it("swaps a link's stand-in timer for a mod-added countdown", () => {
+    const storage = createStorageMock();
+    installBrowserMocks(
+      storage,
+      "https://example.com/?game=mod-event&date=2027-02-01T10:00:00.000Z&timezone=UTC&title=Mod%20Event&obs=1",
+    );
+    const store = useTimerStore();
+    store.handleUrlParams();
+    expect(store.activeGame.source).toBe("custom");
+
+    const published = publishedWith(store, "", {});
+    const modEvent = {
+      id: "mod-event",
+      title: "Mod Event",
+      titleColor: "#ffffff",
+      targetDate: new Date("2027-02-01T10:05:00Z"),
+      targetTimezone: "UTC",
+      type: "game" as const,
+    };
+    expect(store.syncPublishedGames([...published, modEvent])).toBe(true);
+
+    expect(store.activeGame.id).toBe("mod-event");
+    expect(store.activeGame.source).toBe("default");
+    expect(store.games.filter((game) => game.id === "mod-event")).toHaveLength(1);
+    expect(JSON.parse(storage.getItem(CUSTOM_GAMES_STORAGE_KEY) ?? "[]")).toEqual(
+      [],
+    );
+
+    const moved = new Date("2027-02-01T10:10:00Z");
+    store.syncPublishedGames([...published, { ...modEvent, targetDate: moved }]);
+    expect(store.targetDate.toISOString()).toBe(moved.toISOString());
+  });
+
+  it("keeps a pinned stand-in timer from an override link", () => {
+    installBrowserMocks(
+      createStorageMock(),
+      "https://example.com/?game=mod-event&date=2027-02-01T10:00:00.000Z&timezone=UTC&title=Mine&override=1",
+    );
+    const store = useTimerStore();
+    store.handleUrlParams();
+
+    store.syncPublishedGames([
+      ...publishedWith(store, "", {}),
+      {
+        id: "mod-event",
+        title: "Mod Event",
+        titleColor: "#ffffff",
+        targetDate: new Date("2027-02-01T10:05:00Z"),
+        targetTimezone: "UTC",
+        type: "game",
+      },
+    ]);
+
+    expect(store.activeGame.source).toBe("custom");
+    expect(store.gameTitle).toBe("Mine");
+  });
+
+  it("selects a linked countdown once the live list delivers it", () => {
+    installBrowserMocks(createStorageMock(), "https://example.com/?game=late-event");
+    const store = useTimerStore();
+    store.handleUrlParams();
+    expect(store.activeGame.id).not.toBe("late-event");
+
+    store.syncPublishedGames([
+      ...publishedWith(store, "", {}),
+      {
+        id: "late-event",
+        title: "Late Event",
+        titleColor: "#ffffff",
+        targetDate: new Date("2027-03-01T00:00:00Z"),
+        targetTimezone: "UTC",
+        type: "game",
+      },
+    ]);
+    expect(store.activeGame.id).toBe("late-event");
+  });
 });
 
 describe("looping countdowns", () => {
