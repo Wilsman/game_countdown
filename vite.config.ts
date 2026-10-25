@@ -133,11 +133,85 @@ function liveCountdowns(): Plugin {
   }
 }
 
+// Serves the countdown Functions in dev. Mod edits live in memory until the
+// dev server restarts. Set MOD_PASSWORD in .dev.vars to use /mod locally.
+function countdownsDevApi(): Plugin {
+  const routes: Record<string, { file: string; handler: string }> = {
+    '/api/countdowns': { file: '/functions/api/countdowns.ts', handler: 'onRequestGet' },
+    '/api/mod/countdowns': { file: '/functions/api/mod/countdowns.ts', handler: 'onRequest' },
+  }
+  const store = new Map<string, string>()
+  const kv = {
+    get: async (key: string) => store.get(key) ?? null,
+    put: async (key: string, value: string) => {
+      store.set(key, value)
+    },
+  }
+
+  return {
+    name: 'countdowns-dev-api',
+    configureServer(server: ViteDevServer) {
+      const devVars = readDevVars()
+      const env = {
+        MOD_PASSWORD: devVars.MOD_PASSWORD ?? process.env.MOD_PASSWORD,
+        COUNTDOWNS_KV: kv,
+        ASSETS: {
+          fetch: async () =>
+            new Response(await renderLiveCountdowns((url) => server.ssrLoadModule(url)), {
+              headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            }),
+        },
+      }
+
+      server.middlewares.use(async (request, response, next) => {
+        const route = routes[request.url?.split('?')[0] ?? '']
+        if (!route) {
+          next()
+          return
+        }
+
+        try {
+          const chunks: Buffer[] = []
+          for await (const chunk of request) chunks.push(chunk as Buffer)
+          const headers = new Headers()
+          for (const [key, value] of Object.entries(request.headers)) {
+            if (typeof value === 'string') headers.set(key, value)
+          }
+          const method = request.method ?? 'GET'
+          const module = await server.ssrLoadModule(route.file)
+          const apiResponse: Response = await module[route.handler]({
+            request: new Request(`http://localhost${request.url}`, {
+              method,
+              headers,
+              body: method === 'GET' || method === 'HEAD' ? undefined : Buffer.concat(chunks),
+            }),
+            env,
+          })
+          apiResponse.headers.forEach((value, key) => response.setHeader(key, value))
+          response.statusCode = apiResponse.status
+          response.end(await apiResponse.text())
+        } catch (error) {
+          next(error)
+        }
+      })
+    },
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(process.cwd(), 'index.html'),
+        mod: resolve(process.cwd(), 'mod.html'),
+      },
+    },
+  },
   plugins: [
     igdbDevApi(process.env.NODE_ENV ?? 'development'),
     liveCountdowns(),
+    countdownsDevApi(),
     vue(),
     vueJsx()
   ],

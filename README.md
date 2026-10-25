@@ -13,9 +13,12 @@ browser-source overlay.
 
 - **Built-in countdowns** for upcoming releases and events, maintained in
   [`src/data/default-games.ts`](src/data/default-games.ts).
-- **Live updates.** The build publishes the built-in list as `/countdowns.json`.
-  Open pages, including OBS sources, re-check it every 60 seconds and pick up
-  date changes without a refresh.
+- **Live updates.** The build publishes the built-in list as `/countdowns.json`,
+  and `/api/countdowns` serves it with mod edits merged in. Open pages,
+  including OBS sources, re-check it every 60 seconds and pick up date changes
+  without a refresh.
+- **Mod tools** at `/mod.html`. Anyone with the mod password can fix a time,
+  add a countdown or hide one without a deploy.
 - **Custom countdowns** saved in your browser, with a timezone-aware date picker.
 - **Looping countdowns** that reset on a fixed cycle (1h, 6h, 12h, 24h, 7 days
   or custom), for things like daily Twitch drops.
@@ -65,7 +68,9 @@ src/
   lib/                  Framework-free logic: timezones, looping, IGDB, live sync
   hooks/                Composables (useNow, useLiveCountdowns)
   types/                Shared TypeScript types
-functions/              Cloudflare Pages Functions (OG tags, OG image, IGDB proxy)
+functions/              Cloudflare Pages Functions (OG tags, OG image, IGDB proxy,
+                        live countdown list, mod API)
+src/ModApp.vue          The password-protected mod page (mod.html)
 public/                 Static assets served as-is
 scripts/                One-off utilities (e.g. image conversion)
 docs/                   Screenshots and UI guidelines
@@ -135,6 +140,34 @@ never reaches the browser.
 
 IGDB dates have day precision only, so countdowns created from the feed target
 the UTC start of that day and are labelled **Date only**.
+
+## Mod tools
+
+`/mod.html` is not linked from the site. A mod signs in with a shared password
+and can:
+
+- edit the title, colour or time of any countdown, with quick ±1m/5m/1h
+  adjustments for small corrections;
+- add a new countdown and copy its site or OBS link;
+- hide a countdown, restore a hidden built-in, or undo edits to one.
+
+Edits are stored in Cloudflare KV and merged over the built-in list by
+`/api/countdowns`. Open pages and OBS overlays pick them up within about two
+minutes (KV propagation plus the 60-second poll). Ids can't be changed, and a
+deleted id is never reused, so existing links stay valid.
+
+Setup:
+
+1. Create a KV namespace (**Storage & Databases → KV**) and bind it to the
+   Pages project as `COUNTDOWNS_KV` under **Settings → Bindings**.
+2. Add `MOD_PASSWORD` as an encrypted variable. Use a long random password:
+   the page is easy to find and there is no rate limiting.
+3. Redeploy. Until both are set, the mod page reports that editing is off and
+   the site serves the built-in list.
+
+For local development, add `MOD_PASSWORD="..."` to `.dev.vars`. `npm run dev`
+keeps edits in memory until the server restarts. With the Pages runtime, use
+`npx wrangler pages dev dist --kv COUNTDOWNS_KV`.
 
 ## Deployment
 

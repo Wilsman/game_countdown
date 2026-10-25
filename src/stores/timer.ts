@@ -240,6 +240,8 @@ export const useTimerStore = defineStore("timer", () => {
         }
       } else if (dateStr) {
         // Game not found: reconstruct a manual timer from URL params
+        if (overrideParam === "1") pinnedUrlGameIds.add(gameId);
+        else pendingUrlGameId = gameId;
         const date = new Date(dateStr);
         if (!isNaN(date.getTime())) {
           const newTitle = titleParam || "Custom Timer";
@@ -250,6 +252,8 @@ export const useTimerStore = defineStore("timer", () => {
           // Apply color if provided
           if (colorHex) setGameTitleColor(colorHex);
         }
+      } else {
+        pendingUrlGameId = gameId;
       }
     } else if (dateStr) {
       const date = new Date(dateStr);
@@ -400,6 +404,11 @@ export const useTimerStore = defineStore("timer", () => {
   let publishedSignatures = createPublishedSignatures();
   // Built-in countdowns the user edited on this page; live updates skip them.
   const overriddenPublishedIds = ref(new Set<string>());
+  // Links can name a countdown a mod added after this bundle was built. Select
+  // it once the live list delivers it, and let it replace the stand-in timer
+  // the link created unless the link pinned its own values (override=1).
+  let pendingUrlGameId: string | null = null;
+  const pinnedUrlGameIds = new Set<string>();
   const persistedActiveCustomGameId = ref(loadPersistedActiveCustomGameId());
   const pendingRegionalReleaseGameId = ref<string | null>(null);
   const isEditMode = ref(false);
@@ -677,9 +686,11 @@ export const useTimerStore = defineStore("timer", () => {
   const syncPublishedGames = (bases: GameBase[]): boolean => {
     latestPublishedGames = bases;
 
-    const activeId = activeGame.value?.id;
+    const activeEntry = games.value[activeGameIndex.value];
+    let activeId = activeEntry?.id;
     const incomingIds = new Set(bases.map((base) => base.id));
     let changed = false;
+    let replacedCustomGame = false;
 
     // Drop countdowns that were unpublished, but never yank the one on screen.
     const nextGames = games.value.filter((game) => {
@@ -706,6 +717,18 @@ export const useTimerStore = defineStore("timer", () => {
       const existingIndex = nextGames.findIndex(
         (game) => game.id === base.id && game.source === "default",
       );
+      const standInIndex =
+        existingIndex === -1 && !pinnedUrlGameIds.has(base.id)
+          ? nextGames.findIndex(
+              (game) => game.id === base.id && game.source === "custom",
+            )
+          : -1;
+      if (standInIndex !== -1) {
+        // A share link made a local copy before the live list had this
+        // countdown. Swap in the published one so it follows mod edits.
+        nextGames.splice(standInIndex, 1);
+        replacedCustomGame = true;
+      }
       if (existingIndex === -1) {
         // Keep built-ins ahead of custom timers so id lookups prefer them.
         const firstCustomIndex = nextGames.findIndex(
@@ -725,10 +748,29 @@ export const useTimerStore = defineStore("timer", () => {
       changed = true;
     }
 
+    if (pendingUrlGameId && incomingIds.has(pendingUrlGameId)) {
+      activeId = pendingUrlGameId;
+      pendingUrlGameId = null;
+      changed = true;
+    }
     if (!changed) return false;
 
     games.value = nextGames;
-    const nextActiveIndex = nextGames.findIndex((game) => game.id === activeId);
+    if (replacedCustomGame) {
+      persistCustomGames();
+      if (!nextGames.some((game) => game.id === persistedActiveCustomGameId.value)) {
+        persistedActiveCustomGameId.value = null;
+        setPersistedActiveCustomGameId(null);
+      }
+    }
+    // Match by object first: a pinned link timer can share its id with a
+    // published countdown.
+    const keptActiveIndex =
+      activeId === activeEntry?.id ? nextGames.indexOf(activeEntry) : -1;
+    const nextActiveIndex =
+      keptActiveIndex !== -1
+        ? keptActiveIndex
+        : nextGames.findIndex((game) => game.id === activeId);
     activeGameIndex.value = nextActiveIndex === -1 ? 0 : nextActiveIndex;
     return true;
   };

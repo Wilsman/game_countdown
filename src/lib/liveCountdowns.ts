@@ -4,6 +4,9 @@ import type { GameBase, RegionalReleaseTime } from "../types/game";
 // open (OBS browser sources, tabs nobody refreshes) can pick up edits without
 // reloading the app bundle.
 export const LIVE_COUNTDOWNS_PATH = "/countdowns.json";
+// Same payload as LIVE_COUNTDOWNS_PATH with mod edits merged in. Served by
+// functions/api/countdowns.ts.
+export const LIVE_COUNTDOWNS_API_PATH = "/api/countdowns";
 export const LIVE_COUNTDOWNS_VERSION = 1;
 
 interface SerializedRegionalReleaseTime {
@@ -13,7 +16,7 @@ interface SerializedRegionalReleaseTime {
   date: string;
 }
 
-interface SerializedGameBase {
+export interface SerializedGameBase {
   id: string;
   title: string;
   titleColor: string;
@@ -39,31 +42,33 @@ const parseIsoUtc = (value: unknown): Date | null => {
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0;
 
+export function serializeGameBase(game: GameBase): SerializedGameBase {
+  return {
+    id: game.id,
+    title: game.title,
+    titleColor: game.titleColor,
+    targetDate: game.targetDate.toISOString(),
+    targetTimezone: game.targetTimezone,
+    type: "game",
+    ...(game.regionalReleaseTimes?.length
+      ? {
+          regionalReleaseTimes: game.regionalReleaseTimes.map(
+            (regionalRelease) => ({
+              ...regionalRelease,
+              date: regionalRelease.date.toISOString(),
+            }),
+          ),
+        }
+      : {}),
+  };
+}
+
 // Utility timers are relative to "now", so only absolute game countdowns are
 // published.
 export function serializeDefaultGames(bases: GameBase[]): LiveCountdownsPayload {
   return {
     version: LIVE_COUNTDOWNS_VERSION,
-    games: bases
-      .filter((game) => game.type === "game")
-      .map((game) => ({
-        id: game.id,
-        title: game.title,
-        titleColor: game.titleColor,
-        targetDate: game.targetDate.toISOString(),
-        targetTimezone: game.targetTimezone,
-        type: "game" as const,
-        ...(game.regionalReleaseTimes?.length
-          ? {
-              regionalReleaseTimes: game.regionalReleaseTimes.map(
-                (regionalRelease) => ({
-                  ...regionalRelease,
-                  date: regionalRelease.date.toISOString(),
-                }),
-              ),
-            }
-          : {}),
-      })),
+    games: bases.filter((game) => game.type === "game").map(serializeGameBase),
   };
 }
 
@@ -95,7 +100,7 @@ const parseRegionalReleaseTimes = (
   return parsed;
 };
 
-const parseGameBase = (value: unknown): GameBase | null => {
+export const parseGameBase = (value: unknown): GameBase | null => {
   if (!value || typeof value !== "object") return null;
   const game = value as Record<string, unknown>;
   const targetDate = parseIsoUtc(game.targetDate);
