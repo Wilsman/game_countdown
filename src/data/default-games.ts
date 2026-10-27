@@ -397,11 +397,11 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
-      id: "scourge-incursion-end",
-      title: "Scourge Event Ends",
-      titleColor: "#f5f0e6",
-      targetDate: new Date("2026-10-26T07:00:00Z"), // Mon, Oct 26, 7:00 AM GMT+0 Europe/London
-      targetTimezone: "Europe/London",
+      id: "tarkov-halloween-event-start",
+      title: "EFT: Possible Halloween Event Starts",
+      titleColor: "#ff7a00",
+      targetDate: new Date("2026-10-28T12:00:00Z"), // Oct 28, 2026 at 3:00 PM Moscow (estimated from Discord teaser, unconfirmed)
+      targetTimezone: "Europe/Moscow",
       type: "game",
     },
     {
