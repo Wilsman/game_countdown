@@ -461,6 +461,14 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
+      id: "fragmentary-order-gameplay-reveal",
+      title: "Fragmentary Order: Gameplay Reveal",
+      titleColor: "#ffffff",
+      targetDate: new Date("2026-11-04T18:00:00Z"), // November 4, 2026 at 10:00 AM PT / 1:00 PM ET
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
       id: "tokyo-game-show-2026",
       title: "Tokyo Game Show 2026",
       titleColor: "#ffffff",
