@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { differenceInSeconds } from "date-fns";
 
+import { getTimezoneName } from "../lib/timezones";
 import { useTimerStore } from "../stores/timer";
 
 const store = useTimerStore();
@@ -9,7 +10,7 @@ const isOpen = ref(false);
 
 withDefaults(
   defineProps<{
-    variant?: "default" | "hero";
+    variant?: "default" | "hero" | "compact";
   }>(),
   {
     variant: "default",
@@ -171,6 +172,53 @@ const activeDateLabel = computed(() => {
     return new Date(game.targetDate).toLocaleString();
   }
 });
+
+// "Wed, 4 Nov 2026, 10:00 · Pacific Time" for the compact header.
+const activeLaunchLabel = computed(() => {
+  const game = store.activeGame;
+  const timeZone = game.targetTimezone || "UTC";
+  try {
+    const date = new Intl.DateTimeFormat("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone,
+    }).format(new Date(game.targetDate));
+    return `${date} · ${getTimezoneName(timeZone)}`;
+  } catch {
+    return new Date(game.targetDate).toLocaleString();
+  }
+});
+
+// The same instant in the viewer's zone, so nobody has to convert by hand.
+// Hidden when the viewer is already in the launch zone.
+const viewerLaunchLabel = computed(() => {
+  const game = store.activeGame;
+  const launchZone = game.targetTimezone || "UTC";
+  const target = new Date(game.targetDate);
+  const format = (timeZone: string | undefined, withDay: boolean) =>
+    new Intl.DateTimeFormat("en-GB", {
+      ...(withDay ? { weekday: "short" as const } : {}),
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone,
+    }).format(target);
+  try {
+    // undefined = the viewer's own zone.
+    if (format(launchZone, true) === format(undefined, true)) return "";
+    const sameDay =
+      target.toLocaleDateString("en-GB", { timeZone: launchZone }) ===
+      target.toLocaleDateString("en-GB");
+    return `${format(undefined, !sameDay)} your time`;
+  } catch {
+    return "";
+  }
+});
 </script>
 
 <template>
@@ -219,6 +267,51 @@ const activeDateLabel = computed(() => {
         </div>
       </button>
     </template>
+
+    <button
+      v-else-if="variant === 'compact'"
+      type="button"
+      class="group w-full px-4 py-3 text-center transition duration-150 hover:bg-cyan-200/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/25"
+      :aria-expanded="isOpen"
+      @click="toggleDropdown"
+    >
+      <span class="inline-flex max-w-full items-center justify-center gap-3">
+        <span
+          class="text-balance text-2xl font-semibold leading-tight text-[#e5e2e1] sm:text-3xl lg:text-4xl"
+          :style="{
+            color: store.activeGame.titleColor || undefined,
+            fontFamily: 'Geist Mono, monospace',
+          }"
+        >
+          {{ store.activeGame.title }}
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 shrink-0 text-cyan-100/35 transition duration-150 group-hover:text-cyan-100/70"
+          :class="{ 'rotate-180': isOpen }"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </span>
+      <span
+        class="mt-2 block font-mono text-xs uppercase tracking-[0.14em] text-cyan-200/60"
+      >
+        <template v-if="activeRegionalReleaseLabel">
+          {{ activeRegionalReleaseLabel }} ·
+        </template>
+        {{ activeLaunchLabel }}
+        <span v-if="viewerLaunchLabel" class="text-cyan-100/90">
+          · {{ viewerLaunchLabel }}
+        </span>
+      </span>
+    </button>
 
     <button
       v-else

@@ -7,10 +7,19 @@ import TimeZonePreview from "./TimeZonePreview.vue";
 import { useTimerStore } from "../stores/timer";
 import { getTimezoneName } from "../lib/timezones";
 
-const props = defineProps<{
-  isFocusMode: boolean;
-  isObsOverride?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    isFocusMode: boolean;
+    isObsOverride?: boolean;
+    // One slim row of controls instead of the button panel. The date line
+    // moves into the title above, so it is hidden here.
+    toolbar?: boolean;
+  }>(),
+  {
+    isObsOverride: undefined,
+    toolbar: false,
+  },
+);
 
 const emit = defineEmits<{
   (e: "toggle-focus"): void;
@@ -257,13 +266,21 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-4xl flex-col items-center gap-6">
+  <div
+    class="mx-auto flex w-full flex-col items-center gap-6"
+    :class="{ 'max-w-4xl': !toolbar || isObs }"
+  >
     <div
-      class="w-full rounded-xl border border-white/8 bg-black/15 px-4 py-5 sm:px-6 sm:py-7"
+      class="w-full"
+      :class="
+        toolbar && !isObs
+          ? 'px-2 py-1'
+          : 'rounded-xl border border-white/8 bg-black/15 px-4 py-5 sm:px-6 sm:py-7'
+      "
     >
       <div class="text-center">
         <p
-          v-if="!isObs"
+          v-if="!isObs && !toolbar"
           class="font-mono text-sm uppercase tracking-[0.14em] text-cyan-200/60"
         >
           {{ launchDateLabel }} · {{ launchTimezoneLabel }}
@@ -271,8 +288,11 @@ onUnmounted(() => {
       </div>
 
       <div
-        class="mt-4 grid gap-x-8 gap-y-6 sm:flex sm:flex-wrap sm:items-end sm:justify-center"
-        :class="isObs ? 'obs-time-segments sm:gap-x-0' : 'sm:gap-x-10'"
+        class="grid gap-x-8 gap-y-6 sm:flex sm:flex-wrap sm:items-end sm:justify-center"
+        :class="[
+          isObs ? 'obs-time-segments sm:gap-x-0' : 'sm:gap-x-10',
+          { 'mt-4': !toolbar || isObs },
+        ]"
         :style="{
           columnGap:
             isObs && store.settings.segmentGap !== null
@@ -341,7 +361,7 @@ onUnmounted(() => {
     </div>
 
     <div
-      v-if="!isFocusMode && !isObs"
+      v-if="!isFocusMode && !isObs && !toolbar"
       class="regional-times-panel w-full overflow-hidden rounded-xl border border-cyan-200/10 bg-[#171717]/90"
     >
       <button
@@ -387,8 +407,144 @@ onUnmounted(() => {
       </Transition>
     </div>
 
+    <div v-if="!isFocusMode && !isObs && toolbar" class="w-full">
+      <div class="timer-toolbar">
+        <div class="flex flex-wrap items-center gap-1">
+          <button type="button" class="toolbar-btn" @click="emit('open-edit')">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            </svg>
+            Edit
+          </button>
+          <button
+            v-if="canRestartActiveGame"
+            type="button"
+            class="toolbar-btn"
+            @click="store.restartCountdown(store.activeGame.id)"
+          >
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-3.2-6.9" />
+              <path d="M21 3v6h-6" />
+            </svg>
+            Restart
+          </button>
+          <button
+            type="button"
+            class="toolbar-btn"
+            :class="{ 'is-open': regionalTimesOpen }"
+            :aria-expanded="regionalTimesOpen"
+            aria-controls="toolbar-time-zones"
+            @click="regionalTimesOpen = !regionalTimesOpen"
+          >
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18" />
+              <path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18" />
+            </svg>
+            Time zones
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <button
+            type="button"
+            class="toolbar-btn is-outline"
+            @click="emit('open-create')"
+          >
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+            New countdown
+          </button>
+          <button
+            type="button"
+            class="toolbar-btn is-outline"
+            @click="emit('open-loop')"
+          >
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
+              <path d="M21 3v5h-5" />
+            </svg>
+            Loop timer
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-1">
+          <button type="button" class="toolbar-btn" @click="emit('customize')">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M3 5h18" />
+              <path d="M3 12h18" />
+              <path d="M3 19h18" />
+              <path d="M7 3v4" />
+              <path d="M17 10v4" />
+              <path d="M11 17v4" />
+            </svg>
+            OBS setup
+          </button>
+          <button type="button" class="toolbar-btn" @click="emit('toggle-focus')">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 3H5a2 2 0 0 0-2 2v4" />
+              <path d="M15 3h4a2 2 0 0 1 2 2v4" />
+              <path d="M21 15v4a2 2 0 0 1-2 2h-4" />
+              <path d="M3 15v4a2 2 0 0 0 2 2h4" />
+            </svg>
+            Focus
+          </button>
+          <div ref="shareMenuRef" class="relative">
+            <button
+              type="button"
+              class="toolbar-btn is-primary"
+              :class="{ 'is-open': shareMenuOpen }"
+              :aria-expanded="shareMenuOpen"
+              @click="toggleShareMenu"
+            >
+              <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+              Links
+              <svg viewBox="0 0 24 24" class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              v-if="shareMenuOpen"
+              class="absolute right-0 top-full z-20 mt-1 flex min-w-44 flex-col border border-cyan-200/12 bg-[#181717] shadow-[0_14px_32px_rgba(0,0,0,0.38)]"
+            >
+              <button
+                type="button"
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-cyan-50 transition duration-150 hover:bg-cyan-200/[0.06]"
+                @click="copyShareableUrl"
+              >
+                Copy timer link
+              </button>
+              <button
+                type="button"
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-cyan-50 transition duration-150 hover:bg-cyan-200/[0.06]"
+                @click="copyObsOverlayUrl"
+              >
+                Copy OBS link
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Transition name="regional-times">
+        <div
+          v-show="regionalTimesOpen"
+          id="toolbar-time-zones"
+          class="bg-[#141414] px-4 pb-4 pt-3 sm:px-5"
+        >
+          <TimeZonePreview />
+        </div>
+      </Transition>
+    </div>
+
     <div
-      v-if="!isFocusMode && !isObs"
+      v-if="!isFocusMode && !isObs && !toolbar"
       class="flex w-full flex-col gap-6 border border-cyan-200/10 bg-[#1c1b1b] px-4 py-5 sm:px-6"
     >
       <div class="grid w-full gap-3">
@@ -604,6 +760,66 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.timer-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem;
+  background: var(--surface-0);
+}
+
+/* Wide screens: edit tools left, create centred, output tools right. */
+@media (min-width: 1024px) {
+  .timer-toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+}
+
+.toolbar-btn.is-outline {
+  box-shadow: inset 0 0 0 1px rgba(126, 210, 235, 0.35);
+  color: #cffafe;
+}
+
+.toolbar-btn.is-outline:hover {
+  box-shadow: inset 0 0 0 1px rgba(126, 210, 235, 0.7);
+}
+
+.toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(207, 250, 254, 0.68);
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.toolbar-btn:hover,
+.toolbar-btn.is-open {
+  background: rgba(126, 210, 235, 0.08);
+  color: #e5e2e1;
+}
+
+.toolbar-btn:focus-visible {
+  outline: 2px solid rgba(126, 210, 235, 0.45);
+  outline-offset: -2px;
+}
+
+.toolbar-btn.is-primary {
+  background: #7ed2eb;
+  color: #0f1415;
+}
+
+.toolbar-btn.is-primary:hover {
+  background: #9adcf0;
+}
+
 .obs-time-segments {
   width: 100%;
   justify-content: space-around;

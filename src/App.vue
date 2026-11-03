@@ -11,6 +11,7 @@ import LoopingCountdownDialog from "./components/LoopingCountdownDialog.vue";
 import OverlayCustomizer from "./components/OverlayCustomizer.vue";
 import RegionalReleasePicker from "./components/RegionalReleasePicker.vue";
 import TimerDisplay from "./components/TimerDisplay.vue";
+import UpcomingTicker from "./components/UpcomingTicker.vue";
 import { useLiveCountdowns } from "./hooks/useLiveCountdowns";
 import { useSharedTimer } from "./hooks/useSharedTimer";
 import { useTimerStore } from "./stores/timer";
@@ -37,6 +38,10 @@ const isLoopDialogOpen = ref(false);
 const showChrome = computed(
   () => !isFocusMode.value && !isObsMode.value && !isCustomizing.value,
 );
+
+// The normal page: Up next ticker, compact title and a slim toolbar. Focus
+// and OBS modes keep the large centred timer instead.
+const isStrip = showChrome;
 
 const toggleCustomizing = () => {
   isCustomizing.value = !isCustomizing.value;
@@ -229,6 +234,8 @@ watch(
           <ControlPanel />
         </header>
 
+        <UpcomingTicker v-if="isStrip" />
+
         <section class="flex flex-1 flex-col">
           <OverlayCustomizer
             v-if="isCustomizing"
@@ -236,12 +243,18 @@ watch(
           />
 
           <template v-else>
-            <div class="flex min-h-[70vh] items-center py-8 sm:py-10">
+            <div
+              :class="
+                isStrip ? 'py-6' : 'flex min-h-[70vh] items-center py-8 sm:py-10'
+              "
+            >
               <div
-                class="glass-panel countdown-stage relative mx-auto flex w-full flex-col items-center justify-center gap-8 px-5 py-8 sm:px-8 sm:py-10 lg:max-w-5xl lg:px-10 lg:py-12"
+                class="glass-panel countdown-stage relative mx-auto flex w-full flex-col items-center justify-center gap-8 px-5 py-8 sm:px-8 sm:py-10"
                 :class="{
                   'obs-frame w-full max-w-[61rem]': isObsMode,
                   'marathon-panel': isMarathonDuoTheme,
+                  'lg:max-w-5xl lg:px-10 lg:py-12': !isStrip,
+                  'is-bare gap-5': isStrip,
                 }"
                 :style="{
                   padding:
@@ -286,7 +299,7 @@ watch(
               >
                 <div v-if="!isObsMode" class="w-full max-w-4xl">
                   <GameSelector
-                    variant="hero"
+                    :variant="isStrip ? 'compact' : 'hero'"
                     @create="openCreateCountdownDialog"
                   />
                 </div>
@@ -310,6 +323,7 @@ watch(
                   class="timer-display-core w-full"
                   :is-focus-mode="isFocusMode"
                   :is-obs-override="isObsMode"
+                  :toolbar="isStrip"
                   @toggle-focus="toggleFocusMode"
                   @customize="toggleCustomizing"
                   @open-create="openCreateCountdownDialog"
@@ -433,6 +447,17 @@ watch(
   background:
     linear-gradient(180deg, rgba(32, 31, 31, 0.96), rgba(18, 18, 18, 0.98)),
     rgba(18, 18, 18, 0.96);
+}
+
+
+/* Strip layout: the timer sits straight on the page, same width as the ticker. */
+.countdown-stage.is-bare {
+  min-height: 0;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding: 1.75rem 0 0;
 }
 
 .countdown-title-input {
