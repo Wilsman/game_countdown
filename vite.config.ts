@@ -133,18 +133,24 @@ function liveCountdowns(): Plugin {
   }
 }
 
-// Serves the countdown Functions in dev. Mod edits live in memory until the
-// dev server restarts. Set MOD_PASSWORD in .dev.vars to use /mod locally.
+// Serves the countdown and shared timer Functions in dev. Mod edits and shared
+// timers live in memory until the dev server restarts. Set MOD_PASSWORD in .dev.vars to use /mod locally.
 function countdownsDevApi(): Plugin {
   const routes: Record<string, { file: string; handler: string }> = {
     '/api/countdowns': { file: '/functions/api/countdowns.ts', handler: 'onRequestGet' },
     '/api/mod/countdowns': { file: '/functions/api/mod/countdowns.ts', handler: 'onRequest' },
+    '/api/timers': { file: '/functions/api/timers/index.ts', handler: 'onRequestPost' },
   }
+  // Mirrors functions/api/timers/[id].ts.
+  const sharedTimerRoute = /^\/api\/timers\/([^/]+)$/
   const store = new Map<string, string>()
   const kv = {
     get: async (key: string) => store.get(key) ?? null,
     put: async (key: string, value: string) => {
       store.set(key, value)
+    },
+    delete: async (key: string) => {
+      store.delete(key)
     },
   }
 
@@ -164,8 +170,12 @@ function countdownsDevApi(): Plugin {
       }
 
       server.middlewares.use(async (request, response, next) => {
-        const route = routes[request.url?.split('?')[0] ?? '']
-        if (!route) {
+        const path = request.url?.split('?')[0] ?? ''
+        const timerMatch = path.match(sharedTimerRoute)
+        const route = timerMatch
+          ? { file: '/functions/api/timers/[id].ts', handler: 'onRequest' }
+          : routes[path]
+        if (!route || (path === '/api/timers' && request.method !== 'POST')) {
           next()
           return
         }
@@ -186,6 +196,7 @@ function countdownsDevApi(): Plugin {
               body: method === 'GET' || method === 'HEAD' ? undefined : Buffer.concat(chunks),
             }),
             env,
+            params: timerMatch ? { id: decodeURIComponent(timerMatch[1]) } : {},
           })
           apiResponse.headers.forEach((value, key) => response.setHeader(key, value))
           response.statusCode = apiResponse.status

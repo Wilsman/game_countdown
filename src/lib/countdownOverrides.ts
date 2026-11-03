@@ -36,7 +36,7 @@ const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MAX_ID_LENGTH = 64;
 const COLOR_PATTERN = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 // Ids the app generates for local timers. Mod ids must not collide with them.
-const RESERVED_ID_PREFIXES = ["custom-", "game-"];
+const RESERVED_ID_PREFIXES = ["custom-", "game-", "shared-"];
 const RESERVED_IDS = new Set(["shared-overlay"]);
 
 export const createEmptyOverrides = (): CountdownOverrides => ({

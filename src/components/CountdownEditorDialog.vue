@@ -40,6 +40,14 @@ const selectedGame = computed(() =>
     ? store.games.find((game) => game.id === selectedGameId.value) ?? null
     : null,
 );
+const shareLive = ref(false);
+const isSharingBusy = ref(false);
+const isSharedGame = computed(() => store.isSharedTimer(selectedGame.value ?? undefined));
+const canEditSelected = computed(
+  () =>
+    !isSharedGame.value ||
+    (selectedGame.value !== null && store.canEditSharedTimer(selectedGame.value.id)),
+);
 const timezoneLabel = computed(() => getTimezoneName(timezoneId.value));
 const dateResolution = computed(() => {
   if (!dateTime.value) return null;
@@ -77,8 +85,10 @@ const hasDateError = computed(() =>
 );
 const canPersistCountdown = computed(
   () =>
-    dateResolution.value?.status === "exact" ||
-    dateResolution.value?.status === "ambiguous",
+    canEditSelected.value &&
+    !isSharingBusy.value &&
+    (dateResolution.value?.status === "exact" ||
+      dateResolution.value?.status === "ambiguous"),
 );
 const timezoneReferenceDate = computed(() => previewDate.value ?? new Date());
 const previewTitle = computed(() => {
@@ -131,6 +141,7 @@ const applyGame = (game: Game) => {
 };
 
 const initializeDialog = () => {
+  shareLive.value = false;
   if (isCreateMode.value) {
     selectedGameId.value = "";
     title.value = "";
@@ -175,6 +186,81 @@ watch(
   },
 );
 
+const errorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : "Something went wrong";
+
+const copyLink = async (url: string, label: string) => {
+  if (!url) return;
+  try {
+    await writeToClipboard(url);
+    toast.success(`${label} copied`);
+  } catch {
+    toast.error(`Could not copy the ${label.toLowerCase()}`);
+  }
+};
+
+const copySharedLink = async (kind: "obs" | "edit") => {
+  const game = selectedGame.value;
+  if (!game) return;
+  if (kind === "edit") {
+    await copyLink(store.getSharedTimerEditUrl(game.id), "Mod edit link");
+    return;
+  }
+  // The OBS link is built from the timer on screen, so show it first.
+  store.selectGameById(game.id);
+  await copyLink(store.getObsOverlayUrl(), "OBS link");
+};
+
+const startSharing = async (gameId: string): Promise<boolean> => {
+  isSharingBusy.value = true;
+  try {
+    const published = await store.publishCustomTimer(gameId);
+    if (selectedGameId.value === gameId) selectedGameId.value = published.id;
+    toast.success("Timer is live. Your OBS link now follows your edits.");
+    return true;
+  } catch (error) {
+    toast.error(`Could not share the timer: ${errorMessage(error)}`);
+    return false;
+  } finally {
+    isSharingBusy.value = false;
+  }
+};
+
+const stopSharing = async () => {
+  const game = selectedGame.value;
+  if (!game) return;
+  if (
+    !window.confirm(
+      "Stop sharing? Viewer, OBS and mod links for this timer stop updating, and mods lose edit access.",
+    )
+  ) {
+    return;
+  }
+
+  isSharingBusy.value = true;
+  try {
+    await store.unpublishSharedTimer(game.id);
+    // The timer keeps its settings under a new local id.
+    selectedGameId.value = store.activeGame.id;
+    toast.success("Timer is private again");
+  } catch (error) {
+    toast.error(`Could not stop sharing: ${errorMessage(error)}`);
+  } finally {
+    isSharingBusy.value = false;
+  }
+};
+
+const pushSharedEdit = async (gameId: string) => {
+  isSharingBusy.value = true;
+  try {
+    await store.pushSharedTimer(gameId);
+  } catch (error) {
+    toast.error(`Saved here, but viewers won't see it: ${errorMessage(error)}`);
+  } finally {
+    isSharingBusy.value = false;
+  }
+};
+
 const persistCountdown = (showToast: boolean = true) => {
   const trimmedTitle = title.value.trim();
   if (!trimmedTitle) {
@@ -200,7 +286,7 @@ const persistCountdown = (showToast: boolean = true) => {
 
   if (isCreateMode.value) {
     const customGame = store.addCustomTimer(trimmedTitle, utcDate, timezoneId.value);
-    if (showToast) {
+    if (showToast && !shareLive.value) {
       toast.success(`"${customGame.title}" added and saved on this device`);
     }
     return true;
@@ -215,6 +301,7 @@ const persistCountdown = (showToast: boolean = true) => {
       targetDate: utcDate,
       targetTimezone: timezoneId.value,
     });
+    if (store.isSharedTimer(game)) void pushSharedEdit(game.id);
     if (showToast) {
       toast.success(`"${trimmedTitle}" updated`);
     }
@@ -230,14 +317,22 @@ const persistCountdown = (showToast: boolean = true) => {
   return true;
 };
 
-const save = () => {
+// After persistCountdown in create mode, the new timer is the active one.
+const shareNewTimer = async () => {
+  if (!isCreateMode.value || !shareLive.value) return;
+  await startSharing(store.activeGame.id);
+};
+
+const save = async () => {
   if (!persistCountdown()) return;
+  await shareNewTimer();
   emit("close");
 };
 
 const saveAndCopyObsLink = async () => {
   if (!isCreateMode.value) return;
   if (!persistCountdown(false)) return;
+  await shareNewTimer();
 
   try {
     await writeToClipboard(store.getObsOverlayUrl());
@@ -316,6 +411,7 @@ const saveAndCopyObsLink = async () => {
             {{ isCreateMode ? "Countdown title" : "Title" }}
             <input
               v-model="title"
+              :disabled="!canEditSelected"
               type="text"
               class="input-field"
               :placeholder="
@@ -333,6 +429,7 @@ const saveAndCopyObsLink = async () => {
             Date and time in that timezone
             <input
               v-model="dateTime"
+              :disabled="!canEditSelected"
               type="datetime-local"
               class="input-field"
               :aria-describedby="
@@ -358,7 +455,7 @@ const saveAndCopyObsLink = async () => {
           </p>
           <label class="mt-3 flex flex-col gap-2 text-sm font-medium text-cyan-50">
             Timezone
-            <select v-model="timezoneId" class="input-field">
+            <select v-model="timezoneId" class="input-field" :disabled="!canEditSelected">
               <option
                 v-for="timezone in timezones"
                 :key="timezone.id"
@@ -387,7 +484,69 @@ const saveAndCopyObsLink = async () => {
             {{ previewSchedule }} · {{ timezoneLabel }}
           </p>
           <p class="mt-3 text-sm text-cyan-100/50">
-            Custom countdowns stay on this device, and any share link still opens in each viewer's local time.
+            Custom countdowns stay on this device unless you share them live, and any share link still opens in each viewer's local time.
+          </p>
+        </div>
+
+        <label
+          v-if="isCreateMode"
+          class="flex items-start gap-3 border border-cyan-200/10 bg-black/15 px-4 py-4 text-sm text-cyan-50"
+        >
+          <input v-model="shareLive" type="checkbox" class="mt-1" />
+          <span>
+            <span class="font-medium">Share live</span>
+            <span class="mt-1 block text-cyan-100/55">
+              Your OBS link updates when you edit, and you can give your mods an edit link.
+            </span>
+          </span>
+        </label>
+
+        <div
+          v-else-if="selectedGame?.source === 'custom'"
+          class="border border-cyan-200/10 bg-black/15 px-4 py-4"
+        >
+          <p class="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200/70">
+            Live sharing
+          </p>
+
+          <template v-if="!isSharedGame">
+            <p class="mt-3 text-sm text-cyan-100/55">
+              Only on this device. Share it live so your OBS link updates when you edit, and so your mods can edit it too.
+            </p>
+            <button
+              type="button"
+              class="btn-muted mt-3"
+              :disabled="isSharingBusy"
+              @click="startSharing(selectedGame.id)"
+            >
+              Share live
+            </button>
+          </template>
+
+          <template v-else-if="canEditSelected">
+            <p class="mt-3 text-sm text-cyan-100/55">
+              Live. Open links and OBS overlays pick up edits within about a minute. Anyone with the mod edit link can change or stop this timer, so only give it to people you trust.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button type="button" class="btn-muted" @click="copySharedLink('obs')">
+                Copy OBS link
+              </button>
+              <button type="button" class="btn-muted" @click="copySharedLink('edit')">
+                Copy mod edit link
+              </button>
+              <button
+                type="button"
+                class="btn-ghost text-red-200/70 hover:text-red-100"
+                :disabled="isSharingBusy"
+                @click="stopSharing"
+              >
+                Stop sharing
+              </button>
+            </div>
+          </template>
+
+          <p v-else class="mt-3 text-sm text-cyan-100/55">
+            You're following someone's live timer, so it updates on its own. Only the streamer and mods with its edit link can change it.
           </p>
         </div>
       </div>

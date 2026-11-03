@@ -169,6 +169,27 @@ For local development, add `MOD_PASSWORD="..."` to `.dev.vars`. `npm run dev`
 keeps edits in memory until the server restarts. With the Pages runtime, use
 `npx wrangler pages dev dist --kv COUNTDOWNS_KV`.
 
+## Live shared timers
+
+A custom countdown normally lives only in the browser that made it, and share
+links carry a frozen copy of it. A streamer can instead tick **Share live**
+when creating a countdown, or press **Share live** under **Edit countdown**.
+That uploads it to `/api/timers` and gives two links:
+
+- **OBS link**: follows the timer, picking up edits within about a minute
+  (30-second poll plus KV propagation).
+- **Mod edit link**: `/?game=shared-…#key=…`. Opening it saves the key in that
+  browser, so the streamer's own mods can change the timer without the site's
+  mod password. The key sits in the URL hash so it is never sent to the server
+  in page requests. Anyone with the link can edit or stop the timer.
+
+**Stop sharing** deletes the server copy; the timer stays on the streamer's
+device as a private one. Shared timers use the same `COUNTDOWNS_KV` binding
+(keys `timer:<id>`) and expire 30 days after they end, or 30 days after the
+last edit for looping timers. The server only stores a SHA-256 hash of each
+edit key. Creating a shared timer needs no sign-in, so there is no rate limit
+beyond Cloudflare's own.
+
 ## Deployment
 
 The site is deployed with Cloudflare Pages from the `main` branch. The build

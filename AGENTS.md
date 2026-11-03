@@ -32,7 +32,9 @@ Cloudflare Pages with Pages Functions. There is no backend besides `functions/`.
   share links, `api/og.ts` renders the OG image, and `api/igdb/releases.ts`
   proxies IGDB. `api/countdowns.ts` serves the built-in list with mod edits
   from KV merged in, and `api/mod/countdowns.ts` is the password-protected
-  mod API. `vite.config.ts` mounts these handlers in dev and emits
+  mod API. `api/timers/` stores streamers' live shared timers in the same KV,
+  editable with a per-timer key (logic in `src/lib/sharedTimers.ts`).
+  `vite.config.ts` mounts these handlers in dev and emits
   `/countdowns.json` at build time.
 - `mod.html`, `src/mod.ts`, `src/ModApp.vue`: the mod page. Override logic
   lives in `src/lib/countdownOverrides.ts`.

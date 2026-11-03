@@ -10,6 +10,15 @@ import {
   isValidLoopIntervalMinutes,
   parseLoopIntervalMinutes,
 } from "../lib/loopingCountdown";
+import {
+  isSharedTimerEditKey,
+  isSharedTimerId,
+  parseSharedTimerPayload,
+  serializeSharedTimer,
+  SHARED_TIMERS_API_PATH,
+  sharedTimerApiPath,
+  type SharedTimer,
+} from "../lib/sharedTimers";
 import type { Game, GameBase, RegionalReleaseTime } from "../types/game";
 
 export type { Game, GameBase, GameSource, RegionalReleaseTime } from "../types/game";
@@ -61,6 +70,7 @@ export const useTimerStore = defineStore("timer", () => {
   const CUSTOM_GAMES_STORAGE_KEY = "game-countdown.custom-games";
   const ACTIVE_CUSTOM_GAME_STORAGE_KEY = "game-countdown.active-custom-game-id";
   const SETTINGS_STORAGE_KEY = "game-countdown.settings";
+  const SHARED_TIMER_KEYS_STORAGE_KEY = "game-countdown.shared-timer-keys";
 
   // Get user's current timezone
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -174,12 +184,68 @@ export const useTimerStore = defineStore("timer", () => {
     }
   };
 
+  const loadPersistedSharedTimerKeys = (): Record<string, string> => {
+    if (typeof window === "undefined") return {};
+
+    try {
+      const parsed = JSON.parse(
+        window.localStorage.getItem(SHARED_TIMER_KEYS_STORAGE_KEY) ?? "{}",
+      );
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return {};
+      }
+      return Object.fromEntries(
+        Object.entries(parsed).filter(
+          ([id, key]) => isSharedTimerId(id) && isSharedTimerEditKey(key),
+        ),
+      ) as Record<string, string>;
+    } catch {
+      return {};
+    }
+  };
+
+  const persistSharedTimerKeys = (): void => {
+    if (typeof window === "undefined") return;
+
+    try {
+      window.localStorage.setItem(
+        SHARED_TIMER_KEYS_STORAGE_KEY,
+        JSON.stringify(sharedTimerKeys.value),
+      );
+    } catch {
+      // Ignore storage failures; the edit link still holds the key.
+    }
+  };
+
+  // Edit links put the key in the hash so it never reaches server logs or
+  // the Referer header. Save it and strip it from the address bar.
+  const consumeSharedTimerKeyFromHash = (gameId: string | null): void => {
+    const hashParams = new URLSearchParams((window.location.hash ?? "").slice(1));
+    const key = hashParams.get("key");
+    if (key === null) return;
+
+    if (isSharedTimerId(gameId) && isSharedTimerEditKey(key)) {
+      sharedTimerKeys.value = { ...sharedTimerKeys.value, [gameId]: key };
+      persistSharedTimerKeys();
+    }
+    try {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    } catch {
+      // Leave the hash if history is unavailable.
+    }
+  };
+
   // Function to handle URL parameters
   const handleUrlParams = () => {
     if (typeof window === "undefined") return;
 
     const params = new URLSearchParams(window.location.search);
     const gameId = params.get("game");
+    consumeSharedTimerKeyFromHash(gameId);
     const dateStr = params.get("date");
     const timezone = params.get("timezone");
     const titleParam = params.get("title");
@@ -252,6 +318,8 @@ export const useTimerStore = defineStore("timer", () => {
           // Apply color if provided
           if (colorHex) setGameTitleColor(colorHex);
         }
+      } else if (isSharedTimerId(gameId)) {
+        pendingSharedTimerId.value = gameId;
       } else {
         pendingUrlGameId = gameId;
       }
@@ -410,6 +478,15 @@ export const useTimerStore = defineStore("timer", () => {
   let pendingUrlGameId: string | null = null;
   const pinnedUrlGameIds = new Set<string>();
   const persistedActiveCustomGameId = ref(loadPersistedActiveCustomGameId());
+  // Edit keys for shared timers this browser created or got an edit link for.
+  const sharedTimerKeys = ref<Record<string, string>>(
+    loadPersistedSharedTimerKeys(),
+  );
+  // Last server update applied per shared timer, so a stale poll (KV is
+  // eventually consistent) never undoes a newer edit.
+  const sharedTimerUpdatedAt = new Map<string, string>();
+  // A link named a shared timer this browser has not seen yet.
+  const pendingSharedTimerId = ref<string | null>(null);
   const pendingRegionalReleaseGameId = ref<string | null>(null);
   const isEditMode = ref(false);
   const isObsMode = ref(false);
@@ -981,6 +1058,191 @@ export const useTimerStore = defineStore("timer", () => {
     }
   };
 
+  const isSharedTimer = (game: Game | undefined): boolean =>
+    game?.source === "custom" && isSharedTimerId(game.id);
+
+  const canEditSharedTimer = (gameId: string): boolean =>
+    Boolean(sharedTimerKeys.value[gameId]);
+
+  // The shared timer open pages should follow: the one on screen, or the one a
+  // link is waiting for.
+  const followedSharedTimerId = computed<string | null>(() =>
+    isSharedTimer(activeGame.value)
+      ? activeGame.value.id
+      : pendingSharedTimerId.value,
+  );
+
+  const toSharedTimer = (game: Game): SharedTimer => ({
+    id: game.id,
+    title: game.title,
+    titleColor: game.titleColor,
+    targetDate: game.targetDate,
+    targetTimezone: game.targetTimezone,
+    type: "game",
+    ...(isValidLoopIntervalMinutes(game.loopIntervalMinutes)
+      ? { loopIntervalMinutes: game.loopIntervalMinutes }
+      : {}),
+  });
+
+  // The API takes the editable fields; the id comes from the URL.
+  const sharedTimerBody = (game: Game): string => {
+    const { id: _id, type: _type, ...fields } = serializeSharedTimer(
+      toSharedTimer(game),
+    );
+    return JSON.stringify(fields);
+  };
+
+  const readApiError = async (response: Response): Promise<string> => {
+    try {
+      const body = (await response.json()) as { error?: unknown };
+      if (typeof body.error === "string") return body.error;
+    } catch {
+      // Fall through to the generic message.
+    }
+    return `Request failed (${response.status})`;
+  };
+
+  // Applies the server copy of a shared timer. Returns true when it changed
+  // what is shown.
+  const applySharedTimer = (timer: SharedTimer, updatedAt: string): boolean => {
+    const known = sharedTimerUpdatedAt.get(timer.id);
+    if (known && known >= updatedAt) return false;
+    sharedTimerUpdatedAt.set(timer.id, updatedAt);
+
+    const index = games.value.findIndex(
+      (game) => game.id === timer.id && game.source === "custom",
+    );
+    const next: Game = {
+      ...timer,
+      source: "custom",
+      createdAt: index === -1 ? new Date() : games.value[index].createdAt,
+    };
+
+    if (index === -1) {
+      games.value.push(next);
+      if (pendingSharedTimerId.value === timer.id) {
+        pendingSharedTimerId.value = null;
+        setActiveGameIndex(games.value.length - 1);
+      }
+      persistCustomGames();
+      return true;
+    }
+
+    const current = games.value[index];
+    if (
+      getGameBaseSignature(current) === getGameBaseSignature(next) &&
+      current.loopIntervalMinutes === next.loopIntervalMinutes
+    ) {
+      return false;
+    }
+    games.value[index] = next;
+    persistCustomGames();
+    return true;
+  };
+
+  // Uploads a local custom timer so links follow it and mods can edit it.
+  // The local copy takes the new public id.
+  const publishCustomTimer = async (gameId: string): Promise<Game> => {
+    const index = games.value.findIndex((game) => game.id === gameId);
+    const game = games.value[index];
+    if (!game || game.source !== "custom") throw new Error("Timer not found");
+    if (isSharedTimerId(game.id)) return game;
+
+    const response = await fetch(SHARED_TIMERS_API_PATH, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: sharedTimerBody(game),
+    });
+    if (!response.ok) throw new Error(await readApiError(response));
+
+    const payload = (await response.json()) as Record<string, unknown>;
+    const timer = parseSharedTimerPayload(payload);
+    const editKey = payload.editKey;
+    if (!timer || !isSharedTimerEditKey(editKey)) {
+      throw new Error("Unexpected response from the server");
+    }
+
+    sharedTimerKeys.value = { ...sharedTimerKeys.value, [timer.id]: editKey };
+    persistSharedTimerKeys();
+    if (typeof payload.updatedAt === "string") {
+      sharedTimerUpdatedAt.set(timer.id, payload.updatedAt);
+    }
+
+    // Look the timer up again: the list may have changed while waiting.
+    const currentIndex = games.value.findIndex((candidate) => candidate.id === gameId);
+    if (currentIndex === -1) throw new Error("Timer was deleted");
+    const wasActive = activeGameIndex.value === currentIndex;
+    const published: Game = { ...games.value[currentIndex], id: timer.id };
+    games.value[currentIndex] = published;
+    persistCustomGames();
+    if (wasActive) setActiveGameIndex(currentIndex);
+    return published;
+  };
+
+  // Sends local edits to a shared timer to the server.
+  const pushSharedTimer = async (gameId: string): Promise<void> => {
+    const game = games.value.find((candidate) => candidate.id === gameId);
+    const key = sharedTimerKeys.value[gameId];
+    if (!game || !isSharedTimer(game)) throw new Error("Timer not found");
+    if (!key) throw new Error("You need the edit link to change this timer");
+
+    const response = await fetch(sharedTimerApiPath(gameId), {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${key}`,
+      },
+      body: sharedTimerBody(game),
+    });
+    if (!response.ok) throw new Error(await readApiError(response));
+
+    const payload = (await response.json()) as Record<string, unknown>;
+    if (typeof payload.updatedAt === "string") {
+      sharedTimerUpdatedAt.set(gameId, payload.updatedAt);
+    }
+  };
+
+  // Deletes the server copy. Existing links stop updating and the local timer
+  // goes back to being private.
+  const unpublishSharedTimer = async (gameId: string): Promise<void> => {
+    const key = sharedTimerKeys.value[gameId];
+    if (!isSharedTimer(games.value.find((game) => game.id === gameId))) {
+      throw new Error("Timer not found");
+    }
+    if (!key) throw new Error("You need the edit link to stop sharing");
+
+    const response = await fetch(sharedTimerApiPath(gameId), {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${key}` },
+    });
+    if (!response.ok && response.status !== 404) {
+      throw new Error(await readApiError(response));
+    }
+
+    const { [gameId]: _removed, ...remainingKeys } = sharedTimerKeys.value;
+    sharedTimerKeys.value = remainingKeys;
+    persistSharedTimerKeys();
+    sharedTimerUpdatedAt.delete(gameId);
+
+    const index = games.value.findIndex((game) => game.id === gameId);
+    if (index === -1) return;
+    const wasActive = activeGameIndex.value === index;
+    games.value[index] = { ...games.value[index], id: `custom-${Date.now()}` };
+    persistCustomGames();
+    if (wasActive) setActiveGameIndex(index);
+  };
+
+  // Link for the streamer's mods. Anyone with it can edit the timer.
+  const getSharedTimerEditUrl = (gameId: string): string => {
+    const key = sharedTimerKeys.value[gameId];
+    if (!key || typeof window === "undefined") return "";
+
+    const url = new URL(window.location.href.split(/[?#]/)[0]);
+    url.searchParams.set("game", gameId);
+    url.hash = new URLSearchParams({ key }).toString();
+    return url.toString();
+  };
+
   const removeGame = (index: number): void => {
     if (index >= 0 && index < games.value.length && games.value.length > 1) {
       games.value.splice(index, 1);
@@ -1147,8 +1409,9 @@ export const useTimerStore = defineStore("timer", () => {
     if (!shareableUrl) return "";
 
     const url = new URL(shareableUrl);
-    // Keep the id for built-in countdowns so the overlay follows live updates.
-    if (!isPublishedGame(activeGame.value)) {
+    // Keep the id for built-in countdowns and shared timers so the overlay
+    // follows live updates.
+    if (!isPublishedGame(activeGame.value) && !isSharedTimer(activeGame.value)) {
       url.searchParams.delete("game");
     }
     url.searchParams.set("obs", "1");
@@ -1213,5 +1476,13 @@ export const useTimerStore = defineStore("timer", () => {
     updateCustomTimer,
     removeCustomTimer,
     syncPublishedGames,
+    followedSharedTimerId,
+    isSharedTimer,
+    canEditSharedTimer,
+    applySharedTimer,
+    publishCustomTimer,
+    pushSharedTimer,
+    unpublishSharedTimer,
+    getSharedTimerEditUrl,
   };
 });

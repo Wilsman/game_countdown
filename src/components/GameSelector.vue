@@ -282,7 +282,7 @@ const activeDateLabel = computed(() => {
                   <span class="flex items-center gap-2">
                     <span class="truncate">{{ game.title }}</span>
                     <span class="status-pill border-cyan-400/20 bg-cyan-400/10 text-cyan-100">
-                      Custom
+                      {{ store.isSharedTimer(game) ? "Live" : "Custom" }}
                     </span>
                   </span>
                   <span class="mt-1 block text-xs uppercase tracking-[0.12em] text-cyan-100/45">

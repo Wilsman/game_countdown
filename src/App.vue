@@ -12,6 +12,7 @@ import OverlayCustomizer from "./components/OverlayCustomizer.vue";
 import RegionalReleasePicker from "./components/RegionalReleasePicker.vue";
 import TimerDisplay from "./components/TimerDisplay.vue";
 import { useLiveCountdowns } from "./hooks/useLiveCountdowns";
+import { useSharedTimer } from "./hooks/useSharedTimer";
 import { useTimerStore } from "./stores/timer";
 
 interface GameBackgroundMeta {
@@ -112,6 +113,7 @@ onMounted(() => {
 });
 
 useLiveCountdowns();
+useSharedTimer();
 
 const titleTextShadow = computed(() => {
   if (!settings.value.glowColor) return undefined;
