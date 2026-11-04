@@ -128,7 +128,7 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       id: "fable",
       title: "Fable",
       titleColor: "#32cd32",
-      targetDate: new Date("2027-02-18T00:00:00Z"), // February 18, 2027 (time not announced)
+      targetDate: new Date("2027-02-23T00:00:00Z"), // February 23, 2027 (time not announced)
       targetTimezone: "UTC",
       type: "game",
     },
@@ -256,7 +256,7 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       id: "metro-2039",
       title: "Metro 2039",
       titleColor: "#a9a9a9",
-      targetDate: new Date("2026-12-01T00:00:00Z"), // Winter 2026 placeholder
+      targetDate: new Date("2027-02-04T00:00:00Z"), // February 4, 2027 (time not announced)
       targetTimezone: "UTC",
       type: "game",
     },
@@ -466,6 +466,62 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       titleColor: "#ffffff",
       targetDate: new Date("2026-11-04T18:00:00Z"), // November 4, 2026 at 10:00 AM PT / 1:00 PM ET
       targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "wow-forever",
+      title: "World of Warcraft: Forever",
+      titleColor: "#7ed2eb",
+      targetDate: new Date("2026-11-04T23:00:00Z"), // November 4, 2026 at 3:00 PM PST / 11:00 PM GMT / 12:00 AM CET Nov 5
+      targetTimezone: "America/Los_Angeles",
+      type: "game",
+    },
+    {
+      id: "zelda-ocarina-of-time",
+      title: "The Legend of Zelda: Ocarina of Time",
+      titleColor: "#ffd700",
+      targetDate: new Date("2026-11-05T00:00:00Z"), // November 5, 2026 at midnight local time (Switch 2)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "dawn-of-war-4",
+      title: "Warhammer 40,000: Dawn of War IV",
+      titleColor: "#b22222",
+      targetDate: new Date("2026-12-03T00:00:00Z"), // December 3, 2026 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "ananta",
+      title: "ANANTA",
+      titleColor: "#9370db",
+      targetDate: new Date("2027-01-15T00:00:00Z"), // January 15, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "until-dawn-2",
+      title: "Until Dawn 2",
+      titleColor: "#4169e1",
+      targetDate: new Date("2027-01-28T00:00:00Z"), // January 28, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "god-of-war-laufey",
+      title: "God of War Laufey",
+      titleColor: "#ff8c00",
+      targetDate: new Date("2027-02-16T00:00:00Z"), // February 16, 2027 (time not announced)
+      targetTimezone: "UTC",
+      type: "game",
+    },
+    {
+      id: "ffvii-revelation",
+      title: "Final Fantasy VII Revelation",
+      titleColor: "#a7ccda",
+      targetDate: new Date("2027-04-08T00:00:00Z"), // April 8, 2027 (time not announced)
+      targetTimezone: "UTC",
       type: "game",
     },
     {
