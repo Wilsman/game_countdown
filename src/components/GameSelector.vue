@@ -238,6 +238,9 @@ const viewerLaunchLabel = computed(() => {
           }"
         >
           {{ store.activeGame.title }}
+          <template v-if="store.loopCycleLabel">
+            {{ store.loopCycleLabel }}
+          </template>
         </div>
 
         <div
@@ -284,6 +287,9 @@ const viewerLaunchLabel = computed(() => {
           }"
         >
           {{ store.activeGame.title }}
+          <template v-if="store.loopCycleLabel">
+            {{ store.loopCycleLabel }}
+          </template>
         </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -322,6 +328,9 @@ const viewerLaunchLabel = computed(() => {
       <span class="min-w-0">
         <span class="block truncate font-mono text-base font-semibold text-[#e5e2e1]">
           {{ store.activeGame.title }}
+          <template v-if="store.loopCycleLabel">
+            {{ store.loopCycleLabel }}
+          </template>
         </span>
         <span class="block truncate text-sm text-cyan-100/55">
           {{ activeRegionalReleaseLabel || activeDateLabel }}

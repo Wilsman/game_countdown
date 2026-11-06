@@ -21,6 +21,26 @@ describe("live countdowns feed", () => {
     expect(parsed?.some((game) => game.type !== "game")).toBe(false);
   });
 
+  it("keeps loop settings and drops entries with invalid ones", () => {
+    const loop = {
+      id: "loop",
+      title: "Loop",
+      titleColor: "#fff",
+      targetDate: "2026-11-07T15:00:00.000Z",
+      targetTimezone: "UTC",
+      type: "game",
+      loopIntervalMinutes: 1440,
+      loopCount: 3,
+    };
+    const parsed = parseLiveCountdowns({
+      version: 1,
+      games: [loop, { ...loop, id: "bad", loopCount: 0 }],
+    });
+    expect(parsed?.map((game) => game.id)).toEqual(["loop"]);
+    expect(parsed?.[0].loopIntervalMinutes).toBe(1440);
+    expect(parsed?.[0].loopCount).toBe(3);
+  });
+
   it("rejects unknown payload versions", () => {
     expect(parseLiveCountdowns({ version: 2, games: [] })).toBeNull();
     expect(parseLiveCountdowns(null)).toBeNull();

@@ -6,7 +6,10 @@ import confetti from "canvas-confetti";
 import { createDefaultGameBases } from "../data/default-games";
 import { getGameBaseSignature } from "../lib/liveCountdowns";
 import {
+  formatLoopCycle,
   getNextLoopReset,
+  isLoopFinished,
+  isValidLoopCount,
   isValidLoopIntervalMinutes,
   parseLoopIntervalMinutes,
 } from "../lib/loopingCountdown";
@@ -556,14 +559,46 @@ export const useTimerStore = defineStore("timer", () => {
   });
   const gameTitle = computed(() => activeGame.value.title);
   const gameTitleColor = computed(() => activeGame.value.titleColor);
-  const isLooping = computed(() =>
-    isValidLoopIntervalMinutes(activeGame.value.loopIntervalMinutes),
-  );
+  // A loop with a loopCount stops looping after its final reset, so that
+  // reset finishes like a normal countdown.
+  const isLooping = computed(() => {
+    const { loopIntervalMinutes, loopCount } = activeGame.value;
+    if (!isValidLoopIntervalMinutes(loopIntervalMinutes)) return false;
+    const { date } = getTargetDateForTimezone(activeGame.value);
+    return !isLoopFinished(
+      date,
+      loopIntervalMinutes,
+      loopCount,
+      currentTime.value,
+    );
+  });
   const targetDate = computed(() => {
     const { date } = getTargetDateForTimezone(activeGame.value);
-    const loopIntervalMinutes = activeGame.value.loopIntervalMinutes;
+    const { loopIntervalMinutes, loopCount } = activeGame.value;
     if (!isValidLoopIntervalMinutes(loopIntervalMinutes)) return date;
-    return getNextLoopReset(date, loopIntervalMinutes, currentTime.value);
+    return getNextLoopReset(
+      date,
+      loopIntervalMinutes,
+      currentTime.value,
+      isValidLoopCount(loopCount) ? loopCount : undefined,
+    );
+  });
+  // "2/3" for loops with a set number of cycles, shown after the title.
+  const loopCycleLabel = computed(() => {
+    const { loopIntervalMinutes, loopCount } = activeGame.value;
+    if (
+      !isValidLoopIntervalMinutes(loopIntervalMinutes) ||
+      !isValidLoopCount(loopCount)
+    ) {
+      return null;
+    }
+    const { date } = getTargetDateForTimezone(activeGame.value);
+    return formatLoopCycle(
+      date,
+      loopIntervalMinutes,
+      loopCount,
+      currentTime.value,
+    );
   });
   const targetTimezone = computed(() => {
     const { timezone } = getTargetDateForTimezone(activeGame.value);
@@ -1445,6 +1480,7 @@ export const useTimerStore = defineStore("timer", () => {
     targetDate,
     targetTimezone,
     isLooping,
+    loopCycleLabel,
     isEditMode,
     isObsMode,
     settings,

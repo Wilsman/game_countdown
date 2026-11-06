@@ -68,6 +68,8 @@ const formColor = ref("#ffffff");
 const formTimezone = ref("UTC");
 const formDateTime = ref("");
 const formRegionalTimes = ref<GameBase["regionalReleaseTimes"]>(undefined);
+// The form has no loop fields, so edits keep the original loop settings.
+const formLoop = ref<Pick<GameBase, "loopIntervalMinutes" | "loopCount">>({});
 const clearRegionalTimes = ref(false);
 const formError = ref("");
 
@@ -256,6 +258,10 @@ function openEditor(game: GameBase | null): void {
     formTimezone.value = game.targetTimezone;
     formDateTime.value = formatLocalDateTime(game.targetDate, game.targetTimezone);
     formRegionalTimes.value = game.regionalReleaseTimes;
+    formLoop.value = {
+      loopIntervalMinutes: game.loopIntervalMinutes,
+      loopCount: game.loopCount,
+    };
   } else {
     isNew.value = true;
     editingId.value = "";
@@ -268,6 +274,7 @@ function openEditor(game: GameBase | null): void {
       viewerTimezone,
     );
     formRegionalTimes.value = undefined;
+    formLoop.value = {};
   }
   window.scrollTo({ top: 0 });
 }
@@ -308,6 +315,7 @@ async function save(): Promise<void> {
       targetTimezone: formTimezone.value,
       type: "game",
       ...(regionalReleaseTimes?.length ? { regionalReleaseTimes } : {}),
+      ...formLoop.value,
     }),
   });
   if (!saved) return;

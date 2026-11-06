@@ -1,8 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import {
+  formatLoopCycle,
   formatLoopInterval,
   getNextLoopReset,
+  isLoopFinished,
   parseLoopIntervalMinutes,
 } from "../loopingCountdown";
 
@@ -58,5 +60,39 @@ describe("formatLoopInterval", () => {
     expect(formatLoopInterval(90)).toBe("1h 30m");
     expect(formatLoopInterval(45)).toBe("45m");
     expect(formatLoopInterval(18 * 60)).toBe("18h");
+  });
+});
+
+describe("loops with a set number of cycles", () => {
+  const at = (iso: string) => new Date(iso);
+
+  it("labels the current cycle, starting at 1 before the anchor", () => {
+    expect(formatLoopCycle(anchor, DAY, 3, at("2026-09-30T20:00:00Z"))).toBe(
+      "1/3",
+    );
+    expect(formatLoopCycle(anchor, DAY, 3, at("2026-10-01T18:00:00Z"))).toBe(
+      "2/3",
+    );
+    expect(formatLoopCycle(anchor, DAY, 3, at("2026-10-03T17:59:59Z"))).toBe(
+      "3/3",
+    );
+  });
+
+  it("finishes at the final reset instead of rolling over", () => {
+    const end = at("2026-10-03T18:00:00Z");
+    expect(isLoopFinished(anchor, DAY, 3, at("2026-10-03T17:59:59Z"))).toBe(
+      false,
+    );
+    expect(isLoopFinished(anchor, DAY, 3, end)).toBe(true);
+    expect(formatLoopCycle(anchor, DAY, 3, end)).toBeNull();
+    expect(
+      getNextLoopReset(anchor, DAY, at("2026-10-05T00:00:00Z"), 3).toISOString(),
+    ).toBe(end.toISOString());
+  });
+
+  it("never finishes without a loop count", () => {
+    expect(isLoopFinished(anchor, DAY, undefined, at("2030-01-01T00:00:00Z"))).toBe(
+      false,
+    );
   });
 });

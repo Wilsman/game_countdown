@@ -28,10 +28,12 @@ export const parseLoopIntervalMinutes = (
 
 // Returns the first reset strictly after `now`. Before the anchor, the anchor
 // itself is the next reset, so a future start counts down to the first cycle.
+// With a loopCount, it stops at the final reset (which may be in the past).
 export const getNextLoopReset = (
   anchor: Date,
   intervalMinutes: number,
   now: Date,
+  loopCount?: number,
 ): Date => {
   const anchorMs = anchor.getTime();
   const nowMs = now.getTime();
@@ -39,7 +41,52 @@ export const getNextLoopReset = (
 
   const intervalMs = intervalMinutes * 60_000;
   const completedCycles = Math.floor((nowMs - anchorMs) / intervalMs) + 1;
-  return new Date(anchorMs + completedCycles * intervalMs);
+  const next = new Date(anchorMs + completedCycles * intervalMs);
+  if (!isValidLoopCount(loopCount)) return next;
+  const finalReset = getFinalLoopReset(anchor, intervalMinutes, loopCount);
+  return next > finalReset ? finalReset : next;
+};
+
+export const isValidLoopCount = (value: unknown): value is number =>
+  typeof value === "number" && Number.isInteger(value) && value > 0;
+
+// 1-based cycle `now` falls in. The anchor ends cycle 1, so anything before it
+// is cycle 1. With a loopCount, the cycle past the last reset is loopCount + 1.
+export const getLoopCycle = (
+  anchor: Date,
+  intervalMinutes: number,
+  now: Date,
+): number => {
+  const elapsedMs = now.getTime() - anchor.getTime();
+  if (elapsedMs < 0) return 1;
+  return Math.floor(elapsedMs / (intervalMinutes * 60_000)) + 2;
+};
+
+// The final reset of a loop limited to `loopCount` cycles.
+export const getFinalLoopReset = (
+  anchor: Date,
+  intervalMinutes: number,
+  loopCount: number,
+): Date => new Date(anchor.getTime() + (loopCount - 1) * intervalMinutes * 60_000);
+
+export const isLoopFinished = (
+  anchor: Date,
+  intervalMinutes: number,
+  loopCount: number | undefined,
+  now: Date,
+): boolean =>
+  isValidLoopCount(loopCount) &&
+  getLoopCycle(anchor, intervalMinutes, now) > loopCount;
+
+// "2/3" while the loop runs, null once it has finished.
+export const formatLoopCycle = (
+  anchor: Date,
+  intervalMinutes: number,
+  loopCount: number,
+  now: Date,
+): string | null => {
+  const cycle = getLoopCycle(anchor, intervalMinutes, now);
+  return cycle > loopCount ? null : `${cycle}/${loopCount}`;
 };
 
 export const formatLoopInterval = (minutes: number): string => {

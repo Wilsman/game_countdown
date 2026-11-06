@@ -19,6 +19,8 @@ export interface Game {
   regionalReleaseTimes?: RegionalReleaseTime[];
   // When set, targetDate is the anchor and the countdown resets on this cycle.
   loopIntervalMinutes?: number;
+  // Number of cycles before the loop ends; targetDate ends cycle 1.
+  loopCount?: number;
 }
 
 export type GameBase = Omit<Game, "source" | "createdAt">;

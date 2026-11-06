@@ -1,3 +1,4 @@
+import { isValidLoopCount, isValidLoopIntervalMinutes } from "./loopingCountdown";
 import type { GameBase, RegionalReleaseTime } from "../types/game";
 
 // Built-in countdowns are published as a static JSON file so pages that stay
@@ -24,6 +25,8 @@ export interface SerializedGameBase {
   targetTimezone: string;
   type: "game";
   regionalReleaseTimes?: SerializedRegionalReleaseTime[];
+  loopIntervalMinutes?: number;
+  loopCount?: number;
 }
 
 export interface LiveCountdownsPayload {
@@ -60,6 +63,10 @@ export function serializeGameBase(game: GameBase): SerializedGameBase {
           ),
         }
       : {}),
+    ...(game.loopIntervalMinutes
+      ? { loopIntervalMinutes: game.loopIntervalMinutes }
+      : {}),
+    ...(game.loopCount ? { loopCount: game.loopCount } : {}),
   };
 }
 
@@ -123,6 +130,14 @@ export const parseGameBase = (value: unknown): GameBase | null => {
     regionalReleaseTimes = parsed;
   }
 
+  if (
+    (game.loopIntervalMinutes !== undefined &&
+      !isValidLoopIntervalMinutes(game.loopIntervalMinutes)) ||
+    (game.loopCount !== undefined && !isValidLoopCount(game.loopCount))
+  ) {
+    return null;
+  }
+
   return {
     id: game.id,
     title: game.title,
@@ -131,6 +146,10 @@ export const parseGameBase = (value: unknown): GameBase | null => {
     targetTimezone: game.targetTimezone,
     type: "game",
     ...(regionalReleaseTimes ? { regionalReleaseTimes } : {}),
+    ...(isValidLoopIntervalMinutes(game.loopIntervalMinutes)
+      ? { loopIntervalMinutes: game.loopIntervalMinutes }
+      : {}),
+    ...(isValidLoopCount(game.loopCount) ? { loopCount: game.loopCount } : {}),
   };
 };
 
@@ -162,5 +181,7 @@ export function getGameBaseSignature(game: GameBase): string {
       regionalRelease.timezone,
       regionalRelease.date.toISOString(),
     ]) ?? null,
+    game.loopIntervalMinutes ?? null,
+    game.loopCount ?? null,
   ]);
 }

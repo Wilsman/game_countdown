@@ -17,7 +17,8 @@ const emit = defineEmits<{
 }>();
 
 const store = useTimerStore();
-const { activeGame, settings, gameTitle, gameTitleColor } = storeToRefs(store);
+const { activeGame, settings, gameTitle, gameTitleColor, loopCycleLabel } =
+  storeToRefs(store);
 const quickTitle = ref("");
 const quickDateTime = ref("");
 const quickTimezone = ref("");
@@ -1038,7 +1039,10 @@ const titleTextShadow = computed(() => {
                   textShadow: titleTextShadow,
                 }"
               >
-                {{ gameTitle }}
+                {{ gameTitle
+                }}<template v-if="loopCycleLabel">
+                  {{ loopCycleLabel }}</template
+                >
               </p>
               <TimerDisplay :is-focus-mode="false" :is-obs-override="true" />
             </div>

@@ -25,7 +25,12 @@ export function buildUpcomingQueue(games: Game[], now: Date): QueueItem[] {
   return games
     .map((game) => {
       const targetDate = game.loopIntervalMinutes
-        ? getNextLoopReset(game.targetDate, game.loopIntervalMinutes, now)
+        ? getNextLoopReset(
+            game.targetDate,
+            game.loopIntervalMinutes,
+            now,
+            game.loopCount,
+          )
         : game.targetDate;
       return {
         game,

@@ -26,8 +26,14 @@ type Theme = "light" | "dark";
 const isClient = typeof window !== "undefined";
 
 const timerStore = useTimerStore();
-const { gameTitle, gameTitleColor, isObsMode, settings, activeGame } =
-  storeToRefs(timerStore);
+const {
+  gameTitle,
+  gameTitleColor,
+  isObsMode,
+  settings,
+  activeGame,
+  loopCycleLabel,
+} = storeToRefs(timerStore);
 
 const isFocusMode = ref(false);
 const isCustomizing = ref(false);
@@ -316,7 +322,10 @@ watch(
                     textShadow: titleTextShadow,
                   }"
                 >
-                  {{ gameTitle }}
+                  {{ gameTitle
+                  }}<template v-if="loopCycleLabel">
+                    {{ loopCycleLabel }}</template
+                  >
                 </p>
 
                 <TimerDisplay
