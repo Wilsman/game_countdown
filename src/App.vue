@@ -322,10 +322,7 @@ watch(
                     textShadow: titleTextShadow,
                   }"
                 >
-                  {{ gameTitle
-                  }}<template v-if="loopCycleLabel">
-                    {{ loopCycleLabel }}</template
-                  >
+                  {{ loopCycleLabel ? `${gameTitle} ${loopCycleLabel}` : gameTitle }}
                 </p>
 
                 <TimerDisplay

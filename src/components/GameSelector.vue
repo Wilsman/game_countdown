@@ -151,6 +151,13 @@ const getRegionalReleaseLabel = (game: RegionalGame): string | null => {
   return regionalRelease?.label ?? null;
 };
 
+// Title plus the loop cycle, e.g. "EFT: Halloween Twitch Drops Day 1/3".
+const activeTitle = computed(() =>
+  store.loopCycleLabel
+    ? `${store.activeGame.title} ${store.loopCycleLabel}`
+    : store.activeGame.title,
+);
+
 const activeRegionalReleaseLabel = computed(() => {
   if (!store.activeGame?.regionalReleaseTimes?.length) return null;
   return getRegionalReleaseLabel(store.activeGame);
@@ -237,10 +244,7 @@ const viewerLaunchLabel = computed(() => {
             fontFamily: 'Geist Mono, monospace',
           }"
         >
-          {{ store.activeGame.title }}
-          <template v-if="store.loopCycleLabel">
-            {{ store.loopCycleLabel }}
-          </template>
+          {{ activeTitle }}
         </div>
 
         <div
@@ -286,10 +290,7 @@ const viewerLaunchLabel = computed(() => {
             fontFamily: 'Geist Mono, monospace',
           }"
         >
-          {{ store.activeGame.title }}
-          <template v-if="store.loopCycleLabel">
-            {{ store.loopCycleLabel }}
-          </template>
+          {{ activeTitle }}
         </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -327,10 +328,7 @@ const viewerLaunchLabel = computed(() => {
     >
       <span class="min-w-0">
         <span class="block truncate font-mono text-base font-semibold text-[#e5e2e1]">
-          {{ store.activeGame.title }}
-          <template v-if="store.loopCycleLabel">
-            {{ store.loopCycleLabel }}
-          </template>
+          {{ activeTitle }}
         </span>
         <span class="block truncate text-sm text-cyan-100/55">
           {{ activeRegionalReleaseLabel || activeDateLabel }}

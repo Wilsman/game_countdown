@@ -78,7 +78,7 @@ export const isLoopFinished = (
   isValidLoopCount(loopCount) &&
   getLoopCycle(anchor, intervalMinutes, now) > loopCount;
 
-// "2/3" while the loop runs, null once it has finished.
+// "Day 2/3" for daily loops, "2/3" otherwise. Null once the loop has finished.
 export const formatLoopCycle = (
   anchor: Date,
   intervalMinutes: number,
@@ -86,7 +86,9 @@ export const formatLoopCycle = (
   now: Date,
 ): string | null => {
   const cycle = getLoopCycle(anchor, intervalMinutes, now);
-  return cycle > loopCount ? null : `${cycle}/${loopCount}`;
+  if (cycle > loopCount) return null;
+  const prefix = intervalMinutes === 24 * 60 ? "Day " : "";
+  return `${prefix}${cycle}/${loopCount}`;
 };
 
 export const formatLoopInterval = (minutes: number): string => {

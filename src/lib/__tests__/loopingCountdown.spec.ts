@@ -68,13 +68,13 @@ describe("loops with a set number of cycles", () => {
 
   it("labels the current cycle, starting at 1 before the anchor", () => {
     expect(formatLoopCycle(anchor, DAY, 3, at("2026-09-30T20:00:00Z"))).toBe(
-      "1/3",
+      "Day 1/3",
     );
     expect(formatLoopCycle(anchor, DAY, 3, at("2026-10-01T18:00:00Z"))).toBe(
-      "2/3",
+      "Day 2/3",
     );
     expect(formatLoopCycle(anchor, DAY, 3, at("2026-10-03T17:59:59Z"))).toBe(
-      "3/3",
+      "Day 3/3",
     );
   });
 
@@ -88,6 +88,12 @@ describe("loops with a set number of cycles", () => {
     expect(
       getNextLoopReset(anchor, DAY, at("2026-10-05T00:00:00Z"), 3).toISOString(),
     ).toBe(end.toISOString());
+  });
+
+  it("leaves out Day for loops that are not daily", () => {
+    expect(formatLoopCycle(anchor, 60, 5, at("2026-10-01T19:30:00Z"))).toBe(
+      "3/5",
+    );
   });
 
   it("never finishes without a loop count", () => {

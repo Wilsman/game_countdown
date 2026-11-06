@@ -1039,10 +1039,7 @@ const titleTextShadow = computed(() => {
                   textShadow: titleTextShadow,
                 }"
               >
-                {{ gameTitle
-                }}<template v-if="loopCycleLabel">
-                  {{ loopCycleLabel }}</template
-                >
+                {{ loopCycleLabel ? `${gameTitle} ${loopCycleLabel}` : gameTitle }}
               </p>
               <TimerDisplay :is-focus-mode="false" :is-obs-override="true" />
             </div>

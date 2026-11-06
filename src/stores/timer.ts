@@ -583,7 +583,7 @@ export const useTimerStore = defineStore("timer", () => {
       isValidLoopCount(loopCount) ? loopCount : undefined,
     );
   });
-  // "2/3" for loops with a set number of cycles, shown after the title.
+  // "Day 2/3" for loops with a set number of cycles, shown after the title.
   const loopCycleLabel = computed(() => {
     const { loopIntervalMinutes, loopCount } = activeGame.value;
     if (
