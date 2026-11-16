@@ -417,6 +417,18 @@ export function createDefaultGameBases(userTimezone: string): GameBase[] {
       type: "game",
     },
     {
+      id: "tarkov-city-twitch-drops",
+      title: "EFT: Tarkov City Twitch Drops",
+      titleColor: "#ff7a00",
+      // Daily reset at 3:00 PM GMT. Day 1 (Nov 16) ends Nov 17, 2026; the drops
+      // end on Nov 23, 2026 at 3:00 PM GMT / 10:00 AM EST after day 7.
+      targetDate: new Date("2026-11-17T15:00:00Z"),
+      targetTimezone: "Europe/London",
+      loopIntervalMinutes: 24 * 60,
+      loopCount: 7,
+      type: "game",
+    },
+    {
       id: "hunger-closed-beta-end",
       title: "HUNGER: Closed Beta Ends",
       titleColor: "#f5f0e6",
